@@ -109,9 +109,9 @@ export const BLOCK_CATALOG: BlockDefinition[] = [
   },
   {
     type: 'attorneys',
-    title: 'Attorneys Directory Grid',
+    title: 'Partners Directory Grid',
     category: 'Database',
-    desc: 'Dynamic portrait cards of featured partners, senior associates, and counsel.',
+    desc: 'Dynamic portrait cards of distinguished partners and chamber leadership.',
     icon: Users,
     recommended: true,
   },
@@ -137,6 +137,7 @@ export const BLOCK_CATALOG: BlockDefinition[] = [
     desc: 'Interactive multi-field inquiry submission for confidential conflict checks.',
     icon: FileCheck,
   },
+  /* Commented out / hidden in builder catalog per user request (uncomment to restore):
   {
     type: 'articles',
     title: 'Legal Insights Briefings',
@@ -158,6 +159,7 @@ export const BLOCK_CATALOG: BlockDefinition[] = [
     desc: 'Interactive accordion addressing engagement procedures and billing schedules.',
     icon: HelpCircle,
   },
+  */
   {
     type: 'testimonials',
     title: 'Client Commendations',

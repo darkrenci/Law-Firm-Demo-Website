@@ -7,6 +7,7 @@ import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
 import { Scale, Plus, Edit3, Trash2, Search, Sparkles, Layout } from 'lucide-react';
 import { ItemTypographyControls, resolveItemTypography } from './ItemTypographyControls';
+import { ImageUploadField } from '../ui/ImageUploadField';
 
 interface PracticeAreaManagerProps {
   onOpenLiveBuilder?: (pageSlug: string) => void;
@@ -288,6 +289,14 @@ const PracticeEditModal: React.FC<{
             className="w-full bg-[#0d0d11] border border-[#2a2a35] p-2.5 text-xs text-[#f7f4ee] focus:outline-none"
           />
         </div>
+
+        <ImageUploadField
+          label="Practice Group Hero / Cover Image"
+          value={form.featuredImage || ''}
+          onChange={(img) => setForm({ ...form, featuredImage: img })}
+          aspectRatio="landscape"
+          helperText="Upload an architectural or practice area cover image from your device."
+        />
 
         {/* Custom Typography & Colors Customization */}
         <ItemTypographyControls

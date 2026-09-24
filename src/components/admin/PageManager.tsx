@@ -86,6 +86,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
   const [activeElementPart, setActiveElementPart] = useState<string | null>('headline');
   const [viewMode, setViewMode] = useState<'visual' | 'outline'>('visual');
   const [viewportDevice, setViewportDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
@@ -231,8 +232,8 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         limit: 6,
       },
       attorneys: {
-        eyebrow: 'Advocates',
-        headline: 'Distinguished Partners & Counsel',
+        eyebrow: 'Partners',
+        headline: 'Distinguished Partners',
         limit: 4,
       },
       stats: {
@@ -382,6 +383,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
   // Scroll to section in preview when selected
   const handleSelectSectionFromCanvas = (secId: string, partId?: string) => {
     setSelectedSectionId(secId);
+    setIsSidebarOpen(true);
     if (partId) {
       setActiveElementPart(partId);
     } else if (!activeElementPart) {
@@ -440,6 +442,20 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
               <span>Structure</span>
             </button>
           </div>
+
+          {/* Toggle Inspector Pane Button */}
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono border cursor-pointer transition-colors ${
+              isSidebarOpen
+                ? 'bg-[#1a1a24] text-[#d4af7a] border-[#c59b63]/50'
+                : 'bg-[#0e0e13] text-[#8e877e] hover:text-[#f7f4ee] border-[#232332]'
+            }`}
+            title={isSidebarOpen ? 'Hide Inspector to view Full Canvas width' : 'Show Inspector & Blocks'}
+          >
+            {isSidebarOpen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            <span>{isSidebarOpen ? 'Inspector ON' : 'Full Canvas'}</span>
+          </button>
 
           {/* Layout Fixed / Content Mode Indicator */}
           <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-[#13131b] border border-[#232332] text-[10px] font-mono text-[#a8a199]" title="Architectural layout and grid structure are locked to preserve firm design standards.">
@@ -564,13 +580,15 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
       </div>
 
       {/* 2. MAIN WORKSPACE: SPLIT BUILDER OR OUTLINE */}
-      <div className="flex-1 flex overflow-hidden relative">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative min-w-0">
         {/* ============================================================ */}
         {/* LEFT PANE: WORDPRESS / GUTENBERG INSPECTOR & BLOCK OUTLINE   */}
         {/* ============================================================ */}
         <div
-          className={`w-full sm:w-80 md:w-96 lg:w-[420px] bg-[#0d0d12] border-r border-[#1f1f2a] flex flex-col flex-shrink-0 z-10 transition-all ${
-            viewMode === 'visual' ? 'flex' : 'hidden lg:flex'
+          className={`${
+            isSidebarOpen ? 'flex' : 'hidden'
+          } w-full md:w-80 lg:w-88 xl:w-96 max-md:max-h-[45vh] md:h-full bg-[#0d0d12] border-b md:border-b-0 md:border-r border-[#1f1f2a] flex-col flex-shrink-0 z-10 transition-all ${
+            viewMode === 'visual' ? '' : 'hidden lg:flex'
           }`}
         >
           {activeSection ? (
@@ -710,13 +728,13 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         {/* ============================================================ */}
         <div
           ref={previewContainerRef}
-          className={`flex-1 overflow-y-auto bg-[#07070a] transition-all relative ${
+          className={`flex-1 min-w-0 overflow-x-hidden overflow-y-auto bg-[#07070a] transition-all relative ${
             viewMode === 'outline' ? 'hidden' : 'flex flex-col items-center'
           }`}
         >
           {/* Canvas Viewport Frame */}
           <div
-            className={`w-full transition-all duration-300 min-h-full flex flex-col ${
+            className={`w-full min-w-0 transition-all duration-300 min-h-full flex flex-col overflow-x-hidden ${
               viewportDevice === 'desktop'
                 ? 'max-w-full'
                 : viewportDevice === 'tablet'
@@ -736,7 +754,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
             )}
 
             {/* Rendered Live Website Output with WordPress Interactive Overlays */}
-            <div className="w-full bg-[#0d0d11] text-[#f7f4ee] flex-1 flex flex-col relative">
+            <div className="w-full min-w-0 max-w-full bg-[#0d0d11] text-[#f7f4ee] flex-1 flex flex-col relative overflow-x-hidden">
               {(workingPage.sections || []).map((sec, idx) => {
                 const isSelected = selectedSectionId === sec.id;
 

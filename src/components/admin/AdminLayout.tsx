@@ -89,10 +89,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
       items: [
         { id: 'pages' as AdminTab, label: 'Page Builder', icon: FileText },
         { id: 'practice-areas' as AdminTab, label: 'Practice Areas', icon: Briefcase },
-        { id: 'attorneys' as AdminTab, label: 'Attorneys Directory', icon: Users },
-        { id: 'articles' as AdminTab, label: 'Legal Insights', icon: BookOpen },
-        { id: 'news' as AdminTab, label: 'News & Announcements', icon: Bell },
-        { id: 'faqs' as AdminTab, label: 'FAQs & Retainer Protocol', icon: HelpCircle },
+        { id: 'attorneys' as AdminTab, label: 'Partners Directory', icon: Users },
+        // Commented out / hidden per user request (uncomment to re-enable in sidebar):
+        // { id: 'articles' as AdminTab, label: 'Legal Insights', icon: BookOpen },
+        // { id: 'news' as AdminTab, label: 'News & Announcements', icon: Bell },
+        // { id: 'faqs' as AdminTab, label: 'FAQs & Retainer Protocol', icon: HelpCircle },
       ],
     },
     {
@@ -136,8 +137,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           </button>
 
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 text-[#c59b63]">
-              <LalusisLogoMark />
+            <div className="w-8 h-8 text-[#c59b63] flex-shrink-0">
+              <LalusisLogoMark className="w-full h-full" />
             </div>
             <div>
               <span className="font-cinzel text-xs font-semibold tracking-[0.16em] text-[#f4e6d0] uppercase block">
@@ -266,13 +267,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
         {/* Content View Container */}
         <main
-          className={`flex-1 bg-[#0a0a0d] ${
+          className={`flex-1 min-w-0 overflow-x-hidden bg-[#0a0a0d] ${
             currentTab === 'pages'
               ? 'p-0 overflow-hidden flex flex-col h-[calc(100vh-61px)]'
               : 'overflow-y-auto p-4 sm:p-8 lg:p-10'
           }`}
         >
-          <div className={currentTab === 'pages' ? 'h-full w-full flex-1 flex flex-col overflow-hidden' : 'max-w-7xl mx-auto'}>
+          <div className={currentTab === 'pages' ? 'h-full w-full min-w-0 flex-1 flex flex-col overflow-hidden' : 'max-w-7xl mx-auto min-w-0'}>
             {children}
           </div>
         </main>

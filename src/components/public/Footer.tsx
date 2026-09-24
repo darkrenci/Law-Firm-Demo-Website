@@ -95,9 +95,26 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenAdmin }) => {
                   onClick={() => onNavigate('/attorneys')}
                   className="hover:text-[#c59b63] transition-colors"
                 >
-                  Attorneys Directory
+                  Partners
                 </button>
               </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('/contact')}
+                  className="hover:text-[#c59b63] transition-colors"
+                >
+                  Contact &amp; Chambers
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('/consultation')}
+                  className="hover:text-[#c59b63] transition-colors"
+                >
+                  Request Consultation
+                </button>
+              </li>
+              {/* Commented out / hidden per user request (can be uncommented to restore):
               <li>
                 <button
                   onClick={() => onNavigate('/insights')}
@@ -111,7 +128,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenAdmin }) => {
                   onClick={() => onNavigate('/news')}
                   className="hover:text-[#c59b63] transition-colors"
                 >
-                  Firm News &amp; Awards
+                  News &amp; Announcements
                 </button>
               </li>
               <li>
@@ -119,17 +136,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenAdmin }) => {
                   onClick={() => onNavigate('/faqs')}
                   className="hover:text-[#c59b63] transition-colors"
                 >
-                  Client FAQs
+                  FAQs &amp; Retainer
                 </button>
               </li>
-              <li>
-                <button
-                  onClick={() => onNavigate('/contact')}
-                  className="hover:text-[#c59b63] transition-colors"
-                >
-                  Contact &amp; Chambers
-                </button>
-              </li>
+              */}
             </ul>
           </div>
 
@@ -184,7 +194,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenAdmin }) => {
 
           <div className="flex items-center gap-6">
             <button
-              onClick={() => onNavigate('/faqs')}
+              onClick={() => onNavigate('/about')}
               className="hover:text-[#c59b63] transition-colors"
             >
               Privacy &amp; Privilege

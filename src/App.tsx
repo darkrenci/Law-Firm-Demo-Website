@@ -4,6 +4,7 @@ import { Page } from './types';
 import { ToastProvider } from './components/ui/Toast';
 import { SearchModal } from './components/ui/SearchModal';
 import { DemoSwitcher } from './components/ui/DemoSwitcher';
+import { Button } from './components/ui/Buttons';
 
 // Public Components
 import { Header } from './components/public/Header';
@@ -137,80 +138,103 @@ export default function App() {
 
   // PUBLIC SITE ROUTING
   const renderPublicView = () => {
-    // 1. Practice areas
-    if (currentPath === '/practice-areas' || currentPath.startsWith('/practice-areas/')) {
-      const slug = currentPath.replace('/practice-areas/', '').replace('/practice-areas', '');
+    // 1. Deep Detail: Practice area individual page
+    if (currentPath.startsWith('/practice-areas/') && currentPath !== '/practice-areas') {
+      const rawSlug = currentPath.replace('/practice-areas/', '').split('/')[0].split('?')[0];
+      const slug = decodeURIComponent(rawSlug).trim();
       return (
         <PracticeAreasView
+          slug={slug || undefined}
           currentSlug={slug || undefined}
           onNavigate={handleNavigate}
         />
       );
     }
 
-    // 2. Attorneys
-    if (currentPath === '/attorneys' || currentPath.startsWith('/attorneys/')) {
-      const slug = currentPath.replace('/attorneys/', '').replace('/attorneys', '');
+    // 2. Deep Detail: Partner individual profile
+    if (
+      (currentPath.startsWith('/attorneys/') && currentPath !== '/attorneys') ||
+      (currentPath.startsWith('/partners/') && currentPath !== '/partners')
+    ) {
+      const rawSlug = currentPath.replace(/^\/(attorneys|partners)\//, '').split('/')[0].split('?')[0];
+      const slug = decodeURIComponent(rawSlug).trim();
       return (
         <AttorneysView
+          slug={slug || undefined}
           currentSlug={slug || undefined}
           onNavigate={handleNavigate}
         />
       );
     }
 
-    // 3. Legal Insights
-    if (currentPath === '/insights' || currentPath.startsWith('/insights/')) {
-      const slug = currentPath.replace('/insights/', '').replace('/insights', '');
+    // Retired sections: insights, news, faqs
+    if (
+      currentPath === '/insights' ||
+      currentPath.startsWith('/insights/') ||
+      currentPath === '/news' ||
+      currentPath.startsWith('/news/') ||
+      currentPath === '/faqs' ||
+      currentPath.startsWith('/faqs/')
+    ) {
       return (
-        <InsightsView
-          currentSlug={slug || undefined}
-          onNavigate={handleNavigate}
-        />
+        <div className="bg-[#0d0d11] min-h-[60vh] flex flex-col items-center justify-center text-center p-8 space-y-4">
+          <span className="font-cinzel text-xs text-[#c59b63] uppercase tracking-[0.25em]">
+            Archival Notice
+          </span>
+          <h1 className="font-cormorant text-3xl sm:text-4xl text-[#f7f4ee]">Section No Longer Active</h1>
+          <p className="text-xs text-[#8e877e] max-w-sm">
+            This section has been retired from the chamber website. Please return to the homepage or explore our partner directory.
+          </p>
+          <Button variant="gold-outline" size="sm" onClick={() => handleNavigate('/')}>
+            Return to Homepage
+          </Button>
+        </div>
       );
     }
 
-    // 4. News
-    if (currentPath === '/news' || currentPath.startsWith('/news/')) {
-      const slug = currentPath.replace('/news/', '').replace('/news', '');
+    // 5. CMS-driven Page rendering for all pages
+    const cleanSlug = currentPath.replace(/^\//, '') || 'home';
+    const matchedPage =
+      (cleanSlug === 'partners' ? pages.find((p) => p.slug === 'attorneys' || p.slug === 'partners') : null) ||
+      pages.find((p) => p.slug === cleanSlug) ||
+      pages.find((p) => (cleanSlug === 'home' || cleanSlug === '') && (p.slug === '' || p.slug === 'home'));
+
+    if (matchedPage && matchedPage.sections && matchedPage.sections.length > 0) {
       return (
-        <NewsView
-          currentSlug={slug || undefined}
+        <SectionRenderer
+          sections={matchedPage.sections}
           onNavigate={handleNavigate}
         />
       );
     }
 
-    // 5. FAQs
-    if (currentPath === '/faqs') {
-      return <FAQsView onNavigate={handleNavigate} />;
+    // Fallback dedicated view components if a page has no sections configured
+    if (currentPath === '/practice-areas') {
+      return <PracticeAreasView onNavigate={handleNavigate} />;
     }
-
-    // 6. Contact
+    if (currentPath === '/attorneys' || currentPath === '/partners') {
+      return <AttorneysView onNavigate={handleNavigate} />;
+    }
     if (currentPath === '/contact') {
       return <ContactView onNavigate={handleNavigate} />;
     }
-
-    // 7. Consultation
     if (currentPath === '/consultation') {
       return <ConsultationView onNavigate={handleNavigate} />;
     }
 
-    // 8. Custom CMS Page or Home Page
-    const cleanSlug = currentPath.replace(/^\//, '') || 'home';
-    const matchedPage =
-      pages.find((p) => p.slug === cleanSlug) ||
-      pages.find((p) => (cleanSlug === 'home' || cleanSlug === '') && (p.slug === '' || p.slug === 'home')) ||
-      pages[0];
-
-    if (matchedPage) {
-      return (
-        <SectionRenderer
-          sections={matchedPage.sections || []}
-          onNavigate={handleNavigate}
-        />
-      );
+    /* Commented out / hidden routes per user request (uncomment to activate dedicated views):
+    if (currentPath === '/insights' || currentPath.startsWith('/insights/')) {
+      const insightSlug = currentPath.startsWith('/insights/') ? currentPath.replace('/insights/', '') : undefined;
+      return <InsightsView slug={insightSlug} onNavigate={handleNavigate} />;
     }
+    if (currentPath === '/news' || currentPath.startsWith('/news/')) {
+      const newsSlug = currentPath.startsWith('/news/') ? currentPath.replace('/news/', '') : undefined;
+      return <NewsView slug={newsSlug} onNavigate={handleNavigate} />;
+    }
+    if (currentPath === '/faqs') {
+      return <FAQsView onNavigate={handleNavigate} />;
+    }
+    */
 
     // Fallback 404
     return (

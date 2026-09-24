@@ -151,7 +151,26 @@ class DatabaseService {
 
   // --- SETTINGS ---
   public getSettings(): FirmSettings {
-    return this.load<FirmSettings>(DB_KEYS.SETTINGS, initialSettings);
+    const settings = this.load<FirmSettings>(DB_KEYS.SETTINGS, initialSettings);
+    let changed = false;
+    if (settings.general) {
+      if (settings.general.tagline === 'Strategic Counsel. Trusted Representation.') {
+        settings.general.tagline = 'Legal Precision.';
+        changed = true;
+      }
+      if (settings.general.headline === 'Strategic Counsel. Trusted Representation.') {
+        settings.general.headline = 'Legal Precision.';
+        changed = true;
+      }
+    }
+    if (settings.seo && settings.seo.defaultTitle?.includes('Strategic Counsel')) {
+      settings.seo.defaultTitle = 'Lalusis & Partners | Attorneys at Law – Legal Precision';
+      changed = true;
+    }
+    if (changed) {
+      this.save(DB_KEYS.SETTINGS, settings);
+    }
+    return settings;
   }
 
   public updateSettings(updates: Partial<FirmSettings>): void {
@@ -176,24 +195,115 @@ class DatabaseService {
 
   // --- PAGES & PAGE BUILDER ---
   public getPages(): Page[] {
-    const pages = this.load<Page[]>(DB_KEYS.PAGES, initialPages);
+    let pages = this.load<Page[]>(DB_KEYS.PAGES, initialPages);
+    let changed = false;
+
+    // Filter out removed pages: insights, news, faqs
+    const removedPageSlugs = ['insights', 'news', 'faqs'];
+    const removedPageIds = ['page-insights', 'page-news', 'page-faqs'];
+    const originalLen = pages.length;
+    pages = pages.filter((p) => !removedPageSlugs.includes(p.slug) && !removedPageIds.includes(p.id));
+    if (pages.length !== originalLen) {
+      changed = true;
+    }
+
+    // Ensure all defined pages exist in storage for live editing
+    for (const defPage of initialPages) {
+      const exists = pages.some((p) => p.id === defPage.id || p.slug === defPage.slug);
+      if (!exists) {
+        pages.push(defPage);
+        changed = true;
+      }
+    }
+
+    // Clean up home page sections: remove news, articles, and faq blocks
     const homePage = pages.find((p) => p.id === 'page-home' || p.slug === '');
-    if (homePage && (!homePage.sections || !homePage.sections.some((s) => s.type === 'news'))) {
-      const newsSection: PageSection = {
-        id: 'sec-news',
-        type: 'news',
-        title: 'Firm Announcements',
-        subtitle: 'Latest Developments',
-        isVisible: true,
-        order: (homePage.sections?.length || 0) + 1,
-        content: {
-          eyebrow: 'Latest Dispatches',
-          headline: 'Official Dispatches & Announcements',
-          limit: 3,
-          categoryFilter: 'all',
-        },
-      };
-      homePage.sections = [...(homePage.sections || []), newsSection];
+    if (homePage && homePage.sections) {
+      const sectionsBefore = homePage.sections.length;
+      homePage.sections = homePage.sections.filter(
+        (s) => !['news', 'articles', 'faq', 'faqs'].includes(s.type) && !['sec-news', 'sec-articles', 'sec-faqs'].includes(s.id)
+      );
+      if (homePage.sections.length !== sectionsBefore) {
+        changed = true;
+      }
+
+      // Update attorneys section on home page to Partners
+      const attorneysSec = homePage.sections.find((s) => s.id === 'sec-attorneys' || s.type === 'attorneys');
+      if (attorneysSec) {
+        if (attorneysSec.title !== 'Featured Partners') {
+          attorneysSec.title = 'Featured Partners';
+          changed = true;
+        }
+        if (attorneysSec.content) {
+          if (attorneysSec.content.heading !== 'Distinguished Partners') {
+            attorneysSec.content.heading = 'Distinguished Partners';
+            changed = true;
+          }
+          if (attorneysSec.content.eyebrow !== 'Partners') {
+            attorneysSec.content.eyebrow = 'Partners';
+            changed = true;
+          }
+        }
+      }
+
+      // Update hero section headline to Legal Precision
+      const homeHeroSec = homePage.sections.find((s) => s.id === 'sec-hero' || s.type === 'hero');
+      if (homeHeroSec && homeHeroSec.content) {
+        if (!homeHeroSec.content.headline || homeHeroSec.content.headline.includes('Strategic Counsel')) {
+          homeHeroSec.content.headline = 'Legal Precision.';
+          changed = true;
+        }
+      }
+    }
+
+    // Update any page seo title or hero headline with Strategic Counsel to Legal Precision
+    for (const p of pages) {
+      if (p.seoTitle && p.seoTitle.includes('Strategic Counsel')) {
+        p.seoTitle = p.seoTitle.replace('Strategic Counsel', 'Legal Precision');
+        changed = true;
+      }
+      if (p.sections) {
+        for (const s of p.sections) {
+          if (s.type === 'hero' && s.content && s.content.headline && s.content.headline.includes('Strategic Counsel')) {
+            s.content.headline = 'Legal Precision.';
+            changed = true;
+          }
+        }
+      }
+    }
+
+    // Update page-attorneys title to Partners
+    const attorneysPage = pages.find((p) => p.id === 'page-attorneys' || p.slug === 'attorneys');
+    if (attorneysPage) {
+      if (attorneysPage.title !== 'Partners') {
+        attorneysPage.title = 'Partners';
+        changed = true;
+      }
+      if (attorneysPage.seoTitle !== 'Distinguished Partners | Lalusis & Partners') {
+        attorneysPage.seoTitle = 'Distinguished Partners | Lalusis & Partners';
+        changed = true;
+      }
+      if (attorneysPage.sections) {
+        const heroSec = attorneysPage.sections.find((s) => s.id === 'sec-attorneys-hero' || s.type === 'heading');
+        if (heroSec && heroSec.content && heroSec.content.heading !== 'Partners') {
+          heroSec.content.heading = 'Partners';
+          changed = true;
+        }
+        const gridSec = attorneysPage.sections.find((s) => s.id === 'sec-attorneys-grid' || s.type === 'attorneys');
+        if (gridSec) {
+          if (gridSec.title !== 'Partners Directory') {
+            gridSec.title = 'Partners Directory';
+            changed = true;
+          }
+          if (gridSec.content && gridSec.content.heading !== 'Partners') {
+            gridSec.content.heading = 'Partners';
+            changed = true;
+          }
+        }
+      }
+    }
+
+    if (changed) {
       this.save(DB_KEYS.PAGES, pages);
     }
     return pages;
@@ -370,13 +480,24 @@ class DatabaseService {
 
   // --- ATTORNEYS ---
   public getAttorneys(includeUnpublished: boolean = true): Attorney[] {
-    const list = this.load<Attorney[]>(DB_KEYS.ATTORNEYS, initialAttorneys);
+    let list = this.load<Attorney[]>(DB_KEYS.ATTORNEYS, initialAttorneys);
+    // If the database has outdated attorney records, update them with the authentic Lalusis partners
+    const atty1 = list.find((a) => a.id === 'atty-1');
+    if (atty1 && atty1.fullName.includes('Gabriel')) {
+      const idMap = new Map(initialAttorneys.map((a) => [a.id, a]));
+      list = list.map((a) => idMap.get(a.id) || a);
+      this.save(DB_KEYS.ATTORNEYS, list);
+    }
     if (includeUnpublished) return list;
     return list.filter((a) => a.isPublished);
   }
 
   public getAttorneyBySlug(slug: string): Attorney | undefined {
-    return this.getAttorneys(true).find((a) => a.slug === slug);
+    if (!slug) return undefined;
+    const clean = decodeURIComponent(slug).toLowerCase().trim();
+    return this.getAttorneys(true).find(
+      (a) => a.slug?.toLowerCase() === clean || a.id.toLowerCase() === clean
+    );
   }
 
   public saveAttorney(attorney: Attorney): void {
@@ -409,7 +530,11 @@ class DatabaseService {
   }
 
   public getPracticeAreaBySlug(slug: string): PracticeArea | undefined {
-    return this.getPracticeAreas(true).find((pa) => pa.slug === slug);
+    if (!slug) return undefined;
+    const clean = decodeURIComponent(slug).toLowerCase().trim();
+    return this.getPracticeAreas(true).find(
+      (pa) => pa.slug?.toLowerCase() === clean || pa.id.toLowerCase() === clean
+    );
   }
 
   public savePracticeArea(area: PracticeArea): void {
@@ -442,7 +567,11 @@ class DatabaseService {
   }
 
   public getArticleBySlug(slug: string): Article | undefined {
-    return this.getArticles(true).find((a) => a.slug === slug);
+    if (!slug) return undefined;
+    const clean = decodeURIComponent(slug).toLowerCase().trim();
+    return this.getArticles(true).find(
+      (a) => a.slug?.toLowerCase() === clean || a.id.toLowerCase() === clean
+    );
   }
 
   public saveArticle(article: Article): void {
@@ -504,7 +633,11 @@ class DatabaseService {
   }
 
   public getNewsBySlug(slug: string): NewsItem | undefined {
-    return this.getNews(true).find((n) => n.slug === slug);
+    if (!slug) return undefined;
+    const clean = decodeURIComponent(slug).toLowerCase().trim();
+    return this.getNews(true).find(
+      (n) => n.slug?.toLowerCase() === clean || n.id.toLowerCase() === clean
+    );
   }
 
   public saveNews(news: NewsItem): void {
@@ -712,7 +845,38 @@ class DatabaseService {
 
   // --- NAVIGATION ---
   public getNavigation(): MenuItem[] {
-    return this.load<MenuItem[]>(DB_KEYS.NAVIGATION, initialNavigation);
+    const nav = this.load<MenuItem[]>(DB_KEYS.NAVIGATION, initialNavigation);
+    const removedPaths = ['/insights', '/news', '/faqs'];
+    const removedIds = ['nav-insights', 'nav-news', 'nav-faqs'];
+    let changed = false;
+
+    const filtered = nav.filter((item) => {
+      if (removedPaths.includes(item.path) || removedIds.includes(item.id)) {
+        changed = true;
+        return false;
+      }
+      return true;
+    });
+
+    const updated = filtered.map((item, idx) => {
+      let newItem = item;
+      if (item.id === 'nav-attorneys' || item.path === '/attorneys' || item.path === '/partners') {
+        if (item.label !== 'PARTNERS') {
+          changed = true;
+          newItem = { ...item, label: 'PARTNERS' };
+        }
+      }
+      if (newItem.order !== idx + 1) {
+        changed = true;
+        newItem = { ...newItem, order: idx + 1 };
+      }
+      return newItem;
+    });
+
+    if (changed) {
+      this.save(DB_KEYS.NAVIGATION, updated);
+    }
+    return updated;
   }
 
   public saveNavigation(nav: MenuItem[]): void {

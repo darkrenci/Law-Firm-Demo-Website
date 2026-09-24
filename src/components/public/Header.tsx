@@ -98,23 +98,23 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Main Navigation Bar */}
       <div
-        className={`w-full transition-all duration-300 ${
+        className={`w-full transition-all duration-300 overflow-x-clip ${
           isScrolled
-            ? 'bg-[#0a0a0d]/95 backdrop-blur-md border-b border-[#c59b63]/30 shadow-2xl py-3.5'
-            : 'bg-[#0d0d11]/90 backdrop-blur-sm border-b border-[#1f1f2a] py-4'
+            ? 'bg-[#0a0a0d]/95 backdrop-blur-md border-b border-[#c59b63]/30 shadow-2xl py-3 sm:py-3.5'
+            : 'bg-[#0d0d11]/90 backdrop-blur-sm border-b border-[#1f1f2a] py-4 sm:py-4.5'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex items-center justify-between gap-4 lg:gap-8">
-          {/* Brand Logo with generous spacing buffer */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 lg:gap-4">
+          {/* Brand Logo with responsive spacing */}
           <div
             onClick={() => handleLinkClick('/')}
-            className="cursor-pointer flex-shrink-0 mr-8 sm:mr-10 lg:mr-12 xl:mr-14"
+            className="cursor-pointer flex-shrink-0 mr-3 lg:mr-5 xl:mr-6 2xl:mr-8"
           >
             <Logo variant="horizontal" />
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden xl:flex items-center gap-5 2xl:gap-7 flex-shrink-0">
+          <nav className="hidden xl:flex items-center gap-2.5 xl:gap-3.5 2xl:gap-6 flex-shrink-0">
             {navigation
               .filter((item) => item.isVisible)
               .map((item) => {
@@ -133,7 +133,7 @@ export const Header: React.FC<HeaderProps> = ({
                     >
                       <button
                         onClick={() => handleLinkClick(item.path)}
-                        className={`flex items-center gap-1.5 font-cinzel text-xs uppercase tracking-[0.18em] py-2 transition-colors cursor-pointer ${
+                        className={`flex items-center gap-1 font-cinzel text-[11px] 2xl:text-xs uppercase tracking-[0.1em] 2xl:tracking-[0.16em] py-2 transition-colors cursor-pointer ${
                           isActive
                             ? 'text-[#d4af7a] border-b border-[#c59b63]'
                             : 'text-[#ded6c9] hover:text-[#f7f4ee]'
@@ -184,7 +184,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <button
                     key={item.id}
                     onClick={() => handleLinkClick(item.path)}
-                    className={`font-cinzel text-xs uppercase tracking-[0.18em] py-1 transition-all duration-200 cursor-pointer ${
+                    className={`font-cinzel text-[11px] 2xl:text-xs uppercase tracking-[0.1em] 2xl:tracking-[0.16em] py-1 transition-all duration-200 cursor-pointer ${
                       isActive
                         ? 'text-[#d4af7a] font-semibold border-b border-[#c59b63]'
                         : 'text-[#ded6c9] hover:text-[#f7f4ee]'
@@ -197,7 +197,7 @@ export const Header: React.FC<HeaderProps> = ({
           </nav>
 
           {/* Actions: Search, Admin Switcher & CTA */}
-          <div className="hidden sm:flex items-center gap-3 flex-shrink-0 ml-4">
+          <div className="hidden sm:flex items-center gap-2.5 2xl:gap-3 flex-shrink-0 ml-2">
             <button
               onClick={onOpenSearch}
               className="p-2 text-[#a8a199] hover:text-[#c59b63] hover:bg-white/5 transition-colors cursor-pointer"
@@ -207,9 +207,10 @@ export const Header: React.FC<HeaderProps> = ({
               <Search className="w-4 h-4" />
             </button>
 
+            {/* Admin CMS button in navbar (visible on extra wide screens; also permanently accessible in top utility bar) */}
             <button
               onClick={onOpenAdmin}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-cinzel font-semibold uppercase tracking-wider text-[#c59b63] border border-[#c59b63]/50 hover:bg-[#c59b63] hover:text-[#0d0d11] transition-all cursor-pointer"
+              className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-cinzel font-semibold uppercase tracking-wider text-[#c59b63] border border-[#c59b63]/50 hover:bg-[#c59b63] hover:text-[#0d0d11] transition-all cursor-pointer whitespace-nowrap"
               title="Access Admin CMS Portal"
             >
               <Shield className="w-3.5 h-3.5" />
@@ -218,8 +219,9 @@ export const Header: React.FC<HeaderProps> = ({
 
             <Button
               variant="primary"
-              size="md"
+              size="sm"
               onClick={() => handleLinkClick('/consultation')}
+              className="whitespace-nowrap px-3.5 2xl:px-5 py-2 text-xs"
             >
               Request Consultation
             </Button>

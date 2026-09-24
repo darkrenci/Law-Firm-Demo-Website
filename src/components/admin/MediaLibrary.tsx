@@ -5,7 +5,8 @@ import { Button } from '../ui/Buttons';
 import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
-import { Image as ImageIcon, Plus, Trash2, Copy, Check, Search, ExternalLink } from 'lucide-react';
+import { Image as ImageIcon, Plus, Trash2, Copy, Check, Search, ExternalLink, Upload } from 'lucide-react';
+import { ImageUploadField } from '../ui/ImageUploadField';
 
 export const MediaLibrary: React.FC = () => {
   const toast = useToast();
@@ -177,13 +178,31 @@ const AddMediaModal: React.FC<{
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!url) {
+      return;
+    }
     onAdd({
-      name,
+      name: name.trim() || 'Visual Asset',
       url,
       category,
-      altText: altText || name,
-      size: 'web-optimized',
+      altText: altText || name || 'Chamber media asset',
+      size: url.startsWith('data:') ? 'uploaded-file' : 'web-optimized',
     });
+  };
+
+  const handleImageUploaded = (imageUrl: string, fileName?: string) => {
+    setUrl(imageUrl);
+    if (fileName && !name) {
+      // Clean fileName: replace dashes/underscores with spaces and remove extension
+      const cleaned = fileName
+        .replace(/\.[^/.]+$/, '')
+        .replace(/[-_]+/g, ' ')
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+      setName(cleaned);
+      if (!altText) {
+        setAltText(cleaned);
+      }
+    }
   };
 
   return (
@@ -191,10 +210,21 @@ const AddMediaModal: React.FC<{
       isOpen={true}
       onClose={onClose}
       title="Add Media Asset"
-      subtitle="Register a high-resolution portrait, architectural photography, or firm asset."
+      subtitle="Upload a picture file from your device (PNG, JPG, WEBP, SVG) or link an external visual asset."
       maxWidth="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4 pt-2 text-left">
+        {/* Direct Picture File Upload */}
+        <ImageUploadField
+          label="Picture File *"
+          value={url}
+          onChange={handleImageUploaded}
+          required={true}
+          allowMediaLibrary={false}
+          aspectRatio="landscape"
+          helperText="Upload any picture file directly from your computer or drag & drop here."
+        />
+
         <div>
           <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
             Asset Title *
@@ -205,20 +235,6 @@ const AddMediaModal: React.FC<{
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Ayala Triangle Chambers Boardroom"
-            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
-          />
-        </div>
-
-        <div>
-          <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
-            Image URL *
-          </label>
-          <input
-            type="url"
-            required
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://images.unsplash.com/..."
             className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
           />
         </div>
@@ -252,30 +268,11 @@ const AddMediaModal: React.FC<{
           />
         </div>
 
-        {url && (
-          <div className="pt-2">
-            <span className="font-cinzel text-[10px] text-[#8e877e] uppercase block mb-1">
-              Preview
-            </span>
-            <div className="h-36 bg-[#0a0a0d] border border-[#22222d] overflow-hidden flex items-center justify-center">
-              <img
-                src={url}
-                alt="Preview"
-                className="max-h-full max-w-full object-contain"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
-            </div>
-          </div>
-        )}
-
         <div className="pt-4 flex justify-end gap-3 border-t border-[#22222d]">
           <Button type="button" variant="secondary" size="sm" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" variant="primary" size="sm">
+          <Button type="submit" variant="primary" size="sm" disabled={!url}>
             Save Asset
           </Button>
         </div>

@@ -131,7 +131,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
         >
           <div className="flex items-center justify-between">
             <span className="font-cinzel text-[10px] text-[#8e877e] uppercase tracking-wider">
-              Chamber Advocates
+              Chamber Partners
             </span>
             <div className="p-2 bg-[#171720] text-[#c59b63] group-hover:bg-[#c59b63] group-hover:text-[#0d0d11] transition-colors">
               <Users className="w-4 h-4" />
@@ -141,12 +141,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
             <span className="font-cormorant text-3xl sm:text-4xl text-[#f7f4ee]">
               {attorneys.length}
             </span>
-            <span className="text-xs text-[#8e877e]">Partners &amp; Counsel</span>
+            <span className="text-xs text-[#8e877e]">Partners Roster</span>
           </div>
-          <p className="text-[11px] text-[#7e776e] mt-1">Published in Chamber directory</p>
+          <p className="text-[11px] text-[#7e776e] mt-1">Published in Partners directory</p>
         </div>
 
         {/* Metric 4 */}
+        <div
+          onClick={() => onNavigateTab('practice-areas')}
+          className="bg-[#121217] border border-[#22222d] hover:border-[#c59b63]/60 p-5 sm:p-6 transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="font-cinzel text-[10px] text-[#8e877e] uppercase tracking-wider">
+              Practice Disciplines
+            </span>
+            <div className="p-2 bg-[#171720] text-[#c59b63] group-hover:bg-[#c59b63] group-hover:text-[#0d0d11] transition-colors">
+              <Briefcase className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="font-cormorant text-3xl sm:text-4xl text-[#f7f4ee]">
+              {practices.length}
+            </span>
+            <span className="text-xs text-[#8e877e]">Active Disciplines</span>
+          </div>
+          <p className="text-[11px] text-[#7e776e] mt-1">Corporate &amp; institutional services</p>
+        </div>
+
+        {/* Commented out / hidden per user request (uncomment to restore Legal Insights card):
         <div
           onClick={() => onNavigateTab('articles')}
           className="bg-[#121217] border border-[#22222d] hover:border-[#c59b63]/60 p-5 sm:p-6 transition-all cursor-pointer group"
@@ -167,6 +189,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
           </div>
           <p className="text-[11px] text-[#7e776e] mt-1">Scholarly jurisprudence commentaries</p>
         </div>
+        */}
       </div>
 
       {/* 2-Column: Recent Consultations & Audit Trail */}

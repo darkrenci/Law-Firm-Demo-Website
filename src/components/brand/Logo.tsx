@@ -18,7 +18,7 @@ interface LogoProps {
  * - Brushed warm bronze / metallic gold chiaroscuro gradients
  */
 export const LalusisLogoMark: React.FC<{ className?: string; size?: number }> = ({
-  className = 'w-12 h-12',
+  className = 'w-16 h-16 sm:w-20 sm:h-20',
   size,
 }) => {
   return (
@@ -267,7 +267,7 @@ export const Logo: React.FC<LogoProps> = ({
   textClassName = '',
 }) => {
   if (variant === 'mark') {
-    return <LalusisLogoMark className={markClassName || 'w-10 h-10'} />;
+    return <LalusisLogoMark className={markClassName || 'w-16 h-16 sm:w-20 sm:h-20'} />;
   }
 
   if (variant === 'hero') {
@@ -275,27 +275,27 @@ export const Logo: React.FC<LogoProps> = ({
       <div className={`flex flex-col items-center text-center ${className}`}>
         {/* Emblem */}
         <div className="relative mb-6">
-          <div className="absolute -inset-6 rounded-full bg-[#c59b63]/10 blur-2xl"></div>
-          <LalusisLogoMark className={`relative w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 ${markClassName}`} />
+          <div className="absolute -inset-8 rounded-full bg-[#c59b63]/15 blur-3xl"></div>
+          <LalusisLogoMark className={`relative w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64 ${markClassName}`} />
         </div>
 
         {/* Wordmark */}
         <div className={`flex flex-col items-center tracking-[0.14em] ${textClassName}`}>
-          <span className="font-cinzel text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal text-[#f4e6d0] uppercase leading-tight drop-shadow-sm">
+          <span className="font-cinzel text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-normal text-[#f4e6d0] uppercase leading-tight drop-shadow-md">
             Lalusis
           </span>
-          <span className="font-cinzel text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-normal text-[#f4e6d0] uppercase leading-tight tracking-[0.18em]">
+          <span className="font-cinzel text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal text-[#f4e6d0] uppercase leading-tight tracking-[0.18em]">
             &amp; Partners
           </span>
         </div>
 
         {/* Flanked Subtitle */}
-        <div className="mt-4 flex items-center justify-center gap-4 w-full max-w-md">
-          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#c59b63]/60 to-[#c59b63]"></div>
-          <span className="font-cinzel text-xs sm:text-sm tracking-[0.35em] text-[#d4af7a] uppercase font-medium whitespace-nowrap">
+        <div className="mt-5 flex items-center justify-center gap-4 w-full max-w-lg">
+          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#c59b63]/80 to-[#c59b63]"></div>
+          <span className="font-cinzel text-sm sm:text-base tracking-[0.38em] text-[#d4af7a] uppercase font-semibold whitespace-nowrap">
             Attorneys at Law
           </span>
-          <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-[#c59b63]/60 to-[#c59b63]"></div>
+          <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-[#c59b63]/80 to-[#c59b63]"></div>
         </div>
       </div>
     );
@@ -303,13 +303,13 @@ export const Logo: React.FC<LogoProps> = ({
 
   if (variant === 'compact') {
     return (
-      <div className={`flex items-center gap-3 flex-shrink-0 whitespace-nowrap select-none ${className}`}>
-        <LalusisLogoMark className={`w-8 h-8 flex-shrink-0 ${markClassName}`} />
+      <div className={`flex items-center gap-4 flex-shrink-0 whitespace-nowrap select-none ${className}`}>
+        <LalusisLogoMark className={`w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 ${markClassName}`} />
         <div className="flex flex-col leading-none">
-          <span className="font-cinzel text-sm font-semibold tracking-[0.12em] text-[#f4e6d0] uppercase whitespace-nowrap">
+          <span className="font-cinzel text-lg font-semibold tracking-[0.12em] text-[#f4e6d0] uppercase whitespace-nowrap">
             Lalusis &amp; Partners
           </span>
-          <span className="font-cinzel text-[9px] tracking-[0.25em] text-[#c59b63] uppercase mt-1 whitespace-nowrap">
+          <span className="font-cinzel text-xs tracking-[0.25em] text-[#c59b63] uppercase mt-1.5 whitespace-nowrap font-medium">
             Attorneys at Law
           </span>
         </div>
@@ -319,20 +319,20 @@ export const Logo: React.FC<LogoProps> = ({
 
   // Default 'horizontal' or 'full'
   return (
-    <div className={`flex items-center gap-3.5 group cursor-pointer flex-shrink-0 whitespace-nowrap select-none ${className}`}>
-      <div className="relative flex-shrink-0 transition-transform duration-300 group-hover:scale-[1.03]">
-        <LalusisLogoMark className={`w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 ${markClassName}`} />
+    <div className={`flex items-center gap-4 sm:gap-5 lg:gap-6 group cursor-pointer flex-shrink-0 whitespace-nowrap select-none ${className}`}>
+      <div className="relative flex-shrink-0 transition-transform duration-300 group-hover:scale-[1.04]">
+        <LalusisLogoMark className={`w-16 h-16 sm:w-20 sm:h-20 lg:w-[5.5rem] lg:h-[5.5rem] flex-shrink-0 drop-shadow-md ${markClassName}`} />
       </div>
-      <div className="flex flex-col flex-shrink-0">
-        <span className="font-cinzel text-base sm:text-lg md:text-xl font-medium tracking-[0.14em] text-[#f4e6d0] uppercase leading-none group-hover:text-white transition-colors whitespace-nowrap">
+      <div className="flex flex-col flex-shrink-0 justify-center">
+        <span className="font-cinzel text-xl sm:text-2xl md:text-[1.75rem] lg:text-[2.1rem] font-bold tracking-[0.13em] text-[#f4e6d0] uppercase leading-none group-hover:text-white transition-colors whitespace-nowrap drop-shadow-md">
           Lalusis &amp; Partners
         </span>
-        <div className="flex items-center gap-2 mt-1.5 whitespace-nowrap">
-          <div className="h-[1px] w-3 bg-[#c59b63]/70 hidden sm:block flex-shrink-0"></div>
-          <span className="font-cinzel text-[9px] sm:text-[10px] tracking-[0.3em] text-[#c59b63] uppercase font-medium whitespace-nowrap">
+        <div className="flex items-center gap-3 mt-2 sm:mt-2.5 whitespace-nowrap">
+          <div className="h-[1.5px] w-5 sm:w-8 bg-[#c59b63]/90 hidden sm:block flex-shrink-0"></div>
+          <span className="font-cinzel text-[11px] sm:text-xs md:text-[13px] tracking-[0.35em] text-[#c59b63] uppercase font-bold whitespace-nowrap">
             Attorneys at Law
           </span>
-          <div className="h-[1px] w-3 bg-[#c59b63]/70 hidden sm:block flex-shrink-0"></div>
+          <div className="h-[1.5px] w-5 sm:w-8 bg-[#c59b63]/90 hidden sm:block flex-shrink-0"></div>
         </div>
       </div>
     </div>

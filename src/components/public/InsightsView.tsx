@@ -8,14 +8,16 @@ import { resolveItemTypography } from '../admin/ItemTypographyControls';
 
 interface InsightsViewProps {
   slug?: string;
+  currentSlug?: string;
   onNavigate: (path: string) => void;
 }
 
-export const InsightsView: React.FC<InsightsViewProps> = ({ slug, onNavigate }) => {
+export const InsightsView: React.FC<InsightsViewProps> = ({ slug, currentSlug, onNavigate }) => {
+  const activeSlug = slug || currentSlug;
   const articles = db.getArticles(false);
 
-  if (slug) {
-    const article = db.getArticleBySlug(slug);
+  if (activeSlug) {
+    const article = db.getArticleBySlug(activeSlug);
     if (!article) {
       return (
         <div className="py-24 text-center space-y-4">

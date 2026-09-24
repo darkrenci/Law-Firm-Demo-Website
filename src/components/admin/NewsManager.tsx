@@ -7,6 +7,7 @@ import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
 import { Bell, Plus, Edit3, Trash2, Search, Calendar, Sparkles } from 'lucide-react';
 import { ItemTypographyControls, resolveItemTypography } from './ItemTypographyControls';
+import { ImageUploadField } from '../ui/ImageUploadField';
 
 interface NewsManagerProps {
   onOpenLiveBuilder?: (pageSlug: string) => void;
@@ -272,6 +273,14 @@ const NewsEditModal: React.FC<{
             className="w-full bg-[#0d0d11] border border-[#2a2a35] p-2.5 text-xs text-[#f7f4ee] focus:outline-none"
           />
         </div>
+
+        <ImageUploadField
+          label="Featured Announcement Image"
+          value={form.featuredImage || ''}
+          onChange={(img) => setForm({ ...form, featuredImage: img })}
+          aspectRatio="landscape"
+          helperText="Upload a picture file from your device for this news dispatch."
+        />
 
         {/* Custom Typography Controls */}
         <ItemTypographyControls

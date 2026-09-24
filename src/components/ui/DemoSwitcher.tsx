@@ -52,9 +52,12 @@ export const DemoSwitcher: React.FC<DemoSwitcherProps> = ({
   const quickAdminTabs: { id: AdminTab; label: string; icon: any }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'pages', label: 'Pages', icon: FileText },
-    { id: 'attorneys', label: 'Attorneys', icon: Users },
+    { id: 'attorneys', label: 'Partners', icon: Users },
     { id: 'practice-areas', label: 'Practices', icon: Briefcase },
-    { id: 'articles', label: 'Insights', icon: BookOpen },
+    // Commented out / hidden per user request:
+    // { id: 'articles', label: 'Insights', icon: BookOpen },
+    // { id: 'news', label: 'News', icon: Bell },
+    // { id: 'faqs', label: 'FAQs', icon: HelpCircle },
     { id: 'consultations', label: 'Inquiries', icon: Inbox },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];

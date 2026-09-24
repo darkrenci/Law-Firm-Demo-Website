@@ -7,14 +7,16 @@ import { resolveItemTypography } from '../admin/ItemTypographyControls';
 
 interface PracticeAreasViewProps {
   slug?: string;
+  currentSlug?: string;
   onNavigate: (path: string) => void;
 }
 
-export const PracticeAreasView: React.FC<PracticeAreasViewProps> = ({ slug, onNavigate }) => {
+export const PracticeAreasView: React.FC<PracticeAreasViewProps> = ({ slug, currentSlug, onNavigate }) => {
+  const activeSlug = slug || currentSlug;
   const practiceAreas = db.getPracticeAreas(false);
 
-  if (slug) {
-    const area = db.getPracticeAreaBySlug(slug);
+  if (activeSlug) {
+    const area = db.getPracticeAreaBySlug(activeSlug);
     if (!area) {
       return (
         <div className="py-24 text-center space-y-4">

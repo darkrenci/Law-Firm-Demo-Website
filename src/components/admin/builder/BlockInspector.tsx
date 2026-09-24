@@ -28,6 +28,7 @@ import {
   CheckCircle2,
   LayoutGrid,
 } from 'lucide-react';
+import { ImageUploadField } from '../../ui/ImageUploadField';
 
 interface BlockInspectorProps {
   section: PageSection;
@@ -883,18 +884,14 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
               </span>
             </div>
 
-            <div>
-              <label className="block font-cinzel text-[10px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
-                Image URL
-              </label>
-              <input
-                type="url"
-                value={content.imageUrl || ''}
-                onChange={(e) => handleContentChange('imageUrl', e.target.value)}
-                placeholder="https://..."
-                className="w-full bg-[#09090d] border border-[#242430] px-3 py-2 text-xs text-[#f7f4ee] font-mono"
-              />
-            </div>
+            <ImageUploadField
+              label="Picture File / Upload"
+              value={content.imageUrl || ''}
+              onChange={(newUrl) => handleContentChange('imageUrl', newUrl)}
+              compact={true}
+              aspectRatio="landscape"
+              helperText="Upload an image file from your computer or choose from library."
+            />
 
             {/* Preset Gallery */}
             <div>
@@ -1559,24 +1556,21 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                       </div>
                     </div>
 
-                    {/* Custom Logo URL option */}
+                    {/* Custom Logo Image File option */}
                     <div>
-                      <label className="block text-[10px] text-[#8e877e] uppercase mb-1">
-                        Custom Logo Image URL (Optional)
-                      </label>
-                      <input
-                        type="url"
+                      <ImageUploadField
+                        label="Custom Logo Image File (Optional)"
                         value={content.customLogoUrl || ''}
-                        onFocus={() => onSelectPart?.('logo')}
-                        onChange={(e) => handleContentChange('customLogoUrl', e.target.value)}
-                        placeholder="Leave blank to use official Lalusis crest insignia"
-                        className="w-full bg-[#09090d] border border-[#242430] px-2.5 py-1.5 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none font-mono text-[11px]"
+                        onChange={(newUrl) => handleContentChange('customLogoUrl', newUrl)}
+                        compact={true}
+                        aspectRatio="square"
+                        helperText="Upload custom logo file (PNG/SVG) or leave blank for default crest."
                       />
                       {content.customLogoUrl && (
                         <button
                           type="button"
                           onClick={() => handleContentChange('customLogoUrl', '')}
-                          className="text-[10px] font-cinzel text-[#c59b63] hover:underline mt-1 block"
+                          className="text-[10px] font-cinzel text-[#c59b63] hover:underline mt-1 block cursor-pointer"
                         >
                           Reset to Official Lalusis Emblem
                         </button>
@@ -2069,15 +2063,13 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                 {/* Photography Settings */}
                 {(content.imageUrl !== undefined || section.type === 'image' || section.type === 'imageText') && (
                   <div className="space-y-3 pt-3 border-t border-[#1f1f2a]">
-                    <span className="font-cinzel text-[11px] font-bold tracking-wider text-[#c59b63] uppercase block">
-                      Chamber Imagery
-                    </span>
-                    <input
-                      type="url"
+                    <ImageUploadField
+                      label="Chamber Imagery Picture File"
                       value={content.imageUrl || ''}
-                      onChange={(e) => handleContentChange('imageUrl', e.target.value)}
-                      placeholder="Image URL"
-                      className="w-full bg-[#09090d] border border-[#242430] px-3 py-2 text-xs text-[#f7f4ee] font-mono"
+                      onChange={(newUrl) => handleContentChange('imageUrl', newUrl)}
+                      compact={true}
+                      aspectRatio="landscape"
+                      helperText="Upload an image file directly from your computer or choose from library."
                     />
                   </div>
                 )}

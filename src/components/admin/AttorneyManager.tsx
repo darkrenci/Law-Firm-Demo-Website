@@ -5,8 +5,9 @@ import { Button } from '../ui/Buttons';
 import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
-import { Users, Plus, Edit3, Trash2, Mail, Phone, Scale, Search, Sparkles } from 'lucide-react';
+import { Users, Plus, Edit3, Trash2, Mail, Phone, Scale, Search, Sparkles, Upload } from 'lucide-react';
 import { ItemTypographyControls, resolveItemTypography } from './ItemTypographyControls';
+import { ImageUploadField } from '../ui/ImageUploadField';
 
 interface AttorneyManagerProps {
   onOpenLiveBuilder?: (pageSlug: string) => void;
@@ -51,7 +52,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
   const handleDelete = (id: string, name: string) => {
     if (confirm(`Remove practitioner "${name}" from chamber roster?`)) {
       db.deleteAttorney(id);
-      toast.success('Attorney Removed');
+      toast.success('Partner Removed');
     }
   };
 
@@ -76,7 +77,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
             Chamber Personnel &amp; Counsel
           </span>
           <h1 className="font-cormorant text-3xl sm:text-4xl font-light text-[#f7f4ee] mt-1">
-            Attorneys Roster Management
+            Partners Roster Management
           </h1>
         </div>
 
@@ -95,7 +96,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
 
           <Button variant="primary" size="sm" onClick={handleOpenNew}>
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Attorney Profile</span>
+            <span>Add Partner Profile</span>
           </Button>
         </div>
       </div>
@@ -112,7 +113,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
             className="w-full bg-[#14141a] border border-[#262633] focus:border-[#c59b63] pl-9 pr-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
           />
         </div>
-        <span className="text-xs text-[#8e877e]">{filtered.length} Advocates listed</span>
+        <span className="text-xs text-[#8e877e]">{filtered.length} Partners listed</span>
       </div>
 
       {/* Roster Grid */}
@@ -204,7 +205,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
                   <button
                     onClick={() => handleDelete(attorney.id, attorney.fullName)}
                     className="p-1.5 text-rose-500/70 hover:text-rose-400 transition-colors cursor-pointer"
-                    title="Remove Attorney"
+                    title="Remove Partner"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -215,7 +216,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
         })}
       </div>
 
-      {/* MODAL: EDIT / CREATE ATTORNEY */}
+      {/* MODAL: EDIT / CREATE PARTNER */}
       {editingAttorney && (
         <AttorneyEditModal
           attorney={editingAttorney}
@@ -223,7 +224,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
           onClose={() => setEditingAttorney(null)}
           onSave={(saved) => {
             db.saveAttorney(saved);
-            toast.success('Roster Updated', `Saved attorney ${saved.fullName}`);
+            toast.success('Roster Updated', `Saved partner ${saved.fullName}`);
             setEditingAttorney(null);
           }}
         />
@@ -271,7 +272,7 @@ const AttorneyEditModal: React.FC<{
     <Modal
       isOpen={true}
       onClose={onClose}
-      title={isNew ? 'Register Chamber Advocate' : `Edit Profile: ${attorney.fullName}`}
+      title={isNew ? 'Register Chamber Partner' : `Edit Profile: ${attorney.fullName}`}
       subtitle="Maintain biographical detail, academic credentials, and professional appointments."
       maxWidth="2xl"
     >
@@ -360,17 +361,13 @@ const AttorneyEditModal: React.FC<{
           </div>
         </div>
 
-        <div>
-          <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
-            Portrait Image URL
-          </label>
-          <input
-            type="url"
-            value={form.portraitUrl}
-            onChange={(e) => setForm({ ...form, portraitUrl: e.target.value })}
-            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
-          />
-        </div>
+        <ImageUploadField
+          label="Partner Portrait Photo"
+          value={form.portraitUrl}
+          onChange={(imgUrl) => setForm({ ...form, portraitUrl: imgUrl })}
+          aspectRatio="portrait"
+          helperText="Upload a portrait picture file directly from your computer or drag & drop here."
+        />
 
         <div>
           <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">

@@ -46,7 +46,7 @@ const COLOR_PRESETS: { id: 'gold' | 'champagne' | 'ivory' | 'muted' | 'white'; l
 ];
 
 export const ItemTypographyControls: React.FC<ItemTypographyControlsProps> = ({
-  typography = {},
+  typography = {} as ItemTypography,
   onChange,
   fields = [
     { key: 'title', label: 'Title / Headline', defaultFamily: 'cinzel', defaultSize: 'lg', defaultColor: 'ivory' },

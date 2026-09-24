@@ -369,21 +369,21 @@ const RenderSectionItem: React.FC<{
                 partLabel="Firm Logo / Emblem Crest"
                 activeElementPart={activeElementPart}
                 onSelectPart={onSelectPart}
-                className={`flex ${justifyClass} mb-4`}
+                className={`flex ${justifyClass} mb-6`}
               >
-                <div className="p-4 bg-[#0a0a0d] border border-[#c59b63]/30 shadow-2xl inline-block">
+                <div className="p-6 sm:p-8 bg-[#0a0a0d]/95 border-2 border-[#c59b63]/50 shadow-[0_0_60px_rgba(197,155,99,0.22)] inline-block backdrop-blur-sm">
                   {content.customLogoUrl ? (
                     <img
                       src={content.customLogoUrl}
                       alt="Firm Logo"
                       className="object-contain"
                       style={{
-                        height: content.logoSize === 'sm' ? 56 : content.logoSize === 'lg' ? 96 : 76,
-                        maxHeight: 120,
+                        height: content.logoSize === 'sm' ? 120 : content.logoSize === 'lg' ? 240 : 180,
+                        maxHeight: 260,
                       }}
                     />
                   ) : (
-                    <LalusisLogoMark size={content.logoSize === 'sm' ? 56 : content.logoSize === 'lg' ? 96 : 76} />
+                    <LalusisLogoMark size={content.logoSize === 'sm' ? 120 : content.logoSize === 'lg' ? 240 : 180} />
                   )}
                 </div>
               </EditablePartWrapper>
@@ -420,7 +420,9 @@ const RenderSectionItem: React.FC<{
                 style={headTypo.customStyle}
                 className={`${headTypo.fontClass} ${headTypo.sizeClass || 'text-4xl sm:text-6xl lg:text-7xl'} ${headTypo.trackingClass} ${headTypo.weightClass} ${headTypo.colorClass} ${headTypo.uppercaseClass} ${headTypo.italicClass} leading-[1.1] max-w-4xl ${headTypo.marginClass}`}
               >
-                {content.headline || 'Strategic Counsel. Trusted Representation.'}
+                {content.headline && !content.headline.includes('Strategic Counsel')
+                  ? content.headline
+                  : 'Legal Precision.'}
               </h1>
             </EditablePartWrapper>
 
@@ -1532,7 +1534,7 @@ const RenderSectionItem: React.FC<{
                   style={eyeTypo.customStyle}
                   className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
                 >
-                  {content.eyebrow || 'Senior Advocates'}
+                  {content.eyebrow || 'Partners'}
                 </span>
               </EditablePartWrapper>
 
@@ -1547,7 +1549,7 @@ const RenderSectionItem: React.FC<{
                   style={headTypo.customStyle}
                   className={`${headTypo.fontClass} ${headTypo.sizeClass || 'text-3xl sm:text-5xl'} ${headTypo.weightClass} ${headTypo.colorClass} leading-tight ${headTypo.trackingClass} ${headTypo.uppercaseClass} ${headTypo.italicClass}`}
                 >
-                  {content.headline || content.heading || section.title || 'Distinguished Partners & Counsel'}
+                  {content.headline || content.heading || section.title || 'Partners'}
                 </h2>
               </EditablePartWrapper>
 
@@ -1572,7 +1574,7 @@ const RenderSectionItem: React.FC<{
             <EditablePartWrapper
               editMode={editMode}
               partId="cards"
-              partLabel="Attorneys Roster Grid"
+              partLabel="Partners Roster Grid"
               activeElementPart={activeElementPart}
               onSelectPart={onSelectPart}
             >
@@ -1712,7 +1714,8 @@ const RenderSectionItem: React.FC<{
       );
     }
 
-    case 'articles': {
+    case 'articles':
+    case 'insights': {
       const articleList = db.getArticles(false).slice(0, content.limit || 3);
       return (
         <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
@@ -1835,7 +1838,8 @@ const RenderSectionItem: React.FC<{
       );
     }
 
-    case 'faq': {
+    case 'faq':
+    case 'faqs': {
       const faqs = db.getFAQs(false).slice(0, content.limit || 5);
       return (
         <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
@@ -2093,6 +2097,162 @@ const RenderSectionItem: React.FC<{
         <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
           <div className="max-w-3xl mx-auto px-6">
             <EmbeddedConsultationForm />
+          </div>
+        </section>
+      );
+
+    case 'contact':
+    case 'contactInfo':
+      return (
+        <section className={`${bg} ${py} border-b border-[#1a1a23] relative overflow-hidden`}>
+          <div className="max-w-7xl mx-auto px-6 lg:px-12">
+            <div className={`mb-12 space-y-3 ${headTypo.marginClass} ${headTypo.alignClass}`}>
+              <EditablePartWrapper
+                editMode={editMode}
+                partId="eyebrow"
+                partLabel="Eyebrow / Category"
+                activeElementPart={activeElementPart}
+                onSelectPart={onSelectPart}
+              >
+                <span
+                  style={eyeTypo.customStyle}
+                  className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
+                >
+                  {content.eyebrow || 'Chambers & Communications'}
+                </span>
+              </EditablePartWrapper>
+
+              <EditablePartWrapper
+                editMode={editMode}
+                partId="headline"
+                partLabel="Main Section Headline"
+                activeElementPart={activeElementPart}
+                onSelectPart={onSelectPart}
+              >
+                <h2
+                  style={headTypo.customStyle}
+                  className={`${headTypo.fontClass} ${headTypo.sizeClass || 'text-3xl sm:text-5xl'} ${headTypo.weightClass} ${headTypo.colorClass} leading-tight ${headTypo.trackingClass} ${headTypo.uppercaseClass} ${headTypo.italicClass}`}
+                >
+                  {content.headline || content.heading || section.title || 'Official Legal Chambers'}
+                </h2>
+              </EditablePartWrapper>
+
+              {(content.subheadline || content.subheading || section.subtitle) && (
+                <EditablePartWrapper
+                  editMode={editMode}
+                  partId="subheadline"
+                  partLabel="Subheadline / Advisory"
+                  activeElementPart={activeElementPart}
+                  onSelectPart={onSelectPart}
+                >
+                  <p
+                    style={subTypo.customStyle}
+                    className={`${subTypo.fontClass} ${subTypo.sizeClass || 'text-sm sm:text-base'} ${subTypo.bodyColorClass || subTypo.colorClass} max-w-2xl ${subTypo.marginClass} leading-relaxed ${subTypo.weightClass} ${subTypo.trackingClass} ${subTypo.uppercaseClass} ${subTypo.italicClass}`}
+                  >
+                    {content.subheadline || content.subheading || section.subtitle}
+                  </p>
+                </EditablePartWrapper>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              {/* Chambers Directory Cards */}
+              <div className="lg:col-span-5 space-y-4">
+                <EditablePartWrapper
+                  editMode={editMode}
+                  partId="cards"
+                  partLabel="Chambers Contact Cards"
+                  activeElementPart={activeElementPart}
+                  onSelectPart={onSelectPart}
+                >
+                  <div className="space-y-4">
+                    <div className="bg-[#121217] border border-[#22222d] hover:border-[#c59b63]/50 p-6 transition-all text-left">
+                      <div className="flex items-start gap-4">
+                        <div className="p-3 bg-[#181822] border border-[#2b2b3a] text-[#c59b63] flex-shrink-0">
+                          <MapPin className="w-5 h-5" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-cinzel text-xs font-semibold text-[#f4e6d0] uppercase tracking-wider">
+                            {content.addressTitle || 'Principal Legal Chambers'}
+                          </h4>
+                          <p className="text-xs text-[#a8a199] leading-relaxed">
+                            {content.address || '32nd Floor, Ayala Triangle Tower Two, Ayala Avenue, Makati City 1226, Metro Manila, Philippines'}
+                          </p>
+                          <span className="text-[10px] text-[#c59b63] block pt-1 font-mono">
+                            By Appointment &amp; Scheduled Retainers
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-[#121217] border border-[#22222d] hover:border-[#c59b63]/50 p-6 transition-all text-left">
+                      <div className="flex items-start gap-4">
+                        <div className="p-3 bg-[#181822] border border-[#2b2b3a] text-[#c59b63] flex-shrink-0">
+                          <Phone className="w-5 h-5" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-cinzel text-xs font-semibold text-[#f4e6d0] uppercase tracking-wider">
+                            Direct Telephone Lines
+                          </h4>
+                          <p className="text-xs text-[#a8a199] leading-relaxed">
+                            Trunkline: <span className="text-[#f7f4ee] font-mono">{content.phone || '+63 (2) 8888-0000'}</span>
+                          </p>
+                          <p className="text-xs text-[#a8a199] leading-relaxed">
+                            Direct Line: <span className="text-[#f7f4ee] font-mono">+63 (2) 8888-0001</span>
+                          </p>
+                          <p className="text-[11px] text-[#8e877e] leading-relaxed pt-1">
+                            Urgent Criminal Defense &amp; Injunction Dispatch: 24/7
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-[#121217] border border-[#22222d] hover:border-[#c59b63]/50 p-6 transition-all text-left">
+                      <div className="flex items-start gap-4">
+                        <div className="p-3 bg-[#181822] border border-[#2b2b3a] text-[#c59b63] flex-shrink-0">
+                          <Mail className="w-5 h-5" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-cinzel text-xs font-semibold text-[#f4e6d0] uppercase tracking-wider">
+                            Electronic Communications
+                          </h4>
+                          <p className="text-xs text-[#a8a199] leading-relaxed">
+                            General: <span className="text-[#c59b63] font-mono">{content.email || 'info@lalusislaw.com'}</span>
+                          </p>
+                          <p className="text-xs text-[#a8a199] leading-relaxed">
+                            Conflict Check Clearance: <span className="text-[#c59b63] font-mono">intake@lalusislaw.com</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-[#121217] border border-[#22222d] hover:border-[#c59b63]/50 p-6 transition-all text-left">
+                      <div className="flex items-start gap-4">
+                        <div className="p-3 bg-[#181822] border border-[#2b2b3a] text-[#c59b63] flex-shrink-0">
+                          <Clock className="w-5 h-5" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-cinzel text-xs font-semibold text-[#f4e6d0] uppercase tracking-wider">
+                            Chambers Hours
+                          </h4>
+                          <p className="text-xs text-[#a8a199] leading-relaxed">
+                            Monday – Friday: 8:30 AM – 6:30 PM PHT
+                          </p>
+                          <p className="text-[11px] text-[#8e877e] leading-relaxed">
+                            Saturday: By Prior Partner Consultation Only
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </EditablePartWrapper>
+              </div>
+
+              {/* Consultation Intake Form */}
+              <div className="lg:col-span-7">
+                <EmbeddedConsultationForm />
+              </div>
+            </div>
           </div>
         </section>
       );

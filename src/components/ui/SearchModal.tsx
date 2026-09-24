@@ -24,13 +24,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
 
     const items: Array<{
       id: string;
-      category: 'attorneys' | 'practices' | 'articles' | 'news' | 'faqs';
+      category: 'partners' | 'practices';
       title: string;
       subtitle: string;
       path: string;
     }> = [];
 
-    // Attorneys
+    // Partners
     attorneys.forEach((a) => {
       if (
         a.fullName.toLowerCase().includes(q) ||
@@ -39,7 +39,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
       ) {
         items.push({
           id: a.id,
-          category: 'attorneys',
+          category: 'partners',
           title: a.fullName,
           subtitle: `${a.professionalTitle} · ${a.primarySpecialization}`,
           path: `/attorneys/${a.slug}`,
@@ -63,51 +63,49 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
       }
     });
 
-    // Insights Articles
-    articles.forEach((art) => {
-      if (
-        art.title.toLowerCase().includes(q) ||
-        art.excerpt.toLowerCase().includes(q) ||
-        art.tags.some((t) => t.toLowerCase().includes(q))
-      ) {
+    /* Commented out / hidden per user request (uncomment to re-enable in search):
+    // Articles / Legal Insights
+    db.getArticles().forEach((art) => {
+      if (art.title.toLowerCase().includes(q) || art.summary.toLowerCase().includes(q)) {
         items.push({
           id: art.id,
-          category: 'articles',
+          category: 'insights',
           title: art.title,
-          subtitle: `${art.category} · ${art.excerpt.substring(0, 90)}...`,
+          subtitle: art.summary,
           path: `/insights/${art.slug}`,
         });
       }
     });
 
-    // News
-    news.forEach((n) => {
-      if (n.title.toLowerCase().includes(q) || n.excerpt.toLowerCase().includes(q)) {
+    // News & Announcements
+    db.getNews().forEach((n) => {
+      if (n.title.toLowerCase().includes(q) || n.summary.toLowerCase().includes(q)) {
         items.push({
           id: n.id,
           category: 'news',
           title: n.title,
-          subtitle: n.excerpt.substring(0, 90),
+          subtitle: n.summary,
           path: `/news/${n.slug}`,
         });
       }
     });
 
     // FAQs
-    faqs.forEach((f) => {
+    db.getFAQs().forEach((f) => {
       if (f.question.toLowerCase().includes(q) || f.answer.toLowerCase().includes(q)) {
         items.push({
           id: f.id,
           category: 'faqs',
           title: f.question,
-          subtitle: f.answer.substring(0, 100),
-          path: '/faqs',
+          subtitle: f.category,
+          path: `/faqs`,
         });
       }
     });
+    */
 
     return items;
-  }, [query, attorneys, practiceAreas, articles, news, faqs]);
+  }, [query, attorneys, practiceAreas]);
 
   const handleSelect = (path: string) => {
     onNavigate(path);
@@ -116,16 +114,10 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'attorneys':
+      case 'partners':
         return <Users className="w-4 h-4 text-[#c59b63]" />;
       case 'practices':
         return <Briefcase className="w-4 h-4 text-[#d4af7a]" />;
-      case 'articles':
-        return <BookOpen className="w-4 h-4 text-[#e6d5bc]" />;
-      case 'news':
-        return <FileText className="w-4 h-4 text-[#a8a199]" />;
-      case 'faqs':
-        return <HelpCircle className="w-4 h-4 text-[#c59b63]" />;
       default:
         return <Search className="w-4 h-4 text-[#c59b63]" />;
     }
@@ -141,7 +133,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search attorneys, practice areas, legal insights, news, FAQs..."
+            placeholder="Search partners and practice areas..."
             autoFocus
             className="w-full bg-[#17171f] border border-[#c59b63]/60 pl-12 pr-10 py-3 text-base text-[#f7f4ee] placeholder:text-[#6e6860] focus:outline-none focus:ring-2 focus:ring-[#c59b63]/40"
           />
@@ -165,7 +157,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onNav
             <div className="py-10 text-center text-[#8a837a]">
               <p className="font-cinzel text-sm text-[#e6d5bc]">No matching records found</p>
               <p className="text-xs text-[#6e6860] mt-1">
-                Try searching by attorney name, practice area, or legal topic.
+                Try searching by partner name or practice area.
               </p>
             </div>
           ) : (

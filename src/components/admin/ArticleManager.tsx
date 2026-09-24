@@ -8,6 +8,7 @@ import { RichEditor } from '../ui/RichEditor';
 import { useToast } from '../ui/Toast';
 import { BookOpen, Plus, Edit3, Trash2, RotateCcw, Search, History, Sparkles } from 'lucide-react';
 import { ItemTypographyControls, resolveItemTypography } from './ItemTypographyControls';
+import { ImageUploadField } from '../ui/ImageUploadField';
 
 interface ArticleManagerProps {
   onOpenLiveBuilder?: (pageSlug: string) => void;
@@ -344,6 +345,14 @@ const ArticleEditModal: React.FC<{
             className="w-full bg-[#0d0d11] border border-[#2a2a35] p-2.5 text-xs text-[#f7f4ee] focus:outline-none"
           />
         </div>
+
+        <ImageUploadField
+          label="Featured Article Header Image"
+          value={form.featuredImage || ''}
+          onChange={(img) => setForm({ ...form, featuredImage: img })}
+          aspectRatio="landscape"
+          helperText="Upload a picture file from your device to feature as the header banner."
+        />
 
         {/* Custom Typography Controls */}
         <ItemTypographyControls

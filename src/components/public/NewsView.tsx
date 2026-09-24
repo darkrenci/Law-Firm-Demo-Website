@@ -7,14 +7,16 @@ import { resolveItemTypography } from '../admin/ItemTypographyControls';
 
 interface NewsViewProps {
   slug?: string;
+  currentSlug?: string;
   onNavigate: (path: string) => void;
 }
 
-export const NewsView: React.FC<NewsViewProps> = ({ slug, onNavigate }) => {
+export const NewsView: React.FC<NewsViewProps> = ({ slug, currentSlug, onNavigate }) => {
+  const activeSlug = slug || currentSlug;
   const newsList = db.getNews(false);
 
-  if (slug) {
-    const item = db.getNewsBySlug(slug);
+  if (activeSlug) {
+    const item = db.getNewsBySlug(activeSlug);
     if (!item) {
       return (
         <div className="py-24 text-center space-y-4">

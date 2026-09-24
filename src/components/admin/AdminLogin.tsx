@@ -61,8 +61,8 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
       <div className="max-w-md w-full relative z-10 space-y-8">
         {/* Chambers Logo */}
         <div className="text-center space-y-3">
-          <div className="w-12 h-12 text-[#c59b63] mx-auto">
-            <LalusisLogoMark />
+          <div className="w-20 h-20 text-[#c59b63] mx-auto drop-shadow-lg">
+            <LalusisLogoMark className="w-full h-full" />
           </div>
           <div>
             <span className="font-cinzel text-xs font-semibold tracking-[0.24em] text-[#c59b63] uppercase block">

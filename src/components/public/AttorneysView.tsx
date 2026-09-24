@@ -17,22 +17,24 @@ import { resolveItemTypography } from '../admin/ItemTypographyControls';
 
 interface AttorneysViewProps {
   slug?: string;
+  currentSlug?: string;
   onNavigate: (path: string) => void;
 }
 
-export const AttorneysView: React.FC<AttorneysViewProps> = ({ slug, onNavigate }) => {
+export const AttorneysView: React.FC<AttorneysViewProps> = ({ slug, currentSlug, onNavigate }) => {
+  const activeSlug = slug || currentSlug;
   const attorneys = db.getAttorneys(false);
 
   // If a specific attorney slug is passed, render deep profile
-  if (slug) {
-    const attorney = db.getAttorneyBySlug(slug);
+  if (activeSlug) {
+    const attorney = db.getAttorneyBySlug(activeSlug);
     if (!attorney) {
       return (
         <div className="py-24 text-center space-y-4">
-          <h2 className="font-cinzel text-xl text-[#f4e6d0]">Attorney Not Found</h2>
-          <p className="text-xs text-[#a8a199]">The requested practitioner profile is not available.</p>
+          <h2 className="font-cinzel text-xl text-[#f4e6d0]">Partner Not Found</h2>
+          <p className="text-xs text-[#a8a199]">The requested partner profile is not available.</p>
           <Button variant="gold-outline" size="sm" onClick={() => onNavigate('/attorneys')}>
-            Return to Directory
+            Return to Partners
           </Button>
         </div>
       );
@@ -69,13 +71,13 @@ const AttorneysDirectory: React.FC<{
         {/* Page Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <span className="font-cinzel text-xs font-semibold tracking-[0.25em] text-[#c59b63] uppercase">
-            Chamber Directory
+            Chamber Partners
           </span>
           <h1 className="font-cormorant text-4xl sm:text-6xl font-light text-[#f7f4ee]">
-            Attorneys &amp; Counselors at Law
+            Partners
           </h1>
           <p className="text-sm text-[#a8a199] leading-relaxed">
-            Our advocates represent a select consortium of former judicial clerks, bar examiners, and veteran litigators dedicated to authoritative legal practice.
+            Our partners represent a select consortium of former judicial clerks, bar examiners, and veteran litigators dedicated to authoritative legal practice.
           </p>
         </div>
 
@@ -220,7 +222,7 @@ const AttorneyProfileDetail: React.FC<{
           className="inline-flex items-center gap-2 text-xs font-cinzel uppercase tracking-wider text-[#c59b63] hover:text-[#f7f4ee] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to All Attorneys</span>
+          <span>Back to Partners</span>
         </button>
 
         {/* Profile Card Header */}
@@ -252,7 +254,7 @@ const AttorneyProfileDetail: React.FC<{
                   className="w-full"
                   onClick={() => onNavigate('/consultation')}
                 >
-                  Consult With Counsel
+                  Consult With Partner
                 </Button>
               </div>
             </div>
