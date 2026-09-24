@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PageSection, BlockTypography, PracticeArea, Attorney, Article, NewsItem, FAQItem } from '../../types';
 import { db } from '../../services/db';
 import { Button } from '../ui/Buttons';
 import { Modal } from '../ui/Modal';
 import { Logo, LalusisLogoMark } from '../brand/Logo';
+import { processImageFile } from '../ui/ImageUploadField';
 import {
   ShieldCheck,
   Scale,
@@ -22,9 +23,31 @@ import {
   Bell,
   Play,
   ExternalLink,
+  Upload,
+  X,
+  GraduationCap,
 } from 'lucide-react';
 import { useToast } from '../ui/Toast';
 import { resolveItemTypography } from '../admin/ItemTypographyControls';
+
+const getEmbedVideoUrl = (url: string) => {
+  if (!url) return '';
+  if (url.includes('youtube.com/watch?v=')) {
+    return url.replace('youtube.com/watch?v=', 'youtube.com/embed/');
+  }
+  if (url.includes('youtu.be/')) {
+    const id = url.split('youtu.be/')[1]?.split('?')[0];
+    return `https://www.youtube.com/embed/${id}?autoplay=1`;
+  }
+  if (url.includes('youtube.com/embed/')) {
+    return url.includes('?') ? `${url}&autoplay=1` : `${url}?autoplay=1`;
+  }
+  if (url.includes('vimeo.com/')) {
+    const id = url.split('vimeo.com/')[1]?.split('?')[0];
+    return `https://player.vimeo.com/video/${id}?autoplay=1`;
+  }
+  return url;
+};
 
 interface SectionRendererProps {
   sections?: PageSection[];
@@ -32,6 +55,7 @@ interface SectionRendererProps {
   onNavigate: (path: string) => void;
   // Interactive visual builder element selection
   editMode?: boolean;
+  isAdmin?: boolean;
   activeElementPart?: string | null;
   onSelectPart?: (part: string) => void;
 }
@@ -41,9 +65,19 @@ export const SectionRenderer: React.FC<SectionRendererProps> = ({
   section,
   onNavigate,
   editMode = false,
+  isAdmin = false,
   activeElementPart = null,
   onSelectPart,
 }) => {
+  const isEffectiveAdmin = Boolean(
+    isAdmin ||
+    editMode ||
+    (typeof window !== 'undefined' && (
+      window.location.pathname.startsWith('/admin') ||
+      window.location.hash.includes('/admin')
+    ))
+  );
+
   const rawSections: PageSection[] = Array.isArray(sections)
     ? sections
     : section
@@ -62,6 +96,7 @@ export const SectionRenderer: React.FC<SectionRendererProps> = ({
           section={sec}
           onNavigate={onNavigate}
           editMode={editMode}
+          isAdmin={isEffectiveAdmin}
           activeElementPart={activeElementPart}
           onSelectPart={onSelectPart}
         />
@@ -304,15 +339,244 @@ const EditablePartWrapper: React.FC<{
   );
 };
 
+/**
+ * Compatible Bespoke Legal Architectural Frame for the Partners Group Portrait
+ */
+const InstitutionalImageFrame: React.FC<{
+  imageUrl?: string;
+  imageAlt?: string;
+  caption?: string;
+  sectionId?: string;
+  editMode?: boolean;
+  isAdmin?: boolean;
+}> = ({
+  imageUrl,
+  imageAlt = 'Lalusis & Partners Founding Partners',
+  caption = 'Partners of Lalusis & Partners · Left: Atty. Levy John Lalusis, Center: Atty. Diosdado Anselmo Lalusis, Right: Atty. Leo Lalusis',
+  sectionId,
+  editMode = false,
+  isAdmin = false,
+}) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [localSrc, setLocalSrc] = useState<string>(imageUrl || '/Group Picture.jpeg');
+  const [hasError, setHasError] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const toast = useToast();
+
+  const isEffectiveAdmin = Boolean(
+    isAdmin ||
+    editMode ||
+    (typeof window !== 'undefined' && (
+      window.location.pathname.startsWith('/admin') ||
+      window.location.hash.includes('/admin')
+    ))
+  );
+
+  useEffect(() => {
+    if (imageUrl) {
+      setLocalSrc(imageUrl);
+      setHasError(false);
+    }
+  }, [imageUrl]);
+
+  const handleFile = async (file: File) => {
+    if (!isEffectiveAdmin) return;
+    setIsUploading(true);
+    try {
+      const processed = await processImageFile(file, 1800, 0.88);
+      setLocalSrc(processed.dataUrl);
+      setHasError(false);
+      if (sectionId) {
+        db.updateSection('page-home', sectionId, {
+          content: { imageUrl: processed.dataUrl },
+        });
+      }
+      toast.success('Partner Group Portrait Updated', 'Image loaded and stored in firm records.');
+    } catch (e: any) {
+      toast.error('Upload Failed', e?.message || 'Failed to process image file.');
+    } finally {
+      setIsUploading(false);
+      setIsDragging(false);
+    }
+  };
+
+  const onDrop = (e: React.DragEvent) => {
+    if (!isEffectiveAdmin) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  return (
+    <div
+      onDragOver={isEffectiveAdmin ? (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+      } : undefined}
+      onDragLeave={isEffectiveAdmin ? () => setIsDragging(false) : undefined}
+      onDrop={isEffectiveAdmin ? onDrop : undefined}
+      className={`relative w-full my-6 p-2.5 sm:p-4 bg-gradient-to-b from-[#181614] via-[#100f13] to-[#08080a] border-2 transition-all duration-300 ${
+        isDragging && isEffectiveAdmin
+          ? 'border-[#c59b63] shadow-[0_0_50px_rgba(197,155,99,0.35)] scale-[1.01]'
+          : 'border-[#c59b63]/60 shadow-[0_24px_60px_rgba(0,0,0,0.9),0_0_35px_rgba(197,155,99,0.12)]'
+      }`}
+    >
+      {/* 4 Architectural Brass/Gold Corner Accents */}
+      <div className="absolute -top-1.5 -left-1.5 w-6 h-6 border-t-2 border-l-2 border-[#d4af7a] pointer-events-none z-20" />
+      <div className="absolute -top-1.5 -right-1.5 w-6 h-6 border-t-2 border-r-2 border-[#d4af7a] pointer-events-none z-20" />
+      <div className="absolute -bottom-1.5 -left-1.5 w-6 h-6 border-b-2 border-l-2 border-[#d4af7a] pointer-events-none z-20" />
+      <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 border-b-2 border-r-2 border-[#d4af7a] pointer-events-none z-20" />
+
+      {/* Decorative Gold Corner Rivets */}
+      <div className="absolute top-2 left-2 w-1.5 h-1.5 bg-[#c59b63] rotate-45 z-20 opacity-80 pointer-events-none" />
+      <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-[#c59b63] rotate-45 z-20 opacity-80 pointer-events-none" />
+      <div className="absolute bottom-2 left-2 w-1.5 h-1.5 bg-[#c59b63] rotate-45 z-20 opacity-80 pointer-events-none" />
+      <div className="absolute bottom-2 right-2 w-1.5 h-1.5 bg-[#c59b63] rotate-45 z-20 opacity-80 pointer-events-none" />
+
+      {/* Inner Golden Reveal Frame */}
+      <div className="relative overflow-hidden border border-[#c59b63]/35 bg-[#060608]">
+        {!hasError ? (
+          <div className="relative group">
+            <img
+              src={localSrc}
+              alt={imageAlt}
+              onError={() => setHasError(true)}
+              className="w-full h-auto max-h-[580px] object-cover object-top block select-none transition-transform duration-500 group-hover:scale-[1.01]"
+            />
+            {/* Ambient vignette gradient overlay */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[#0a0a0e] via-transparent to-black/20 opacity-60" />
+
+            {/* Hover update control - strictly visible on admin side only */}
+            {isEffectiveAdmin && (
+              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-30">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0a0a0d]/90 hover:bg-[#c59b63] text-[#c59b63] hover:text-[#0a0a0d] border border-[#c59b63]/60 text-[11px] font-cinzel uppercase tracking-wider transition-all backdrop-blur-sm shadow-xl cursor-pointer"
+                  title="Update or Replace Image"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Replace Photo</span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Stately interactive dropzone placeholder */
+          <div
+            onClick={isEffectiveAdmin ? () => fileInputRef.current?.click() : undefined}
+            className={`py-14 sm:py-20 px-6 text-center flex flex-col items-center justify-center space-y-4 transition-colors ${
+              isEffectiveAdmin ? 'cursor-pointer hover:bg-white/[0.02]' : 'select-none'
+            }`}
+          >
+            <div className="w-16 h-16 text-[#c59b63] mx-auto drop-shadow-lg">
+              <LalusisLogoMark className="w-full h-full" />
+            </div>
+            <div className="space-y-1.5 max-w-md mx-auto">
+              <h4 className="font-cinzel text-base sm:text-lg font-semibold tracking-[0.16em] text-[#f4e6d0] uppercase">
+                Institutional Chamber Portrait
+              </h4>
+              <p className="text-xs text-[#a8a199] font-sans">
+                Founding Partners of Lalusis &amp; Partners
+              </p>
+            </div>
+            {isEffectiveAdmin && (
+              <>
+                <div className="pt-2">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-[#16161f] border border-[#c59b63]/60 text-[#c59b63] text-xs font-cinzel uppercase tracking-widest hover:bg-[#c59b63] hover:text-[#0d0d11] transition-all">
+                    <Upload className="w-4 h-4" />
+                    <span>Select or Drop Group Picture</span>
+                  </span>
+                </div>
+                <p className="text-[10px] text-[#706c64] uppercase tracking-wider font-mono">
+                  Accepts Group Picture.jpeg, PNG, WEBP
+                </p>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Hidden File Input for Direct Local Selection (Admin Only) */}
+        {isEffectiveAdmin && (
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) {
+                handleFile(e.target.files[0]);
+              }
+            }}
+          />
+        )}
+
+        {/* Executive Brass Nameplate Bar */}
+        <div className="py-3 px-4 sm:px-6 bg-[#0c0c11] border-t border-[#c59b63]/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 text-[#c59b63] flex-shrink-0 hidden sm:block">
+              <LalusisLogoMark className="w-full h-full" />
+            </div>
+            <div>
+              <span className="font-cinzel text-[11px] sm:text-xs font-bold tracking-[0.22em] text-[#f4e6d0] uppercase block">
+                Founding Partners · Lalusis &amp; Partners
+              </span>
+              <span className="font-sans text-[11px] text-[#c59b63] tracking-wide block sm:inline mt-0.5">
+                Left: Atty. Levy John Lalusis · Center: Atty. Diosdado Anselmo Lalusis · Right: Atty. Leo Lalusis
+              </span>
+            </div>
+          </div>
+
+          {/* Update Photo button - strictly visible on admin side only */}
+          {isEffectiveAdmin && (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1 bg-[#14141c] hover:bg-[#c59b63]/20 border border-[#c59b63]/40 text-[#c59b63] hover:text-[#f4e6d0] text-[10px] font-cinzel uppercase tracking-wider transition-all cursor-pointer"
+            >
+              <Upload className="w-3 h-3" />
+              <span>{hasError ? 'Upload Photo' : 'Update Photo'}</span>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const RenderSectionItem: React.FC<{
   section: PageSection;
   onNavigate: (path: string) => void;
   editMode?: boolean;
+  isAdmin?: boolean;
   activeElementPart?: string | null;
   onSelectPart?: (part: string) => void;
-}> = ({ section, onNavigate, editMode, activeElementPart, onSelectPart }) => {
+}> = ({ section, onNavigate, editMode, isAdmin, activeElementPart, onSelectPart }) => {
   const { type, content, background, paddingY, typography } = section;
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
+  const [activeVideoModal, setActiveVideoModal] = useState<any | null>(null);
+  const [selectedPartnerModal, setSelectedPartnerModal] = useState<Attorney | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (activeVideoModal) setActiveVideoModal(null);
+        if (selectedPartnerModal) setSelectedPartnerModal(null);
+      }
+    };
+    if (activeVideoModal || selectedPartnerModal) {
+      document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeVideoModal, selectedPartnerModal]);
 
   const bgClasses = {
     dark: 'bg-[#0d0d11] text-[#f7f4ee]',
@@ -472,38 +736,269 @@ const RenderSectionItem: React.FC<{
               </Button>
             </EditablePartWrapper>
 
-            {/* Part 6: Micro Badges */}
+            {/* Part 6: 3 Embedded Videos (Clickable & Popupable) */}
             <EditablePartWrapper
               editMode={editMode}
-              partId="stats"
-              partLabel="Track Record & Badges"
+              partId="videos"
+              partLabel="Embedded Video Showcase (3 Features)"
               activeElementPart={activeElementPart}
               onSelectPart={onSelectPart}
-              className={`pt-10 border-t border-[#1f1f28] grid grid-cols-2 md:grid-cols-4 gap-6 text-xs text-[#8e877e] max-w-4xl ${statsTypo.marginClass}`}
+              className={`pt-10 border-t border-[#1f1f28] w-full max-w-6xl mt-4 ${statsTypo.marginClass}`}
             >
-              {[
-                { value: content.badge1Value || '28+ Years', label: content.badge1Label || 'Trial Eminence' },
-                { value: content.badge2Value || '150+', label: content.badge2Label || 'Supreme Court Rulings' },
-                { value: content.badge3Value || '₱180B+', label: content.badge3Label || 'Transactions Advised' },
-                { value: content.badge4Value || 'Tier 1', label: content.badge4Label || 'Corporate Practice' },
-              ].map((badge, bIdx) => (
-                <div key={bIdx} className={statsTypo.alignClass}>
-                  <span
-                    style={statsTypo.customStyle}
-                    className={`block ${statsTypo.fontClass} ${statsTypo.sizeClass || 'text-xl'} ${statsTypo.weightClass || 'font-normal'} ${statsTypo.colorClass || 'text-[#f4e6d0]'} ${statsTypo.trackingClass} ${statsTypo.uppercaseClass} ${statsTypo.italicClass}`}
-                  >
-                    {badge.value}
-                  </span>
-                  <span
-                    style={statsTypo.customStyle}
-                    className={`${statsTypo.fontFamily === 'sans' ? 'font-sans' : 'font-cinzel'} text-[10px] tracking-wider ${statsTypo.subColorClass || 'text-[#c59b63]'} uppercase mt-0.5 block`}
-                  >
-                    {badge.label}
+              <div className="w-full space-y-4">
+                <div className="flex items-center justify-between pb-1">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#c59b63] animate-pulse" />
+                    <span className="font-cinzel text-[11px] tracking-[0.25em] text-[#c59b63] uppercase">
+                      Executive Video Briefings · Click to Watch
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-mono text-[#8e877e] hidden sm:inline">
+                    3 Embedded Features · Interactive Popups
                   </span>
                 </div>
-              ))}
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+                  {(
+                    (Array.isArray(content.videos) && content.videos.length > 0)
+                      ? content.videos
+                      : [
+                          {
+                            id: 'vid-1',
+                            title: 'Decisive Trial Advocacy & Bureau Leadership',
+                            subtitle: 'Atty. Leo Lalusis · Managing Partner',
+                            description: 'Decades of seasoned trial litigation, landmark prosecution commendations, and high-profile public defense.',
+                            duration: '03:45',
+                            tag: 'Trial Eminence',
+                            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                            thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
+                          },
+                          {
+                            id: 'vid-2',
+                            title: '150+ Supreme Court Rulings & Appellate Advocacy',
+                            subtitle: 'Senior Partner Atty. Diosdado Anselmo Lalusis',
+                            description: 'Over 150 superior appellate rulings, landmark constitutional advocacy, and unmatched jurisprudential depth.',
+                            duration: '04:12',
+                            tag: 'Supreme Court Practice',
+                            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                            thumbnailUrl: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80',
+                          },
+                          {
+                            id: 'vid-3',
+                            title: '₱180B+ Transactions Advised & Tier 1 Practice',
+                            subtitle: 'Atty. Levy John Lalusis · Partner & Tax Specialist',
+                            description: 'Cross-border mergers and acquisitions, sovereign regulatory compliance, and premier corporate counsel.',
+                            duration: '03:18',
+                            tag: 'Corporate & M&A',
+                            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+                            thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+                          },
+                        ]
+                  ).map((vid: any, vIdx: number) => (
+                    <div
+                      key={vid.id || vIdx}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Watch ${vid.title}`}
+                      onClick={() => {
+                        if (editMode) {
+                          onSelectPart?.('videos');
+                        }
+                        setActiveVideoModal(vid);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setActiveVideoModal(vid);
+                        }
+                      }}
+                      className="group relative bg-[#0b0b0f] border border-[#22222e] hover:border-[#c59b63]/70 transition-all duration-300 flex flex-col cursor-pointer overflow-hidden shadow-lg hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] text-left focus:outline-none focus:ring-1 focus:ring-[#c59b63]"
+                    >
+                      {/* Video Thumbnail / Preview Container */}
+                      <div className="aspect-video relative overflow-hidden bg-black/80">
+                        {/* Background Thumbnail Image */}
+                        <img
+                          src={vid.thumbnailUrl || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80'}
+                          alt={vid.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-95"
+                          loading="lazy"
+                        />
+                        {/* Gradient Scrim */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0b0b0f] via-black/40 to-black/30" />
+
+                        {/* Top Category Badge */}
+                        <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                          <span className="px-2 py-0.5 text-[9px] font-cinzel font-semibold tracking-widest uppercase bg-[#09090c]/90 text-[#c59b63] border border-[#c59b63]/40 backdrop-blur-sm">
+                            {vid.tag || `Feature 0${vIdx + 1}`}
+                          </span>
+                        </div>
+
+                        {/* Top Right Duration Pill */}
+                        {vid.duration && (
+                          <div className="absolute top-2.5 right-2.5">
+                            <span className="px-1.5 py-0.5 text-[9px] font-mono tracking-wider bg-black/85 text-[#ded6c9] border border-white/10 backdrop-blur-sm">
+                              {vid.duration}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Center Glowing Gold Play Button */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#0d0d12]/85 backdrop-blur-md border border-[#c59b63] flex items-center justify-center text-[#c59b63] group-hover:scale-115 group-hover:bg-[#c59b63] group-hover:text-[#09090c] transition-all duration-300 shadow-[0_0_20px_rgba(197,155,99,0.35)] group-hover:shadow-[0_0_30px_rgba(197,155,99,0.7)]">
+                            <Play className="w-5 h-5 sm:w-6 sm:h-6 ml-0.5 fill-current" />
+                          </div>
+                        </div>
+
+                        {/* Bottom helper text inside preview */}
+                        <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[10px] text-[#ded6c9]/80 font-mono">
+                          <span className="flex items-center gap-1 group-hover:text-[#f7f4ee] transition-colors">
+                            <Play className="w-2.5 h-2.5 text-[#c59b63] fill-current" /> Watch Feature
+                          </span>
+                          <span className="text-[#8e877e] group-hover:text-[#c59b63] transition-colors">
+                            Popup Player ↗
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Card Content Description */}
+                      <div className="p-4 flex-1 flex flex-col justify-between space-y-2.5 bg-[#0e0e13]/90 border-t border-[#1a1a24]">
+                        <div className="space-y-1">
+                          <h3 className="font-cormorant text-base sm:text-lg font-bold text-[#f7f4ee] group-hover:text-[#e4c18f] transition-colors leading-snug line-clamp-1">
+                            {vid.title}
+                          </h3>
+                          {vid.speaker && (
+                            <p className="font-cinzel text-[11px] text-[#c59b63] tracking-wider line-clamp-1">
+                              {vid.speaker}
+                            </p>
+                          )}
+                          {vid.subtitle && (
+                            <p className="text-xs text-[#8e877e] line-clamp-2 leading-relaxed pt-0.5">
+                              {vid.subtitle}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Bottom Expand Action Button */}
+                        <div className="pt-2 border-t border-[#1a1a24] flex items-center justify-between text-xs">
+                          <span className="font-cinzel text-[10px] text-[#c59b63] group-hover:text-[#f7f4ee] uppercase tracking-wider flex items-center gap-1.5 transition-colors">
+                            <span>Watch Popup Video</span>
+                            <ArrowRight className="w-3 h-3 text-[#c59b63] group-hover:translate-x-1 transition-transform" />
+                          </span>
+                          <span className="text-[10px] font-mono text-[#8e877e]">
+                            [HD Stream]
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </EditablePartWrapper>
           </div>
+
+          {/* Video Popup Modal */}
+          {activeVideoModal && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6"
+              role="dialog"
+              aria-modal="true"
+            >
+              {/* Backdrop */}
+              <div
+                className="fixed inset-0 bg-black/90 backdrop-blur-md transition-opacity cursor-pointer"
+                onClick={() => setActiveVideoModal(null)}
+              />
+
+              {/* Modal Container */}
+              <div className="relative w-full max-w-4xl bg-[#0e0e13] border border-[#c59b63]/50 shadow-2xl z-10 flex flex-col text-left overflow-hidden animate-fadeIn">
+                {/* Modal Header */}
+                <div className="px-5 py-4 bg-[#121218] border-b border-[#242432] flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="font-cinzel text-[10px] tracking-[0.2em] text-[#c59b63] uppercase block">
+                      {activeVideoModal.tag || 'Executive Video Archive'}
+                    </span>
+                    <h3 className="font-cormorant text-lg sm:text-xl font-bold text-[#f7f4ee]">
+                      {activeVideoModal.title}
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveVideoModal(null)}
+                    className="p-1.5 text-[#8e877e] hover:text-[#f7f4ee] hover:bg-[#1f1f2b] transition-colors rounded-none flex items-center gap-1.5 text-xs cursor-pointer"
+                    title="Close (Esc)"
+                  >
+                    <span className="font-mono text-[10px] hidden sm:inline text-[#8e877e]">ESC</span>
+                    <X className="w-5 h-5 text-[#c59b63]" />
+                  </button>
+                </div>
+
+                {/* Video Player */}
+                <div className="aspect-video w-full bg-black relative overflow-hidden border-b border-[#242432]">
+                  {Boolean(
+                    activeVideoModal.videoUrl?.includes('youtube.com') ||
+                    activeVideoModal.videoUrl?.includes('youtu.be') ||
+                    activeVideoModal.videoUrl?.includes('vimeo.com')
+                  ) ? (
+                    <iframe
+                      src={getEmbedVideoUrl(activeVideoModal.videoUrl)}
+                      title={activeVideoModal.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full border-0"
+                    />
+                  ) : (
+                    <video
+                      key={activeVideoModal.videoUrl}
+                      autoPlay
+                      controls
+                      playsInline
+                      src={activeVideoModal.videoUrl}
+                      className="w-full h-full object-contain"
+                    >
+                      Your browser does not support HTML5 video playback.
+                    </video>
+                  )}
+                </div>
+
+                {/* Modal Footer / Matter Overview */}
+                <div className="p-5 sm:p-6 bg-[#0e0e13] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="space-y-1 max-w-xl">
+                    {activeVideoModal.speaker && (
+                      <p className="font-cinzel text-xs text-[#c59b63] tracking-wider uppercase">
+                        {activeVideoModal.speaker}
+                      </p>
+                    )}
+                    {activeVideoModal.description && (
+                      <p className="text-xs text-[#ded6c9] leading-relaxed">
+                        {activeVideoModal.description}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <Button
+                      variant="gold-outline"
+                      size="sm"
+                      onClick={() => {
+                        setActiveVideoModal(null);
+                        onNavigate('/consultation');
+                      }}
+                      className="font-cinzel text-xs"
+                    >
+                      Request Consultation
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setActiveVideoModal(null)}
+                      className="font-cinzel text-xs text-[#8e877e] hover:text-[#f7f4ee]"
+                    >
+                      Close
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
       );
     }
@@ -1077,7 +1572,7 @@ const RenderSectionItem: React.FC<{
         <div className={`${bg} ${py} border-b border-[#1a1a23]`}>
           <div className={`max-w-4xl mx-auto px-6 space-y-6 flex flex-col ${typo.flexAlignClass}`}>
             {/* Eyebrow */}
-            {(content.eyebrow || section.subtitle) && (
+            {Boolean(content.eyebrow) && (
               <EditablePartWrapper
                 editMode={editMode}
                 partId="eyebrow"
@@ -1089,13 +1584,13 @@ const RenderSectionItem: React.FC<{
                   style={eyeTypo.customStyle}
                   className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase block ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
                 >
-                  {content.eyebrow || section.subtitle}
+                  {content.eyebrow}
                 </span>
               </EditablePartWrapper>
             )}
 
             {/* Headline / Title */}
-            {(content.headline || content.heading || section.title) && (
+            {Boolean(content.headline || content.heading) && (
               <EditablePartWrapper
                 editMode={editMode}
                 partId="headline"
@@ -1108,13 +1603,13 @@ const RenderSectionItem: React.FC<{
                   style={headTypo.customStyle}
                   className={`${headTypo.fontClass} ${headTypo.sizeClass || 'text-2xl sm:text-4xl'} ${headTypo.weightClass} ${headTypo.colorClass} leading-snug pb-2 border-b border-[#252532] ${headTypo.trackingClass} ${headTypo.uppercaseClass} ${headTypo.italicClass}`}
                 >
-                  {content.headline || content.heading || section.title}
+                  {content.headline || content.heading}
                 </h2>
               </EditablePartWrapper>
             )}
 
             {/* Subheadline / Overview */}
-            {(content.subheadline || content.subheading || (content.heading && section.subtitle)) && (
+            {Boolean(content.subheadline || content.subheading) && (
               <EditablePartWrapper
                 editMode={editMode}
                 partId="subheadline"
@@ -1127,12 +1622,33 @@ const RenderSectionItem: React.FC<{
                   style={subTypo.customStyle}
                   className={`${subTypo.fontClass} ${subTypo.sizeClass || 'text-sm sm:text-base'} ${subTypo.colorClass || subTypo.subColorClass} ${subTypo.weightClass} ${subTypo.trackingClass} ${subTypo.uppercaseClass} ${subTypo.italicClass}`}
                 >
-                  {content.subheadline || content.subheading || section.subtitle}
+                  {content.subheadline || content.subheading}
                 </p>
               </EditablePartWrapper>
             )}
 
-            {/* Body */}
+            {/* Upper Part: Partner Group Portrait with Compatible Bespoke Legal Frame */}
+            {(content.imageUrl || content.image || section.id === 'sec-intro' || section.subtitle?.toLowerCase().includes('institutional overview') || section.title?.toLowerCase().includes('introduction')) && (
+              <EditablePartWrapper
+                editMode={editMode}
+                partId="image"
+                partLabel="Partner Group Portrait / Featured Image"
+                activeElementPart={activeElementPart}
+                onSelectPart={onSelectPart}
+                className="w-full my-2"
+              >
+                <InstitutionalImageFrame
+                  imageUrl={content.imageUrl || content.image || '/Group Picture.jpeg'}
+                  imageAlt={content.imageAlt || 'Lalusis & Partners Founding Partners'}
+                  caption={content.imageCaption || 'Partners of Lalusis & Partners · Atty. Leo Lalusis, Senior Partner Atty. Diosdado Anselmo Lalusis, and Atty. Levy John Lalusis'}
+                  sectionId={section.id}
+                  editMode={editMode}
+                  isAdmin={isAdmin}
+                />
+              </EditablePartWrapper>
+            )}
+
+            {/* Body: Institutional Overview Content Justified */}
             <EditablePartWrapper
               editMode={editMode}
               partId="body"
@@ -1143,10 +1659,15 @@ const RenderSectionItem: React.FC<{
             >
               <div
                 style={bodyTypo.customStyle}
-                className={`space-y-4 ${bodyTypo.fontClass} ${bodyTypo.sizeClass || 'text-sm sm:text-base'} ${bodyTypo.bodyColorClass || bodyTypo.colorClass} leading-relaxed ${bodyTypo.alignClass} ${bodyTypo.italicClass} ${bodyTypo.trackingClass} ${bodyTypo.dropCapClass}`}
+                className={`space-y-4 sm:space-y-5 ${bodyTypo.fontClass} ${bodyTypo.sizeClass || 'text-sm sm:text-base'} ${bodyTypo.bodyColorClass || bodyTypo.colorClass} leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] hyphens-auto ${bodyTypo.italicClass} ${bodyTypo.trackingClass} ${bodyTypo.dropCapClass}`}
               >
                 {(content.body || '').split('\n\n').map((para: string, i: number) => (
-                  <p key={i}>{para}</p>
+                  <p
+                    key={i}
+                    className="leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] text-[#ded6c9]"
+                  >
+                    {para}
+                  </p>
                 ))}
               </div>
             </EditablePartWrapper>
@@ -1518,7 +2039,26 @@ const RenderSectionItem: React.FC<{
     }
 
     case 'attorneys': {
-      const attorneys = db.getAttorneys(false).slice(0, content.limit || 4);
+      const allAttorneys = db.getAttorneys(false);
+      
+      // Explicit 3 Solo Card Partners Layout requested by user:
+      // Left Side: Atty. Levy John Lalusis
+      // Center: Atty. Diosdado Anselmo Lalusis
+      // Right Side: Atty. Leo Lalusis
+      const levy = allAttorneys.find((a) => a.id === 'atty-2' || a.fullName.toLowerCase().includes('levy'));
+      const diosdado = allAttorneys.find((a) => a.id === 'atty-3' || a.fullName.toLowerCase().includes('diosdado'));
+      const leo = allAttorneys.find((a) => a.id === 'atty-1' || a.fullName.toLowerCase().includes('leo'));
+
+      let attorneys: Attorney[] = [];
+      if (levy && diosdado && leo) {
+        attorneys = [levy, diosdado, leo];
+      } else {
+        const partnerAttorneys = allAttorneys.filter((a) => a.isPartner);
+        attorneys = (partnerAttorneys.length >= 3 ? partnerAttorneys : allAttorneys)
+          .sort((a, b) => (a.order || 0) - (b.order || 0))
+          .slice(0, content.limit || 3);
+      }
+
       return (
         <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
@@ -1549,7 +2089,7 @@ const RenderSectionItem: React.FC<{
                   style={headTypo.customStyle}
                   className={`${headTypo.fontClass} ${headTypo.sizeClass || 'text-3xl sm:text-5xl'} ${headTypo.weightClass} ${headTypo.colorClass} leading-tight ${headTypo.trackingClass} ${headTypo.uppercaseClass} ${headTypo.italicClass}`}
                 >
-                  {content.headline || content.heading || section.title || 'Partners'}
+                  {content.headline || content.heading || section.title || 'Distinguished Partners'}
                 </h2>
               </EditablePartWrapper>
 
@@ -1574,45 +2114,396 @@ const RenderSectionItem: React.FC<{
             <EditablePartWrapper
               editMode={editMode}
               partId="cards"
-              partLabel="Partners Roster Grid"
+              partLabel="Partners Solo Cards Panel (Click to View Full Credentials)"
               activeElementPart={activeElementPart}
               onSelectPart={onSelectPart}
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {attorneys.map((atty) => (
-                  <div
-                    key={atty.id}
-                    onClick={() => onNavigate(`/attorneys/${atty.slug}`)}
-                    className="group bg-[#111116] border border-[#22222d] hover:border-[#c59b63]/60 transition-all duration-300 cursor-pointer text-left overflow-hidden"
-                  >
-                    <div className="h-72 overflow-hidden relative">
-                      <img
-                        src={atty.portraitUrl}
-                        alt={atty.fullName}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 filter brightness-95"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#111116] via-transparent to-transparent opacity-80" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+                {attorneys.map((atty, idx) => {
+                  const positionLabel =
+                    idx === 0
+                      ? 'Left Side · Founding Partner'
+                      : idx === 1
+                      ? 'Center · Senior Partner'
+                      : 'Right Side · Founding Partner';
+
+                  return (
+                    <div
+                      key={atty.id}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`View credentials and certificates of ${atty.fullName}`}
+                      onClick={() => {
+                        if (editMode) {
+                          onSelectPart?.('cards');
+                        }
+                        setSelectedPartnerModal(atty);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSelectedPartnerModal(atty);
+                        }
+                      }}
+                      className="group relative bg-[#101015] border border-[#232330] hover:border-[#c59b63] transition-all duration-300 cursor-pointer text-left overflow-hidden flex flex-col shadow-xl hover:shadow-[0_12px_35px_rgba(197,155,99,0.18)] focus:outline-none focus:ring-1 focus:ring-[#c59b63]"
+                    >
+                      {/* Portrait Frame with Executive Brass Accent */}
+                      <div className="aspect-[4/5] sm:h-80 overflow-hidden relative bg-[#0a0a0e]">
+                        <img
+                          src={atty.portraitUrl}
+                          alt={atty.fullName}
+                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 filter brightness-95 group-hover:brightness-100"
+                          referrerPolicy="no-referrer"
+                          loading="lazy"
+                        />
+                        {/* Gradient Scrim */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#101015] via-black/25 to-transparent opacity-90" />
+
+                        {/* Top Role Badge with Layout Position */}
+                        <div className="absolute top-3 left-3">
+                          <span className="px-2.5 py-1 text-[9px] font-cinzel font-semibold tracking-widest uppercase bg-[#0a0a0d]/90 text-[#c59b63] border border-[#c59b63]/40 backdrop-blur-sm shadow-md">
+                            {positionLabel}
+                          </span>
+                        </div>
+
+                        {/* Hover Overlay Hint */}
+                        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <span className="px-2.5 py-1 text-[9px] font-cinzel tracking-wider uppercase bg-[#c59b63] text-[#09090c] font-bold shadow-md flex items-center gap-1">
+                            <span>View Full Credentials</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Solo Card Body */}
+                      <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4 bg-[#101015] border-t border-[#1e1e28]">
+                        <div className="space-y-2">
+                          <span className="font-cinzel text-[10px] text-[#c59b63] uppercase tracking-[0.2em] block font-semibold">
+                            {atty.professionalTitle}
+                          </span>
+                          <h3
+                            style={cardsTypo.customStyle}
+                            className={`${cardsTypo.fontClass} ${cardsTypo.sizeClass || 'text-2xl'} ${cardsTypo.colorClass || 'text-[#f7f4ee]'} font-semibold group-hover:text-[#e4c18f] transition-colors ${cardsTypo.trackingClass} ${cardsTypo.uppercaseClass} ${cardsTypo.italicClass}`}
+                          >
+                            {atty.fullName}
+                          </h3>
+                          <p className="text-xs text-[#a8a199] line-clamp-2 leading-relaxed font-sans">
+                            {atty.primarySpecialization}
+                          </p>
+
+                          {/* Highlight Badges / Credentials Pills */}
+                          <div className="pt-2 flex flex-wrap gap-1.5">
+                            {atty.barAdmissions?.[0] && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-mono bg-[#181822] text-[#c59b63] border border-[#2b2b3b]">
+                                <Scale className="w-2.5 h-2.5 text-[#c59b63]" />
+                                <span className="truncate max-w-[180px]">
+                                  {atty.barAdmissions[0].includes('2019') ? 'Bar 2019 (1st Attempt)' : atty.barAdmissions[0].includes('2024') ? 'Bar 2024 (PACC/DOTr)' : 'Supreme Court Roll'}
+                                </span>
+                              </span>
+                            )}
+                            {atty.education?.[0] && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-mono bg-[#181822] text-[#ded6c9] border border-[#2b2b3b]">
+                                <GraduationCap className="w-2.5 h-2.5 text-[#a8a199]" />
+                                <span className="truncate max-w-[180px]">
+                                  {atty.education[0].includes('Master of Laws') ? 'LL.M. Candidate' : atty.education[0].includes('DPO') ? 'Certified DPO' : atty.education[0].includes('Fellowship') ? 'PRC Legal Head' : 'Juris Doctor'}
+                                </span>
+                              </span>
+                            )}
+                            {atty.awards?.[0] && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-mono bg-[#181822] text-[#ded6c9] border border-[#2b2b3b]">
+                                <Award className="w-2.5 h-2.5 text-[#c59b63]" />
+                                <span className="truncate max-w-[180px]">
+                                  {atty.awards[0].includes('NBI') ? 'NBI Commended' : atty.awards[0].includes('PACC') ? 'PACC Service Citation' : 'PRC Decade Award'}
+                                </span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Interactive Bottom Action Button */}
+                        <div className="pt-3 border-t border-[#1e1e28] flex items-center justify-between">
+                          <span className="font-cinzel text-[11px] text-[#c59b63] group-hover:text-[#f7f4ee] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-colors">
+                            <span>Full Credentials &amp; Certifications</span>
+                            <ArrowRight className="w-3.5 h-3.5 text-[#c59b63] group-hover:translate-x-1 transition-transform" />
+                          </span>
+                          <span className="text-[10px] font-mono text-[#8e877e]">
+                            [Clickable Popup]
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-5 space-y-1">
-                      <span className="font-cinzel text-[10px] text-[#c59b63] uppercase tracking-wider block">
-                        {atty.professionalTitle}
-                      </span>
-                      <h4
-                        style={cardsTypo.customStyle}
-                        className={`${cardsTypo.fontClass} ${cardsTypo.sizeClass || 'text-xl'} ${cardsTypo.colorClass || 'text-[#f7f4ee]'} ${cardsTypo.weightClass || 'font-medium'} group-hover:text-[#f4e6d0] ${cardsTypo.trackingClass} ${cardsTypo.uppercaseClass} ${cardsTypo.italicClass}`}
-                      >
-                        {atty.fullName}
-                      </h4>
-                      <p className="text-[11px] text-[#8e877e] truncate pt-1">
-                        {atty.primarySpecialization}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </EditablePartWrapper>
           </div>
+
+          {/* Full Information, Credentials & Certificates Popup Modal */}
+          {selectedPartnerModal && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6"
+              role="dialog"
+              aria-modal="true"
+            >
+              {/* Backdrop */}
+              <div
+                className="fixed inset-0 bg-black/90 backdrop-blur-md transition-opacity cursor-pointer"
+                onClick={() => setSelectedPartnerModal(null)}
+              />
+
+              {/* Modal Container */}
+              <div className="relative w-full max-w-4xl max-h-[92vh] bg-[#0d0d12] border border-[#c59b63]/60 shadow-[0_0_50px_rgba(0,0,0,0.9)] z-10 flex flex-col text-left overflow-hidden animate-fadeIn">
+                {/* Modal Header */}
+                <div className="px-6 py-4 bg-[#121218] border-b border-[#242432] flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#c59b63]" />
+                    <span className="font-cinzel text-[11px] tracking-[0.25em] text-[#c59b63] uppercase font-bold">
+                      Official Partner Dossier &amp; Certified Credentials
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPartnerModal(null)}
+                    className="p-1.5 text-[#8e877e] hover:text-[#f7f4ee] hover:bg-[#1f1f2b] transition-colors rounded-none flex items-center gap-1.5 text-xs cursor-pointer"
+                    title="Close (Esc)"
+                  >
+                    <span className="font-mono text-[10px] hidden sm:inline text-[#8e877e]">ESC</span>
+                    <X className="w-5 h-5 text-[#c59b63]" />
+                  </button>
+                </div>
+
+                {/* Modal Scrollable Content */}
+                <div className="p-6 sm:p-8 overflow-y-auto space-y-8 text-left">
+                  {/* Partner Hero Overview */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-start pb-8 border-b border-[#21212e]">
+                    {/* Portrait Column */}
+                    <div className="md:col-span-4 space-y-4">
+                      <div className="border border-[#c59b63]/50 p-1.5 bg-[#14141c] shadow-lg">
+                        <img
+                          src={selectedPartnerModal.portraitUrl}
+                          alt={selectedPartnerModal.fullName}
+                          className="w-full aspect-[3/4] object-cover object-top filter brightness-95"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+
+                      <div className="bg-[#121219] border border-[#22222f] p-4 space-y-2.5 text-xs">
+                        {selectedPartnerModal.email && (
+                          <div className="flex items-center gap-2.5 text-[#ded6c9]">
+                            <Mail className="w-4 h-4 text-[#c59b63] shrink-0" />
+                            <span className="font-mono text-[11px] truncate">{selectedPartnerModal.email}</span>
+                          </div>
+                        )}
+                        {selectedPartnerModal.directPhone && (
+                          <div className="flex items-center gap-2.5 text-[#ded6c9]">
+                            <Phone className="w-4 h-4 text-[#c59b63] shrink-0" />
+                            <span className="font-mono text-[11px]">{selectedPartnerModal.directPhone}</span>
+                          </div>
+                        )}
+                        <div className="pt-2">
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            className="w-full font-cinzel text-xs uppercase"
+                            onClick={() => {
+                              setSelectedPartnerModal(null);
+                              onNavigate('/consultation');
+                            }}
+                          >
+                            Request Consultation
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Details Column */}
+                    <div className="md:col-span-8 space-y-4">
+                      <div>
+                        <span className="font-cinzel text-xs font-semibold text-[#c59b63] uppercase tracking-[0.25em] block">
+                          {selectedPartnerModal.professionalTitle}
+                        </span>
+                        <h2 className="font-cormorant text-3xl sm:text-4xl font-bold text-[#f7f4ee] mt-1">
+                          {selectedPartnerModal.fullName}
+                        </h2>
+                        <p className="text-xs sm:text-sm font-cinzel text-[#ded6c9] tracking-wider mt-1.5 uppercase">
+                          Practice Focus: {selectedPartnerModal.primarySpecialization}
+                        </p>
+                      </div>
+
+                      {/* Professional Narrative */}
+                      <div className="space-y-3 pt-2">
+                        <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#c59b63] uppercase">
+                          Executive Biography &amp; Practice Narrative
+                        </h4>
+                        <p className="text-xs sm:text-sm text-[#c8c0b4] leading-relaxed font-sans text-justify">
+                          {selectedPartnerModal.biography}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Executive Credentials & Certificates Highlight Strip */}
+                  <div className="bg-[#101017] border border-[#c59b63]/30 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[#181824] border border-[#c59b63]/50 flex items-center justify-center text-[#c59b63] shrink-0">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <span className="font-cinzel text-[11px] font-bold tracking-[0.2em] text-[#f4e6d0] uppercase block">
+                          Official Credentials &amp; Verified Licensures
+                        </span>
+                        <span className="text-[11px] font-sans text-[#a8a199]">
+                          Supreme Court of the Philippines · Active Bar Roll &amp; Accreditations
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-1 text-[10px] font-mono tracking-wider bg-[#0a0a0e] text-[#c59b63] border border-[#c59b63]/40 uppercase flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#c59b63] animate-pulse" />
+                        <span>Good Standing</span>
+                      </span>
+                      <span className="px-2.5 py-1 text-[10px] font-mono tracking-wider bg-[#0a0a0e] text-[#ded6c9] border border-[#2b2b3b] uppercase">
+                        Certified Dossier
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Comprehensive Credentials, Certificates & Honors */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                    {/* 1. Bar Admissions & Licensure */}
+                    {selectedPartnerModal.barAdmissions && selectedPartnerModal.barAdmissions.length > 0 && (
+                      <div className="bg-[#121218] border border-[#21212d] p-5 space-y-3">
+                        <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase flex items-center gap-2 border-b border-[#232332] pb-2.5">
+                          <Scale className="w-4 h-4 text-[#c59b63]" />
+                          <span>Bar Admissions &amp; Supreme Court Licensure</span>
+                        </h4>
+                        <ul className="space-y-2 text-xs text-[#a8a199] list-disc pl-5 leading-relaxed">
+                          {selectedPartnerModal.barAdmissions.map((adm, i) => (
+                            <li key={i} className="text-[#ded6c9]">
+                              {adm}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* 2. Academic Credentials & Certifications */}
+                    {selectedPartnerModal.education && selectedPartnerModal.education.length > 0 && (
+                      <div className="bg-[#121218] border border-[#21212d] p-5 space-y-3">
+                        <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase flex items-center gap-2 border-b border-[#232332] pb-2.5">
+                          <GraduationCap className="w-4 h-4 text-[#c59b63]" />
+                          <span>Academic Degrees &amp; Certifications</span>
+                        </h4>
+                        <ul className="space-y-2 text-xs text-[#a8a199] list-disc pl-5 leading-relaxed">
+                          {selectedPartnerModal.education.map((edu, i) => (
+                            <li key={i} className="text-[#ded6c9]">
+                              {edu}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* 3. Government & Regulatory Service Record */}
+                    {selectedPartnerModal.professionalExperience && selectedPartnerModal.professionalExperience.length > 0 && (
+                      <div className="bg-[#121218] border border-[#21212d] p-5 space-y-3">
+                        <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase flex items-center gap-2 border-b border-[#232332] pb-2.5">
+                          <Building2 className="w-4 h-4 text-[#c59b63]" />
+                          <span>Government &amp; Institutional Service Record</span>
+                        </h4>
+                        <ul className="space-y-2 text-xs text-[#a8a199] list-disc pl-5 leading-relaxed">
+                          {selectedPartnerModal.professionalExperience.map((exp, i) => (
+                            <li key={i} className="text-[#ded6c9]">
+                              {exp}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* 4. Honors, Citations & Awards */}
+                    {selectedPartnerModal.awards && selectedPartnerModal.awards.length > 0 && (
+                      <div className="bg-[#121218] border border-[#21212d] p-5 space-y-3">
+                        <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase flex items-center gap-2 border-b border-[#232332] pb-2.5">
+                          <Award className="w-4 h-4 text-[#c59b63]" />
+                          <span>Distinctions, Commendations &amp; Awards</span>
+                        </h4>
+                        <ul className="space-y-2 text-xs text-[#a8a199] list-disc pl-5 leading-relaxed">
+                          {selectedPartnerModal.awards.map((award, i) => (
+                            <li key={i} className="text-[#ded6c9]">
+                              {award}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* 5. Professional Memberships */}
+                    {selectedPartnerModal.memberships && selectedPartnerModal.memberships.length > 0 && (
+                      <div className="bg-[#121218] border border-[#21212d] p-5 space-y-3">
+                        <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase flex items-center gap-2 border-b border-[#232332] pb-2.5">
+                          <ShieldCheck className="w-4 h-4 text-[#c59b63]" />
+                          <span>Professional Guilds &amp; Memberships</span>
+                        </h4>
+                        <ul className="space-y-2 text-xs text-[#a8a199] list-disc pl-5 leading-relaxed">
+                          {selectedPartnerModal.memberships.map((mem, i) => (
+                            <li key={i} className="text-[#ded6c9]">
+                              {mem}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* 6. Selected Publications / Research */}
+                    {selectedPartnerModal.selectedPublications && selectedPartnerModal.selectedPublications.length > 0 && (
+                      <div className="bg-[#121218] border border-[#21212d] p-5 space-y-3">
+                        <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase flex items-center gap-2 border-b border-[#232332] pb-2.5">
+                          <BookOpen className="w-4 h-4 text-[#c59b63]" />
+                          <span>Selected Legal Publications &amp; Treatises</span>
+                        </h4>
+                        <ul className="space-y-2 text-xs text-[#a8a199] list-disc pl-5 leading-relaxed">
+                          {selectedPartnerModal.selectedPublications.map((pub, i) => (
+                            <li key={i} className="text-[#ded6c9] italic">
+                              "{pub}"
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Modal Footer */}
+                <div className="p-4 sm:p-5 bg-[#121218] border-t border-[#242432] flex items-center justify-between shrink-0">
+                  <span className="text-[11px] font-mono text-[#8e877e] hidden sm:inline">
+                    Lalusis &amp; Partners · Verified Partner Registry
+                  </span>
+                  <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                    <Button
+                      variant="gold-outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedPartnerModal(null);
+                        onNavigate('/consultation');
+                      }}
+                      className="font-cinzel text-xs"
+                    >
+                      Schedule Consultation
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedPartnerModal(null)}
+                      className="font-cinzel text-xs text-[#8e877e] hover:text-[#f7f4ee]"
+                    >
+                      Close
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
       );
     }

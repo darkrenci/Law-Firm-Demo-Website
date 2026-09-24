@@ -500,7 +500,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
   const scrollToPart = (partId: string) => {
     onSelectPart?.(partId);
     setIsolatePart(true);
-    const el = document.getElementById(`part-card-${partId}`);
+    const el = document.getElementById(`part-card-${partId}`) || ((partId === 'stats' || partId === 'videos') ? document.getElementById('part-card-videos') : null);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -516,7 +516,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
         { id: 'headline', label: 'Header 1', icon: FileText },
         { id: 'subheadline', label: 'Subtitle', icon: AlignLeft },
         { id: 'buttons', label: 'Buttons', icon: Link },
-        { id: 'stats', label: 'Badges', icon: Award },
+        { id: 'videos', label: 'Embedded Videos (3)', icon: Video },
       ];
     }
     const parts: { id: string; label: string; icon: any }[] = [];
@@ -564,6 +564,8 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
         return 'Action Buttons & Links';
       case 'stats':
         return 'Quantitative Milestones & Metrics';
+      case 'videos':
+        return 'Embedded 3-Video Showcase (Clickable & Popupable)';
       case 'cards':
         return 'Cards Grid & Directory Items';
       case 'image':
@@ -1847,110 +1849,137 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                   </div>
                 </div>
 
-                {/* PART 6: TRUST BADGES & METRICS CARD */}
+                {/* PART 6: 3 EMBEDDED VIDEOS (CLICKABLE & POPUPABLE) */}
                 <div
-                  id="part-card-stats"
-                  onClick={() => onSelectPart?.('stats')}
+                  id="part-card-videos"
+                  onClick={() => onSelectPart?.('videos')}
                   className={`p-3.5 border transition-all rounded-sm space-y-3 ${
-                    activePart === 'stats'
+                    activePart === 'videos' || activePart === 'stats'
                       ? 'border-[#c59b63] bg-[#171724] ring-1 ring-[#c59b63]/50 shadow-[0_0_20px_rgba(197,155,99,0.15)]'
                       : 'border-[#22222f] bg-[#111116] hover:border-[#333345]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Award className="w-4 h-4 text-[#c59b63]" />
+                      <Video className="w-4 h-4 text-[#c59b63]" />
                       <span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase tracking-wider">
-                        Trust Badges &amp; Metrics
+                        Embedded 3-Video Showcase (Clickable &amp; Popupable)
                       </span>
                     </div>
-                    {activePart === 'stats' && (
+                    {(activePart === 'videos' || activePart === 'stats') && (
                       <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[#c59b63] text-[#0d0d11] font-bold uppercase rounded-xs">
                         Editing Now
                       </span>
                     )}
                   </div>
+                  <p className="text-[10px] text-[#8e877e] leading-relaxed">
+                    Embedded 3-column video cards replacing the old metrics. Clicking any video opens a high-definition cinematic popup player with sound, playback controls, and consultation triggers.
+                  </p>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1 bg-[#09090d] p-2 border border-[#242430]">
-                      <span className="text-[9px] font-mono text-[#c59b63] uppercase">Badge 1</span>
-                      <input
-                        type="text"
-                        value={content.badge1Value || '28+ Years'}
-                        onFocus={() => onSelectPart?.('stats')}
-                        onChange={(e) => handleContentChange('badge1Value', e.target.value)}
-                        placeholder="28+ Years"
-                        className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-xs text-[#f7f4ee] font-cormorant font-bold"
-                      />
-                      <input
-                        type="text"
-                        value={content.badge1Label || 'Trial Eminence'}
-                        onFocus={() => onSelectPart?.('stats')}
-                        onChange={(e) => handleContentChange('badge1Label', e.target.value)}
-                        placeholder="Trial Eminence"
-                        className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-[10px] text-[#8e877e] font-cinzel"
-                      />
-                    </div>
+                  <div className="space-y-3">
+                    {[0, 1, 2].map((idx) => {
+                      const vids = Array.isArray(content.videos) ? content.videos : [];
+                      const vid = vids[idx] || (idx === 0 ? {
+                        id: 'vid-1',
+                        title: 'Decisive Trial Advocacy & Bureau Leadership',
+                        subtitle: 'Atty. Leo Lalusis · Managing Partner',
+                        duration: '03:45',
+                        tag: 'Trial Eminence',
+                        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                        thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
+                      } : idx === 1 ? {
+                        id: 'vid-2',
+                        title: '150+ Supreme Court Rulings & Appellate Advocacy',
+                        subtitle: 'Senior Partner Atty. Diosdado Anselmo Lalusis',
+                        duration: '04:12',
+                        tag: 'Supreme Court Practice',
+                        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                        thumbnailUrl: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80',
+                      } : {
+                        id: 'vid-3',
+                        title: '₱180B+ Transactions Advised & Tier 1 Practice',
+                        subtitle: 'Atty. Levy John Lalusis · Partner & Tax Specialist',
+                        duration: '03:18',
+                        tag: 'Corporate & M&A',
+                        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+                        thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+                      });
 
-                    <div className="space-y-1 bg-[#09090d] p-2 border border-[#242430]">
-                      <span className="text-[9px] font-mono text-[#c59b63] uppercase">Badge 2</span>
-                      <input
-                        type="text"
-                        value={content.badge2Value || '150+'}
-                        onFocus={() => onSelectPart?.('stats')}
-                        onChange={(e) => handleContentChange('badge2Value', e.target.value)}
-                        placeholder="150+"
-                        className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-xs text-[#f7f4ee] font-cormorant font-bold"
-                      />
-                      <input
-                        type="text"
-                        value={content.badge2Label || 'Supreme Court Rulings'}
-                        onFocus={() => onSelectPart?.('stats')}
-                        onChange={(e) => handleContentChange('badge2Label', e.target.value)}
-                        placeholder="Supreme Court Rulings"
-                        className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-[10px] text-[#8e877e] font-cinzel"
-                      />
-                    </div>
+                      const handleUpdateVideo = (field: string, val: string) => {
+                        const baseVids = [
+                          vids[0] || { id: 'vid-1', title: 'Decisive Trial Advocacy & Bureau Leadership', subtitle: 'Atty. Leo Lalusis · Managing Partner', duration: '03:45', tag: 'Trial Eminence', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80' },
+                          vids[1] || { id: 'vid-2', title: '150+ Supreme Court Rulings & Appellate Advocacy', subtitle: 'Senior Partner Atty. Diosdado Anselmo Lalusis', duration: '04:12', tag: 'Supreme Court Practice', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80' },
+                          vids[2] || { id: 'vid-3', title: '₱180B+ Transactions Advised & Tier 1 Practice', subtitle: 'Atty. Levy John Lalusis · Partner & Tax Specialist', duration: '03:18', tag: 'Corporate & M&A', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80' },
+                        ];
+                        baseVids[idx] = { ...baseVids[idx], [field]: val };
+                        handleContentChange('videos', baseVids);
+                      };
 
-                    <div className="space-y-1 bg-[#09090d] p-2 border border-[#242430]">
-                      <span className="text-[9px] font-mono text-[#c59b63] uppercase">Badge 3</span>
-                      <input
-                        type="text"
-                        value={content.badge3Value || '₱180B+'}
-                        onFocus={() => onSelectPart?.('stats')}
-                        onChange={(e) => handleContentChange('badge3Value', e.target.value)}
-                        placeholder="₱180B+"
-                        className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-xs text-[#f7f4ee] font-cormorant font-bold"
-                      />
-                      <input
-                        type="text"
-                        value={content.badge3Label || 'Transactions Advised'}
-                        onFocus={() => onSelectPart?.('stats')}
-                        onChange={(e) => handleContentChange('badge3Label', e.target.value)}
-                        placeholder="Transactions Advised"
-                        className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-[10px] text-[#8e877e] font-cinzel"
-                      />
-                    </div>
-
-                    <div className="space-y-1 bg-[#09090d] p-2 border border-[#242430]">
-                      <span className="text-[9px] font-mono text-[#c59b63] uppercase">Badge 4</span>
-                      <input
-                        type="text"
-                        value={content.badge4Value || 'Tier 1'}
-                        onFocus={() => onSelectPart?.('stats')}
-                        onChange={(e) => handleContentChange('badge4Value', e.target.value)}
-                        placeholder="Tier 1"
-                        className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-xs text-[#f7f4ee] font-cormorant font-bold"
-                      />
-                      <input
-                        type="text"
-                        value={content.badge4Label || 'Corporate Practice'}
-                        onFocus={() => onSelectPart?.('stats')}
-                        onChange={(e) => handleContentChange('badge4Label', e.target.value)}
-                        placeholder="Corporate Practice"
-                        className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-[10px] text-[#8e877e] font-cinzel"
-                      />
-                    </div>
+                      return (
+                        <div key={idx} className="bg-[#09090d] p-2.5 border border-[#242430] space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-cinzel text-[#c59b63] uppercase tracking-wider font-bold">
+                              Video {idx + 1}: {vid.tag || `Feature 0${idx + 1}`}
+                            </span>
+                            <span className="text-[9px] font-mono text-[#8e877e]">{vid.duration || 'HD'}</span>
+                          </div>
+                          <div className="space-y-1.5">
+                            <div>
+                              <label className="text-[9px] font-mono text-[#8e877e] block">Video Title</label>
+                              <input
+                                type="text"
+                                value={vid.title || ''}
+                                onChange={(e) => handleUpdateVideo('title', e.target.value)}
+                                placeholder="Video Title"
+                                className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-xs text-[#f7f4ee] font-cormorant font-bold"
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-1.5">
+                              <div>
+                                <label className="text-[9px] font-mono text-[#8e877e] block">Speaker / Presenter</label>
+                                <input
+                                  type="text"
+                                  value={vid.subtitle || ''}
+                                  onChange={(e) => handleUpdateVideo('subtitle', e.target.value)}
+                                  placeholder="Presenter / Subtitle"
+                                  className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-[10px] text-[#8e877e] font-cinzel"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-[9px] font-mono text-[#8e877e] block">Tag / Category</label>
+                                <input
+                                  type="text"
+                                  value={vid.tag || ''}
+                                  onChange={(e) => handleUpdateVideo('tag', e.target.value)}
+                                  placeholder="Category Tag"
+                                  className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-[10px] text-[#c59b63] font-cinzel"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="text-[9px] font-mono text-[#8e877e] block">Video Stream URL (MP4, YouTube, Vimeo)</label>
+                              <input
+                                type="text"
+                                value={vid.videoUrl || ''}
+                                onChange={(e) => handleUpdateVideo('videoUrl', e.target.value)}
+                                placeholder="Video Stream URL"
+                                className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-[10px] font-mono text-[#ded6c9]"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[9px] font-mono text-[#8e877e] block">Poster Thumbnail URL</label>
+                              <input
+                                type="text"
+                                value={vid.thumbnailUrl || ''}
+                                onChange={(e) => handleUpdateVideo('thumbnailUrl', e.target.value)}
+                                placeholder="Thumbnail Image URL"
+                                className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-[10px] font-mono text-[#a8a199]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </>

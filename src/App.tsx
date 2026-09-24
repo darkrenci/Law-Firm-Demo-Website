@@ -204,6 +204,7 @@ export default function App() {
         <SectionRenderer
           sections={matchedPage.sections}
           onNavigate={handleNavigate}
+          isAdmin={false}
         />
       );
     }

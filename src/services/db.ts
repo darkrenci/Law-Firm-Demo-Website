@@ -227,30 +227,159 @@ class DatabaseService {
         changed = true;
       }
 
-      // Update attorneys section on home page to Partners
-      const attorneysSec = homePage.sections.find((s) => s.id === 'sec-attorneys' || s.type === 'attorneys');
-      if (attorneysSec) {
-        if (attorneysSec.title !== 'Featured Partners') {
-          attorneysSec.title = 'Featured Partners';
+      // Update partners section on home page to be positioned before Practice Areas
+      let partnersSec = homePage.sections.find((s) => s.id === 'sec-partners' || s.id === 'sec-attorneys' || s.type === 'attorneys');
+      const practicesSec = homePage.sections.find((s) => s.id === 'sec-practices' || s.type === 'practiceAreas');
+      const whyUsSec = homePage.sections.find((s) => s.id === 'sec-why-us' || s.type === 'imageText');
+
+      if (!partnersSec) {
+        partnersSec = {
+          id: 'sec-partners',
+          type: 'attorneys',
+          title: 'Featured Partners',
+          subtitle: 'Leadership & Senior Counsel',
+          isVisible: true,
+          order: 3,
+          content: {
+            eyebrow: 'Partners',
+            heading: 'Distinguished Partners',
+            description: 'Under the guidance of senior leadership, our founding and senior partners direct high-stakes litigation, supreme court appeals, and complex corporate transactions with precision and discretion.',
+            limit: 3,
+          },
+        };
+        homePage.sections.push(partnersSec);
+        changed = true;
+      } else {
+        partnersSec.id = 'sec-partners';
+        partnersSec.order = 3;
+        if (partnersSec.title !== 'Featured Partners') {
+          partnersSec.title = 'Featured Partners';
           changed = true;
         }
-        if (attorneysSec.content) {
-          if (attorneysSec.content.heading !== 'Distinguished Partners') {
-            attorneysSec.content.heading = 'Distinguished Partners';
+        if (partnersSec.content) {
+          if (partnersSec.content.limit !== 3) {
+            partnersSec.content.limit = 3;
             changed = true;
           }
-          if (attorneysSec.content.eyebrow !== 'Partners') {
-            attorneysSec.content.eyebrow = 'Partners';
+          if (partnersSec.content.heading !== 'Distinguished Partners') {
+            partnersSec.content.heading = 'Distinguished Partners';
+            changed = true;
+          }
+          if (partnersSec.content.eyebrow !== 'Partners') {
+            partnersSec.content.eyebrow = 'Partners';
+            changed = true;
+          }
+          if (!partnersSec.content.description || partnersSec.content.description.includes('Harvard')) {
+            partnersSec.content.description = 'Under the guidance of senior leadership, our founding and senior partners direct high-stakes litigation, supreme court appeals, and complex corporate transactions with precision and discretion.';
             changed = true;
           }
         }
       }
 
-      // Update hero section headline to Legal Precision
+      if (practicesSec && practicesSec.order !== 4) {
+        practicesSec.order = 4;
+        changed = true;
+      }
+      if (whyUsSec && whyUsSec.order !== 5) {
+        whyUsSec.order = 5;
+        changed = true;
+      }
+
+      // Ensure no duplicate attorney sections remain on home page
+      const attorneySecs = homePage.sections.filter(s => s.type === 'attorneys');
+      if (attorneySecs.length > 1) {
+        homePage.sections = homePage.sections.filter(s => s.type !== 'attorneys' || s.id === 'sec-partners');
+        changed = true;
+      }
+      homePage.sections.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+      // Update hero section headline to Legal Precision and replace badges with 3 embedded clickable videos
       const homeHeroSec = homePage.sections.find((s) => s.id === 'sec-hero' || s.type === 'hero');
       if (homeHeroSec && homeHeroSec.content) {
         if (!homeHeroSec.content.headline || homeHeroSec.content.headline.includes('Strategic Counsel')) {
           homeHeroSec.content.headline = 'Legal Precision.';
+          changed = true;
+        }
+        // Remove old badges if present
+        if (homeHeroSec.content.badge1Value || homeHeroSec.content.badge2Value) {
+          delete homeHeroSec.content.badge1Value;
+          delete homeHeroSec.content.badge1Label;
+          delete homeHeroSec.content.badge2Value;
+          delete homeHeroSec.content.badge2Label;
+          delete homeHeroSec.content.badge3Value;
+          delete homeHeroSec.content.badge3Label;
+          delete homeHeroSec.content.badge4Value;
+          delete homeHeroSec.content.badge4Label;
+          changed = true;
+        }
+        // Add or ensure 3 embedded videos
+        if (!homeHeroSec.content.videos || homeHeroSec.content.videos.length === 0) {
+          homeHeroSec.content.videos = [
+            {
+              id: 'vid-1',
+              title: 'Decisive Trial Advocacy & Bureau Leadership',
+              subtitle: 'Atty. Leo Lalusis · Managing Partner',
+              description: 'Decades of seasoned trial litigation, landmark prosecution commendations, and high-profile public defense.',
+              duration: '03:45',
+              tag: 'Trial Eminence',
+              videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+              thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
+            },
+            {
+              id: 'vid-2',
+              title: '150+ Supreme Court Rulings & Appellate Advocacy',
+              subtitle: 'Senior Partner Atty. Diosdado Anselmo Lalusis',
+              description: 'Over 150 superior appellate rulings, landmark constitutional advocacy, and unmatched jurisprudential depth.',
+              duration: '04:12',
+              tag: 'Supreme Court Practice',
+              videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+              thumbnailUrl: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80',
+            },
+            {
+              id: 'vid-3',
+              title: '₱180B+ Transactions Advised & Tier 1 Practice',
+              subtitle: 'Atty. Levy John Lalusis · Partner & Tax Specialist',
+              description: 'Cross-border mergers and acquisitions, sovereign regulatory compliance, and premier corporate counsel.',
+              duration: '03:18',
+              tag: 'Corporate & M&A',
+              videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+              thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+            },
+          ];
+          changed = true;
+        }
+      }
+
+      // Update institutional overview section: remove Institutional Heritage and Advocacy Defined per user brief, keep group picture and formatted paragraphs
+      const introSec = homePage.sections.find((s) => s.id === 'sec-intro' || s.title?.includes('Introduction') || s.subtitle?.includes('Institutional Overview'));
+      if (introSec && introSec.content) {
+        if (introSec.content.eyebrow === 'Institutional Heritage' || introSec.content.eyebrow?.includes('Heritage')) {
+          introSec.content.eyebrow = '';
+          changed = true;
+        }
+        if (introSec.content.heading?.includes('Advocacy Defined') || introSec.content.heading?.includes('Advocacy')) {
+          introSec.content.heading = '';
+          changed = true;
+        }
+        if (introSec.content.stat1Number === '28+' || introSec.content.stat1Number) {
+          delete introSec.content.stat1Number;
+          delete introSec.content.stat1Label;
+          delete introSec.content.stat2Number;
+          delete introSec.content.stat2Label;
+          delete introSec.content.stat3Number;
+          delete introSec.content.stat3Label;
+          changed = true;
+        }
+        if (!introSec.content.imageUrl) {
+          introSec.content.imageUrl = '/Group Picture.jpeg';
+          changed = true;
+        }
+        if (!introSec.content.imageCaption || introSec.content.imageCaption.startsWith('Founding Partners of Lalusis & Partners · Atty. Leo')) {
+          introSec.content.imageCaption = 'Founding Partners of Lalusis & Partners · Left: Atty. Levy John Lalusis, Center: Atty. Diosdado Anselmo Lalusis, Right: Atty. Leo Lalusis';
+          changed = true;
+        }
+        if (introSec.content.body && !introSec.content.body.includes('\n\n')) {
+          introSec.content.body = "The FIRM is founded by Atty. Leo Lalusis and Atty. Levy John Lalusis, under the guidance of their senior partner, Atty. Diosdado Anselmo Lalusis. Brothers Lalusis, is the son of the late NBI Chief Danielito Q. Lalusis, who served the NBI for almost 30 years prior to his untimely passing.\n\nAtty. Leo Lalusis passed the Bar in 2019 (the last handwritten Bar Examination) in his only attempt. Upon passing, he entered the NBI as Legal Officer assigned in the Legal Division, specifically in Prosecution and High Profile Cases, where he received several commendations, including for the PNP-PDEA incident. During his stay with the NBI, he was also tasked to represent the bureau in various Senate and House of Representatives hearings and attended several specialized investigative courses. Atty. Leo is also a certified Data Protection Officer (UP Open University, 2023) and has handled high-profile cases before the DOJ and Sandiganbayan. He has represented prominent clients in congressional hearings, including the landmark Senate Blue Ribbon Committee hearings in flood control cases, as well as leading public figures and influencers. To further broaden his jurisprudential acumen, he is one of the youngest Master of Laws candidates in the Graduate School of San Beda University.\n\nMeanwhile, Atty. Levy John Lalusis passed the 2024 Bar Examination. Prior to his admission to the bar, he served with distinguished government bodies, specifically within the Presidential Anti-Corruption Commission (PACC) as a graft investigator and the Department of Transportation (DOTr). Atty. Levy is a certified Tax Specialist with multiple accreditations. Alongside his brother Atty. Leo, he has appeared before the Sandiganbayan representing high-profile institutional and private clients in contentious matters.\n\nOn the other hand, Atty. Diosdado Anselmo Lalusis is a seasoned and veteran lawyer who headed the Professional Regulation Commission (PRC) Legal Division for more than a decade. Atty. Diosdado brings seasoned appellate advocacy, exemplary institutional integrity, and foundational legal mentorship to the firm's sovereign and corporate clientele.";
           changed = true;
         }
       }
@@ -486,6 +615,30 @@ class DatabaseService {
     if (atty1 && atty1.fullName.includes('Gabriel')) {
       const idMap = new Map(initialAttorneys.map((a) => [a.id, a]));
       list = list.map((a) => idMap.get(a.id) || a);
+      this.save(DB_KEYS.ATTORNEYS, list);
+    }
+    // Ensure the 3 primary partners are ordered Left to Right as requested:
+    // Left: Atty. Levy John Lalusis (order 1)
+    // Center: Atty. Diosdado Anselmo Lalusis (order 2)
+    // Right: Atty. Leo Lalusis (order 3)
+    let needsSave = false;
+    const levy = list.find((a) => a.id === 'atty-2' || a.fullName.toLowerCase().includes('levy'));
+    const diosdado = list.find((a) => a.id === 'atty-3' || a.fullName.toLowerCase().includes('diosdado'));
+    const leo = list.find((a) => a.id === 'atty-1' || a.fullName.toLowerCase().includes('leo'));
+    if (levy && levy.order !== 1) {
+      levy.order = 1;
+      needsSave = true;
+    }
+    if (diosdado && diosdado.order !== 2) {
+      diosdado.order = 2;
+      needsSave = true;
+    }
+    if (leo && leo.order !== 3) {
+      leo.order = 3;
+      needsSave = true;
+    }
+    if (needsSave) {
+      list.sort((a, b) => (a.order || 0) - (b.order || 0));
       this.save(DB_KEYS.ATTORNEYS, list);
     }
     if (includeUnpublished) return list;
