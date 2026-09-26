@@ -392,6 +392,9 @@ export class SupabaseService {
       fullName: row.full_name,
       professionalTitle: row.professional_title,
       portraitUrl: row.portrait_url,
+      homeCardImageUrl: row.home_card_image_url || row.homeCardImageUrl,
+      homeModalImageUrl: row.home_modal_image_url || row.homeModalImageUrl,
+      partnerPageImageUrl: row.partner_page_image_url || row.partnerPageImageUrl,
       primarySpecialization: row.primary_specialization,
       biography: row.biography,
       email: row.email,
@@ -413,7 +416,8 @@ export class SupabaseService {
 
   public async saveAttorney(attorney: Attorney): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
-    const { error } = await supabase.from('attorneys').upsert({
+
+    const basePayload: Record<string, any> = {
       id: attorney.id,
       slug: attorney.slug,
       full_name: attorney.fullName,
@@ -436,7 +440,24 @@ export class SupabaseService {
       awards: attorney.awards || [],
       selected_publications: attorney.selectedPublications || [],
       updated_at: new Date().toISOString(),
-    });
+    };
+
+    // Try saving with separate placement columns first
+    const fullPayload = {
+      ...basePayload,
+      home_card_image_url: attorney.homeCardImageUrl || null,
+      home_modal_image_url: attorney.homeModalImageUrl || null,
+      partner_page_image_url: attorney.partnerPageImageUrl || null,
+    };
+
+    let { error } = await supabase.from('attorneys').upsert(fullPayload);
+
+    // If columns do not exist yet in older schema, retry with base payload
+    if (error && (error.message?.includes('column') || (error as any).code === '42703')) {
+      const retryResult = await supabase.from('attorneys').upsert(basePayload);
+      error = retryResult.error;
+    }
+
     if (error) {
       if (error.code === 'PGRST205') {
         this.isSchemaReady = false;

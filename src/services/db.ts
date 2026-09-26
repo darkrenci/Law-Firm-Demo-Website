@@ -900,6 +900,9 @@ class DatabaseService {
         ...initAtty,
         ...existing,
         portraitUrl,
+        homeCardImageUrl: existing.homeCardImageUrl ?? initAtty.homeCardImageUrl,
+        homeModalImageUrl: existing.homeModalImageUrl ?? initAtty.homeModalImageUrl,
+        partnerPageImageUrl: existing.partnerPageImageUrl ?? initAtty.partnerPageImageUrl,
         isPartner: true,
         isFeatured: true,
       };
@@ -913,7 +916,10 @@ class DatabaseService {
           a.fullName !== synchronized[i]?.fullName ||
           a.biography !== synchronized[i]?.biography ||
           a.email !== synchronized[i]?.email ||
-          a.portraitUrl !== synchronized[i]?.portraitUrl
+          a.portraitUrl !== synchronized[i]?.portraitUrl ||
+          a.homeCardImageUrl !== synchronized[i]?.homeCardImageUrl ||
+          a.homeModalImageUrl !== synchronized[i]?.homeModalImageUrl ||
+          a.partnerPageImageUrl !== synchronized[i]?.partnerPageImageUrl
       );
 
     if (isDifferent) {
@@ -1273,13 +1279,25 @@ class DatabaseService {
     const urlLower = (item.url || '').toLowerCase();
     const altLower = (item.altText || '').toLowerCase();
 
-    // 1. Direct match with attorney portraits
+    // 1. Direct match with attorney portraits and placement images
     const matchedAtty = attyList.find(
-      (a) => a.portraitUrl && (a.portraitUrl === item.url || item.url.includes(a.slug))
+      (a) =>
+        (a.homeCardImageUrl && (a.homeCardImageUrl === item.url || item.url.includes(`${a.slug}-home-card`))) ||
+        (a.homeModalImageUrl && (a.homeModalImageUrl === item.url || item.url.includes(`${a.slug}-home-modal`))) ||
+        (a.partnerPageImageUrl && (a.partnerPageImageUrl === item.url || item.url.includes(`${a.slug}-partner-page`))) ||
+        (a.portraitUrl && (a.portraitUrl === item.url || item.url.includes(a.slug)))
     );
 
     if (matchedAtty) {
-      updatedName = `${matchedAtty.fullName} – Founding Partner Official Portrait`;
+      if (matchedAtty.homeCardImageUrl === item.url) {
+        updatedName = `${matchedAtty.fullName} – Home Page Card Portrait`;
+      } else if (matchedAtty.homeModalImageUrl === item.url) {
+        updatedName = `${matchedAtty.fullName} – Home Page Popup Modal Portrait`;
+      } else if (matchedAtty.partnerPageImageUrl === item.url) {
+        updatedName = `${matchedAtty.fullName} – Partner Page Portrait`;
+      } else {
+        updatedName = `${matchedAtty.fullName} – Founding Partner Official Portrait`;
+      }
       updatedCategory = 'branding';
       updatedAlt = `${matchedAtty.fullName}, ${matchedAtty.primarySpecialization || matchedAtty.professionalTitle}`;
     }

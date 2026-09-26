@@ -2167,7 +2167,7 @@ const RenderSectionItem: React.FC<{
                       {/* Portrait Frame with Executive Brass Accent */}
                       <div className="aspect-[4/5] sm:h-80 overflow-hidden relative bg-[#0a0a0e]">
                         <img
-                          src={atty.portraitUrl || getPartnerOfficialPortrait(atty.fullName, atty.slug, atty.id)}
+                          src={atty.homeCardImageUrl || atty.portraitUrl || getPartnerOfficialPortrait(atty.fullName, atty.slug, atty.id)}
                           alt={atty.fullName}
                           onError={(e) => {
                             const target = e.currentTarget;
@@ -2320,7 +2320,7 @@ const RenderSectionItem: React.FC<{
                     <div className="md:col-span-4 space-y-4">
                       <div className="border border-[#c59b63]/50 p-1.5 bg-[#14141c] shadow-lg">
                         <img
-                          src={selectedPartnerModal.portraitUrl || getPartnerOfficialPortrait(selectedPartnerModal.fullName, selectedPartnerModal.slug, selectedPartnerModal.id)}
+                          src={selectedPartnerModal.homeModalImageUrl || selectedPartnerModal.portraitUrl || getPartnerOfficialPortrait(selectedPartnerModal.fullName, selectedPartnerModal.slug, selectedPartnerModal.id)}
                           alt={selectedPartnerModal.fullName}
                           onError={(e) => {
                             const target = e.currentTarget;

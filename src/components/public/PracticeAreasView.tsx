@@ -231,7 +231,7 @@ const PracticeAreaDetail: React.FC<{
                       className="group flex items-center gap-3 p-2 bg-[#17171e] border border-[#252533] hover:border-[#c59b63]/50 cursor-pointer transition-colors"
                     >
                       <img
-                        src={atty.portraitUrl}
+                        src={atty.partnerPageImageUrl || atty.portraitUrl}
                         alt={atty.fullName}
                         className="w-12 h-14 object-cover object-top border border-[#2e2e3d]"
                         referrerPolicy="no-referrer"

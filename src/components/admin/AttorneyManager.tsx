@@ -38,6 +38,9 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
       phone: '+63 (2) 8800-0000',
       portraitUrl:
         'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80',
+      homeCardImageUrl: '',
+      homeModalImageUrl: '',
+      partnerPageImageUrl: '',
       biography: '',
       barAdmissions: ['Supreme Court of the Philippines (Admitted)'],
       education: ['Juris Doctor, Law'],
@@ -179,6 +182,64 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-[#6e6860]" />
                   <span>{attorney.phone}</span>
+                </div>
+              </div>
+
+              {/* 3 Dedicated Placement Photos Preview */}
+              <div className="pt-2 border-t border-[#1c1c24]">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="font-cinzel text-[9px] text-[#c59b63] uppercase tracking-wider font-semibold">
+                    Page Placement Photos
+                  </span>
+                  <span className="text-[9px] font-mono text-[#8e877e]">
+                    3 Separate Photos
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5 text-center">
+                  {/* Home Card Photo */}
+                  <div className="p-1.5 bg-[#0e0e13] border border-[#22222d] flex flex-col items-center">
+                    <span className="text-[8px] font-cinzel text-[#d4af7a] uppercase mb-1 truncate max-w-full">
+                      Home Card
+                    </span>
+                    <img
+                      src={attorney.homeCardImageUrl || attorney.portraitUrl}
+                      alt="Home Card"
+                      className="w-10 h-12 object-cover object-top border border-[#2a2a38] bg-black"
+                    />
+                    <span className="text-[8px] font-mono text-[#8e877e] mt-1">
+                      {attorney.homeCardImageUrl ? 'Distinct' : 'Default'}
+                    </span>
+                  </div>
+
+                  {/* Home Popup Modal Photo */}
+                  <div className="p-1.5 bg-[#0e0e13] border border-[#22222d] flex flex-col items-center">
+                    <span className="text-[8px] font-cinzel text-[#d4af7a] uppercase mb-1 truncate max-w-full">
+                      Home Popup
+                    </span>
+                    <img
+                      src={attorney.homeModalImageUrl || attorney.portraitUrl}
+                      alt="Home Popup"
+                      className="w-10 h-12 object-cover object-top border border-[#2a2a38] bg-black"
+                    />
+                    <span className="text-[8px] font-mono text-[#8e877e] mt-1">
+                      {attorney.homeModalImageUrl ? 'Distinct' : 'Default'}
+                    </span>
+                  </div>
+
+                  {/* Partner Page Photo */}
+                  <div className="p-1.5 bg-[#0e0e13] border border-[#22222d] flex flex-col items-center">
+                    <span className="text-[8px] font-cinzel text-[#d4af7a] uppercase mb-1 truncate max-w-full">
+                      Partner Page
+                    </span>
+                    <img
+                      src={attorney.partnerPageImageUrl || attorney.portraitUrl}
+                      alt="Partner Page"
+                      className="w-10 h-12 object-cover object-top border border-[#2a2a38] bg-black"
+                    />
+                    <span className="text-[8px] font-mono text-[#8e877e] mt-1">
+                      {attorney.partnerPageImageUrl ? 'Distinct' : 'Default'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -361,13 +422,135 @@ const AttorneyEditModal: React.FC<{
           </div>
         </div>
 
-        <ImageUploadField
-          label="Partner Portrait Photo"
-          value={form.portraitUrl}
-          onChange={(imgUrl) => setForm({ ...form, portraitUrl: imgUrl })}
-          aspectRatio="portrait"
-          helperText="Upload a portrait picture file directly from your computer or drag & drop here."
-        />
+        {/* MULTI-PICTURE PROFILE SECTION (HOME CARD, HOME POPUP MODAL, PARTNER PAGE) */}
+        <div className="bg-[#101015] border border-[#232330] p-4 sm:p-5 space-y-4">
+          <div className="border-b border-[#20202c] pb-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <span className="font-cinzel text-[10px] font-bold text-[#c59b63] tracking-[0.2em] uppercase">
+                Separate Placement Pictures
+              </span>
+              <span className="text-[10px] font-mono text-[#8e877e] bg-[#171722] px-2 py-0.5 border border-[#2b2b3b]">
+                3 Distinct Photos
+              </span>
+            </div>
+            <h4 className="font-cormorant text-xl text-[#f7f4ee] mt-1">
+              Page Placement Photography
+            </h4>
+            <p className="text-[11px] text-[#a8a199] mt-1 leading-relaxed">
+              Configure different pictures for each specific location: the Home Page card, the Home Page click popup modal, and the dedicated Partner Page (/attorneys).
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* 1. Home Page Card Photo */}
+            <div className="p-3.5 bg-[#14141c] border border-[#262636] space-y-2.5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="px-2 py-0.5 text-[9px] font-cinzel font-semibold tracking-wider uppercase bg-[#c59b63]/20 text-[#c59b63] border border-[#c59b63]/40">
+                    1. Home Page Card
+                  </span>
+                  {form.homeCardImageUrl ? (
+                    <span className="text-[9px] font-mono text-emerald-400">Custom</span>
+                  ) : (
+                    <span className="text-[9px] font-mono text-[#8e877e]">Default</span>
+                  )}
+                </div>
+                <p className="text-[10px] text-[#8e877e] leading-snug">
+                  Picture displayed on the card on the Home Page.
+                </p>
+              </div>
+
+              <ImageUploadField
+                label="Home Card Photo"
+                value={form.homeCardImageUrl || form.portraitUrl}
+                onChange={(imgUrl) => setForm({ ...form, homeCardImageUrl: imgUrl })}
+                aspectRatio="portrait"
+                compact={true}
+                helperText="Appears on Home Page card."
+              />
+            </div>
+
+            {/* 2. Home Page Popup Modal Photo */}
+            <div className="p-3.5 bg-[#14141c] border border-[#262636] space-y-2.5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="px-2 py-0.5 text-[9px] font-cinzel font-semibold tracking-wider uppercase bg-[#c59b63]/20 text-[#c59b63] border border-[#c59b63]/40">
+                    2. Home Popup Modal
+                  </span>
+                  {form.homeModalImageUrl ? (
+                    <span className="text-[9px] font-mono text-emerald-400">Custom</span>
+                  ) : (
+                    <span className="text-[9px] font-mono text-[#8e877e]">Default</span>
+                  )}
+                </div>
+                <p className="text-[10px] text-[#8e877e] leading-snug">
+                  Picture shown when visitor clicks the card to pop up credentials.
+                </p>
+              </div>
+
+              <ImageUploadField
+                label="Popup Modal Photo"
+                value={form.homeModalImageUrl || form.portraitUrl}
+                onChange={(imgUrl) => setForm({ ...form, homeModalImageUrl: imgUrl })}
+                aspectRatio="portrait"
+                compact={true}
+                helperText="Appears in Home popup modal."
+              />
+            </div>
+
+            {/* 3. Partner Page Photo */}
+            <div className="p-3.5 bg-[#14141c] border border-[#262636] space-y-2.5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="px-2 py-0.5 text-[9px] font-cinzel font-semibold tracking-wider uppercase bg-[#c59b63]/20 text-[#c59b63] border border-[#c59b63]/40">
+                    3. Partner Page
+                  </span>
+                  {form.partnerPageImageUrl ? (
+                    <span className="text-[9px] font-mono text-emerald-400">Custom</span>
+                  ) : (
+                    <span className="text-[9px] font-mono text-[#8e877e]">Default</span>
+                  )}
+                </div>
+                <p className="text-[10px] text-[#8e877e] leading-snug">
+                  Picture on Partner Page (/attorneys) & deep profile view.
+                </p>
+              </div>
+
+              <ImageUploadField
+                label="Partner Page Photo"
+                value={form.partnerPageImageUrl || form.portraitUrl}
+                onChange={(imgUrl) => setForm({ ...form, partnerPageImageUrl: imgUrl })}
+                aspectRatio="portrait"
+                compact={true}
+                helperText="Appears on /attorneys & profile."
+              />
+            </div>
+          </div>
+
+          {/* Master Fallback Portrait */}
+          <div className="pt-2 border-t border-[#1c1c27]">
+            <details className="text-xs text-[#8e877e] cursor-pointer">
+              <summary className="font-cinzel text-[10px] uppercase text-[#c59b63] hover:text-[#f4e6d0] tracking-wider select-none">
+                ▸ Advanced: Master Fallback Portrait Photo
+              </summary>
+              <div className="pt-3">
+                <ImageUploadField
+                  label="Master / Universal Portrait Photo"
+                  value={form.portraitUrl}
+                  onChange={(imgUrl) => {
+                    const update: Partial<Attorney> = { portraitUrl: imgUrl };
+                    if (!form.homeCardImageUrl) update.homeCardImageUrl = imgUrl;
+                    if (!form.homeModalImageUrl) update.homeModalImageUrl = imgUrl;
+                    if (!form.partnerPageImageUrl) update.partnerPageImageUrl = imgUrl;
+                    setForm({ ...form, ...update });
+                  }}
+                  aspectRatio="portrait"
+                  helperText="Default fallback if any of the three placement images above are left unset."
+                />
+              </div>
+            </details>
+          </div>
+        </div>
 
         <div>
           <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">

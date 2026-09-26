@@ -148,7 +148,7 @@ const AttorneysDirectory: React.FC<{
               >
                 <div className="relative aspect-[4/5] overflow-hidden bg-[#181820]">
                   <img
-                    src={attorney.portraitUrl || getPartnerOfficialPortrait(attorney.fullName, attorney.slug, attorney.id)}
+                    src={attorney.partnerPageImageUrl || attorney.portraitUrl || getPartnerOfficialPortrait(attorney.fullName, attorney.slug, attorney.id)}
                     alt={attorney.fullName}
                     onError={(e) => {
                       const target = e.currentTarget;
@@ -248,7 +248,7 @@ const AttorneyProfileDetail: React.FC<{
           <div className="lg:col-span-4 space-y-4">
             <div className="border border-[#c59b63]/40 p-1.5 bg-[#17171e]">
               <img
-                src={attorney.portraitUrl || getPartnerOfficialPortrait(attorney.fullName, attorney.slug, attorney.id)}
+                src={attorney.partnerPageImageUrl || attorney.portraitUrl || getPartnerOfficialPortrait(attorney.fullName, attorney.slug, attorney.id)}
                 alt={attorney.fullName}
                 onError={(e) => {
                   const target = e.currentTarget;

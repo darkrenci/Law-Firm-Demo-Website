@@ -203,7 +203,10 @@ export interface Attorney {
   slug: string;
   fullName: string;
   professionalTitle: string;
-  portraitUrl: string;
+  portraitUrl: string; // Default & Partner Page (/attorneys) Portrait
+  homeCardImageUrl?: string; // Dedicated picture for the Home Page card
+  homeModalImageUrl?: string; // Dedicated picture for the Home Page popup modal
+  partnerPageImageUrl?: string; // Explicit picture for the Partner Page
   primarySpecialization: string;
   biography: string;
   practiceAreaIds?: string[];
@@ -403,6 +406,7 @@ export interface MediaItem {
   size?: string;
   category: 'branding' | 'attorneys' | 'offices' | 'insights' | 'general' | 'portrait' | 'architectural';
   altText: string;
+  dataUrl?: string;
   createdAt?: string;
   uploadedAt?: string;
 }
