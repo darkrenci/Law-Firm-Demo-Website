@@ -148,17 +148,32 @@ export class SupabaseService {
 
     const publicUrl = urlData.publicUrl;
 
-    // 5. Create PostgreSQL Media Record
+    // 5. Create PostgreSQL Media Record with Clean Title
+    const cleanedFallback = file.name
+      .replace(/\.[^/.]+$/, '')
+      .replace(/[-_]+/g, ' ')
+      .trim()
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+
+    const isGenericLabel =
+      !options.customName ||
+      options.customName.toLowerCase().includes('picture file') ||
+      options.customName.endsWith('*') ||
+      options.customName.toLowerCase() === 'image' ||
+      options.customName.toLowerCase() === 'photo';
+
+    const resolvedName = !isGenericLabel ? options.customName! : cleanedFallback || 'Chamber Visual Asset';
+
     const mediaItem: MediaItem = {
       id: `med-${timestamp}`,
-      name: options.customName || file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' '),
+      name: resolvedName,
       url: publicUrl,
       fileType: file.type.startsWith('image/') ? 'image' : 'document',
       format: file.name.split('.').pop()?.toUpperCase() || 'FILE',
       sizeBytes: file.size,
       size: `${(file.size / 1024).toFixed(0)} KB`,
       category: options.category || 'general',
-      altText: options.altText || options.customName || file.name,
+      altText: options.altText || resolvedName,
       createdAt: new Date().toISOString(),
       uploadedAt: new Date().toISOString(),
     };
@@ -217,6 +232,35 @@ export class SupabaseService {
       return true;
     } catch (e) {
       console.warn('Error during media deletion:', e);
+      return false;
+    }
+  }
+
+  // --- STORAGE: SAVE / UPDATE MEDIA ITEM METADATA ---
+  public async saveMedia(item: MediaItem): Promise<boolean> {
+    if (!this.isConfigured || !this.isSchemaReady) return false;
+    try {
+      const { error } = await supabase.from('media').upsert({
+        id: item.id,
+        name: item.name,
+        url: item.url,
+        file_type: item.fileType || 'image',
+        format: item.format || 'JPG',
+        size_bytes: item.sizeBytes || 0,
+        size: item.size || 'optimized',
+        category: item.category || 'general',
+        alt_text: item.altText || item.name,
+        updated_at: new Date().toISOString(),
+      });
+
+      if (error) {
+        if (error.code === 'PGRST205') this.isSchemaReady = false;
+        console.warn('Supabase saveMedia warning:', error.message);
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.warn('Error saving media to Supabase:', e);
       return false;
     }
   }

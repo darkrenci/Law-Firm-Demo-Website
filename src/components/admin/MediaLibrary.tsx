@@ -5,7 +5,17 @@ import { Button } from '../ui/Buttons';
 import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
-import { Image as ImageIcon, Plus, Trash2, Copy, Check, Search, ExternalLink, Upload, RefreshCw } from 'lucide-react';
+import {
+  Image as ImageIcon,
+  Plus,
+  Trash2,
+  Copy,
+  Check,
+  Search,
+  ExternalLink,
+  Upload,
+  Pencil,
+} from 'lucide-react';
 import { ImageUploadField } from '../ui/ImageUploadField';
 import { isSupabaseConfigured } from '../../lib/supabase';
 
@@ -13,31 +23,21 @@ export const MediaLibrary: React.FC = () => {
   const toast = useToast();
   const [media, setMedia] = useState<MediaAsset[]>(db.getMedia());
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<MediaAsset | null>(null);
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const [isSyncing, setIsSyncing] = useState(false);
-
   useEffect(() => {
+    // Automatically fetch latest cloud records and adapt names without manual clicks
+    db.refreshFromSupabase();
+    setMedia(db.getMedia());
+
     const unsub = db.subscribe(() => {
       setMedia(db.getMedia());
     });
     return unsub;
   }, []);
-
-  const handleManualSync = async () => {
-    setIsSyncing(true);
-    try {
-      await db.refreshFromSupabase();
-      setMedia(db.getMedia());
-      toast.success('Media Library Synced', 'Updated with latest Supabase records.');
-    } catch (e: any) {
-      toast.error('Sync Error', e?.message || 'Failed to sync with Supabase');
-    } finally {
-      setIsSyncing(false);
-    }
-  };
 
   const handleCopy = (url: string, id: string) => {
     navigator.clipboard.writeText(url);
@@ -53,6 +53,12 @@ export const MediaLibrary: React.FC = () => {
     }
   };
 
+  const handleSaveEdit = (updatedItem: MediaAsset) => {
+    db.saveMedia(updatedItem);
+    toast.success('Media Asset Updated', updatedItem.name);
+    setEditingItem(null);
+  };
+
   const filtered = media.filter((item) => {
     const matchesCat = filterCategory === 'all' || item.category === filterCategory;
     const matchesSearch =
@@ -63,6 +69,7 @@ export const MediaLibrary: React.FC = () => {
 
   return (
     <div className="space-y-8 text-left">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#1f1f28]">
         <div>
           <span className="font-cinzel text-[11px] font-semibold tracking-[0.2em] text-[#c59b63] uppercase block">
@@ -86,13 +93,7 @@ export const MediaLibrary: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {isSupabaseConfigured && (
-            <Button variant="ghost" size="sm" onClick={handleManualSync} isLoading={isSyncing}>
-              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">Sync Cloud</span>
-            </Button>
-          )}
+        <div className="flex items-center gap-2 flex-wrap">
           <Button variant="primary" size="sm" onClick={() => setIsAddOpen(true)}>
             <Plus className="w-3.5 h-3.5" />
             <span>Add Media Asset</span>
@@ -101,27 +102,27 @@ export const MediaLibrary: React.FC = () => {
       </div>
 
       {/* Filter and Search */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8a837a]" />
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6e6860]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search media assets..."
-            className="w-full bg-[#14141a] border border-[#262633] focus:border-[#c59b63] pl-9 pr-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
+            className="w-full bg-[#121217] border border-[#262633] pl-10 pr-4 py-2 text-xs text-[#f7f4ee] focus:outline-none focus:border-[#c59b63]"
           />
         </div>
 
-        <div className="flex items-center gap-2">
-          {['all', 'portrait', 'architectural', 'branding'].map((cat) => (
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
+          {(['all', 'portrait', 'architectural', 'branding'] as const).map((cat) => (
             <button
               key={cat}
               onClick={() => setFilterCategory(cat)}
-              className={`px-3 py-1 text-[11px] font-cinzel uppercase tracking-wider transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 text-xs font-cinzel uppercase tracking-wider transition-colors cursor-pointer whitespace-nowrap ${
                 filterCategory === cat
-                  ? 'bg-[#c59b63] text-[#0d0d11] font-bold'
-                  : 'bg-[#15151c] text-[#a8a199] hover:text-[#f7f4ee]'
+                  ? 'bg-[#c59b63] text-[#0d0d11] font-semibold'
+                  : 'bg-[#14141c] text-[#a8a199] hover:bg-[#1b1b26]'
               }`}
             >
               {cat}
@@ -130,33 +131,21 @@ export const MediaLibrary: React.FC = () => {
         </div>
       </div>
 
-      {/* Grid of Media Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {/* Media Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filtered.map((item) => (
           <div
             key={item.id}
-            className="bg-[#121217] border border-[#22222d] hover:border-[#c59b63]/60 overflow-hidden flex flex-col justify-between group"
+            className="bg-[#121217] border border-[#20202b] hover:border-[#c59b63]/50 transition-all flex flex-col group overflow-hidden"
           >
-            <div className="aspect-video sm:aspect-square bg-[#0a0a0d] relative overflow-hidden flex items-center justify-center">
+            <div className="aspect-[4/3] bg-[#0a0a0d] relative overflow-hidden flex items-center justify-center">
               <img
                 src={item.url}
-                alt={item.altText}
+                alt={item.altText || item.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 onError={(e) => {
-                  const target = e.currentTarget;
-                  if (item.url.includes('group')) {
-                    target.src = '/assets/group-picture.svg';
-                  } else if (item.url.includes('levy')) {
-                    target.src = '/assets/atty-levy-lalusis.svg';
-                  } else if (item.url.includes('diosdado')) {
-                    target.src = '/assets/atty-diosdado-lalusis.svg';
-                  } else if (item.url.includes('leo')) {
-                    target.src = '/assets/atty-leo-lalusis.svg';
-                  } else {
-                    target.src = '/assets/attorney-placeholder.svg';
-                  }
+                  (e.target as HTMLElement).style.display = 'none';
                 }}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                referrerPolicy="no-referrer"
               />
               <span className="absolute top-2 right-2">
                 <Badge variant="charcoal" size="sm">
@@ -165,11 +154,13 @@ export const MediaLibrary: React.FC = () => {
               </span>
             </div>
 
-            <div className="p-3.5 space-y-2">
-              <p className="font-cinzel text-xs font-semibold text-[#f7f4ee] truncate">
-                {item.name}
-              </p>
-              <p className="text-[10px] text-[#7e776e] truncate font-mono">{item.altText}</p>
+            <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
+              <div>
+                <p className="font-cinzel text-xs font-semibold text-[#f7f4ee] truncate" title={item.name}>
+                  {item.name}
+                </p>
+                <p className="text-[10px] text-[#7e776e] truncate font-mono">{item.altText || item.name}</p>
+              </div>
 
               <div className="pt-2 border-t border-[#1c1c24] flex items-center justify-between">
                 <button
@@ -189,13 +180,23 @@ export const MediaLibrary: React.FC = () => {
                   )}
                 </button>
 
-                <button
-                  onClick={() => handleDelete(item.id, item.name)}
-                  className="text-rose-500/70 hover:text-rose-400 p-1 cursor-pointer"
-                  title="Delete Asset"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setEditingItem(item)}
+                    className="text-[#a8a199] hover:text-[#c59b63] p-1 cursor-pointer"
+                    title="Edit Name & Category"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(item.id, item.name)}
+                    className="text-rose-500/70 hover:text-rose-400 p-1 cursor-pointer"
+                    title="Delete Asset"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -212,18 +213,27 @@ export const MediaLibrary: React.FC = () => {
           }}
         />
       )}
+
+      {editingItem && (
+        <EditMediaModal
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSave={handleSaveEdit}
+        />
+      )}
     </div>
   );
 };
 
 const AddMediaModal: React.FC<{
   onClose: () => void;
-  onAdd: (asset: Omit<MediaAsset, 'id' | 'uploadedAt'>) => void;
+  onAdd: (asset: Omit<MediaAsset, 'id' | 'uploadedAt'> & { id?: string }) => void;
 }> = ({ onClose, onAdd }) => {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
+  const [uploadedMediaId, setUploadedMediaId] = useState<string | null>(null);
   const [category, setCategory] = useState<'portrait' | 'architectural' | 'branding' | 'general'>(
-    'architectural'
+    'branding'
   );
   const [altText, setAltText] = useState('');
 
@@ -233,6 +243,7 @@ const AddMediaModal: React.FC<{
       return;
     }
     onAdd({
+      id: uploadedMediaId || undefined,
       name: name.trim() || 'Visual Asset',
       url,
       category,
@@ -241,13 +252,16 @@ const AddMediaModal: React.FC<{
     });
   };
 
-  const handleImageUploaded = (imageUrl: string, fileName?: string) => {
+  const handleImageUploaded = (imageUrl: string, fileName?: string, mediaId?: string) => {
     setUrl(imageUrl);
-    if (fileName && !name) {
-      // Clean fileName: replace dashes/underscores with spaces and remove extension
+    if (mediaId) {
+      setUploadedMediaId(mediaId);
+    }
+    if (fileName && (!name || name === 'Picture File *' || name === 'Visual Asset')) {
       const cleaned = fileName
         .replace(/\.[^/.]+$/, '')
         .replace(/[-_]+/g, ' ')
+        .trim()
         .replace(/\b\w/g, (c) => c.toUpperCase());
       setName(cleaned);
       if (!altText) {
@@ -265,9 +279,8 @@ const AddMediaModal: React.FC<{
       maxWidth="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4 pt-2 text-left">
-        {/* Direct Picture File Upload */}
         <ImageUploadField
-          label="Picture File *"
+          label="Upload Picture File"
           value={url}
           onChange={handleImageUploaded}
           required={true}
@@ -285,8 +298,8 @@ const AddMediaModal: React.FC<{
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Future Point Plaza Chambers Suite"
-            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
+            placeholder="e.g. Atty. Levy John L.V. Lalusis – Founding Partner"
+            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none focus:border-[#c59b63]"
           />
         </div>
 
@@ -297,34 +310,125 @@ const AddMediaModal: React.FC<{
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as any)}
-            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
+            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none focus:border-[#c59b63]"
           >
-            <option value="architectural">Architectural &amp; Office</option>
-            <option value="portrait">Attorney Portraits</option>
-            <option value="branding">Branding &amp; Insignia</option>
+            <option value="branding">Branding &amp; Institutional</option>
+            <option value="portrait">Partner Portrait</option>
+            <option value="architectural">Offices &amp; Architectural</option>
             <option value="general">General Media</option>
           </select>
         </div>
 
         <div>
           <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
-            Accessibility Alt Text
+            Alt Text Description
           </label>
           <input
             type="text"
             value={altText}
             onChange={(e) => setAltText(e.target.value)}
-            placeholder="Description of visual asset..."
-            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
+            placeholder="Descriptive text for accessibility & SEO..."
+            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none focus:border-[#c59b63]"
           />
         </div>
 
-        <div className="pt-4 flex justify-end gap-3 border-t border-[#22222d]">
-          <Button type="button" variant="secondary" size="sm" onClick={onClose}>
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#1c1c24]">
+          <Button variant="ghost" size="sm" type="button" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" variant="primary" size="sm" disabled={!url}>
-            Save Asset
+          <Button variant="primary" size="sm" type="submit" disabled={!url || !name}>
+            Save to Media Library
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+const EditMediaModal: React.FC<{
+  item: MediaAsset;
+  onClose: () => void;
+  onSave: (updated: MediaAsset) => void;
+}> = ({ item, onClose, onSave }) => {
+  const [name, setName] = useState(item.name);
+  const [category, setCategory] = useState<'portrait' | 'architectural' | 'branding' | 'general'>(
+    (item.category as any) || 'branding'
+  );
+  const [altText, setAltText] = useState(item.altText || item.name);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave({
+      ...item,
+      name: name.trim() || 'Visual Asset',
+      category,
+      altText: altText.trim() || name.trim(),
+    });
+  };
+
+  return (
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title="Edit Media Asset Details"
+      subtitle="Update the title, category, and SEO alt text for this asset across all devices."
+      maxWidth="md"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4 pt-2 text-left">
+        {/* Preview */}
+        <div className="aspect-[16/9] max-h-48 bg-[#0a0a0d] border border-[#242433] overflow-hidden flex items-center justify-center">
+          <img src={item.url} alt={name} className="w-full h-full object-contain" />
+        </div>
+
+        <div>
+          <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
+            Asset Title *
+          </label>
+          <input
+            type="text"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Atty. Levy John L.V. Lalusis – Founding Partner"
+            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none focus:border-[#c59b63]"
+          />
+        </div>
+
+        <div>
+          <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
+            Category
+          </label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as any)}
+            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none focus:border-[#c59b63]"
+          >
+            <option value="branding">Branding &amp; Institutional</option>
+            <option value="portrait">Partner Portrait</option>
+            <option value="architectural">Offices &amp; Architectural</option>
+            <option value="general">General Media</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
+            Alt Text Description
+          </label>
+          <input
+            type="text"
+            value={altText}
+            onChange={(e) => setAltText(e.target.value)}
+            placeholder="Descriptive alt text for accessibility..."
+            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none focus:border-[#c59b63]"
+          />
+        </div>
+
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#1c1c24]">
+          <Button variant="ghost" size="sm" type="button" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button variant="primary" size="sm" type="submit" disabled={!name.trim()}>
+            Save Changes to Cloud
           </Button>
         </div>
       </form>

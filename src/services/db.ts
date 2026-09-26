@@ -175,7 +175,63 @@ class DatabaseService {
         hasChanges = true;
       }
       if (media && media.length > 0) {
-        this.save(DB_KEYS.MEDIA, media);
+        const attorneys = this.getAttorneys(true);
+        const localMedia = this.load<MediaItem[]>(DB_KEYS.MEDIA, []);
+        const localMap = new Map(localMedia.map((m) => [m.id, m]));
+        const localUrlMap = new Map(localMedia.map((m) => [m.url, m]));
+
+        let mediaChanged = false;
+        const processedMedia: MediaItem[] = media.map((cloudItem) => {
+          const localItem = localMap.get(cloudItem.id) || localUrlMap.get(cloudItem.url);
+
+          const isCloudGeneric =
+            !cloudItem.name ||
+            cloudItem.name.toLowerCase().includes('picture file') ||
+            cloudItem.name.endsWith('*') ||
+            cloudItem.name.toLowerCase() === 'image' ||
+            cloudItem.name.toLowerCase() === 'photo';
+
+          let resolvedItem = { ...cloudItem };
+
+          // If local has a real, specific name (set by the user on another device), adopt it
+          if (localItem && isCloudGeneric) {
+            const isLocalGeneric =
+              !localItem.name ||
+              localItem.name.toLowerCase().includes('picture file') ||
+              localItem.name.endsWith('*') ||
+              localItem.name.toLowerCase() === 'image';
+
+            if (!isLocalGeneric) {
+              resolvedItem.name = localItem.name;
+              resolvedItem.category = localItem.category;
+              resolvedItem.altText = localItem.altText || localItem.name;
+              supabaseService.saveMedia(resolvedItem).catch(() => {});
+              mediaChanged = true;
+            }
+          }
+
+          // Auto-adapt generic names
+          const { item: adapted, wasUpdated } = this.autoAdaptMediaItem(resolvedItem, attorneys);
+          if (wasUpdated) {
+            supabaseService.saveMedia(adapted).catch(() => {});
+            mediaChanged = true;
+            return adapted;
+          }
+
+          return resolvedItem;
+        });
+
+        // Ensure any local assets not yet in cloud are retained and saved to cloud
+        for (const localItem of localMedia) {
+          if (!processedMedia.some((m) => m.id === localItem.id || m.url === localItem.url)) {
+            const { item: adapted } = this.autoAdaptMediaItem(localItem, attorneys);
+            processedMedia.push(adapted);
+            supabaseService.saveMedia(adapted).catch(() => {});
+            mediaChanged = true;
+          }
+        }
+
+        this.save(DB_KEYS.MEDIA, processedMedia);
         hasChanges = true;
       }
       if (navigation && navigation.length > 0) {
@@ -1189,11 +1245,127 @@ class DatabaseService {
   }
 
   // --- MEDIA LIBRARY ---
+  public autoAdaptMediaItem(
+    item: MediaItem,
+    attorneys?: Attorney[]
+  ): { item: MediaItem; wasUpdated: boolean } {
+    const rawName = item.name ? item.name.trim() : '';
+    const isGeneric =
+      !rawName ||
+      rawName.toLowerCase().includes('picture file') ||
+      rawName.endsWith('*') ||
+      rawName.toLowerCase() === 'image' ||
+      rawName.toLowerCase() === 'photo' ||
+      rawName.toLowerCase() === 'visual asset' ||
+      rawName.toLowerCase() === 'general media' ||
+      /^med-\d+$/.test(rawName);
+
+    // If it already has an authentic title and valid non-general category, keep it
+    if (!isGeneric && item.category && item.category !== 'general') {
+      return { item, wasUpdated: false };
+    }
+
+    const attyList = attorneys || this.getAttorneys(true);
+    let updatedName = item.name;
+    let updatedCategory = item.category;
+    let updatedAlt = item.altText;
+
+    const urlLower = (item.url || '').toLowerCase();
+    const altLower = (item.altText || '').toLowerCase();
+
+    // 1. Direct match with attorney portraits
+    const matchedAtty = attyList.find(
+      (a) => a.portraitUrl && (a.portraitUrl === item.url || item.url.includes(a.slug))
+    );
+
+    if (matchedAtty) {
+      updatedName = `${matchedAtty.fullName} – Founding Partner Official Portrait`;
+      updatedCategory = 'branding';
+      updatedAlt = `${matchedAtty.fullName}, ${matchedAtty.primarySpecialization || matchedAtty.professionalTitle}`;
+    }
+    // 2. Attorney keyword matching in URL or alt text
+    else if (urlLower.includes('levy') || altLower.includes('levy')) {
+      updatedName = 'Atty. Levy John L.V. Lalusis – Founding Partner';
+      updatedCategory = 'branding';
+      updatedAlt = 'Atty. Levy John L.V. Lalusis, Founding Partner';
+    } else if (urlLower.includes('leo') || altLower.includes('leo')) {
+      updatedName = 'Atty. Leo Anselmo L.V. Lalusis – Founding Partner';
+      updatedCategory = 'branding';
+      updatedAlt = 'Atty. Leo Anselmo L.V. Lalusis, Founding Partner';
+    } else if (urlLower.includes('diosdado') || altLower.includes('diosdado')) {
+      updatedName = 'Senior Partner Atty. Diosdado Anselmo Q. Lalusis';
+      updatedCategory = 'branding';
+      updatedAlt = 'Senior Partner Atty. Diosdado Anselmo Q. Lalusis';
+    } else if (
+      urlLower.includes('group') ||
+      urlLower.includes('three') ||
+      urlLower.includes('partners') ||
+      altLower.includes('founding partners')
+    ) {
+      updatedName = 'Founding Partners Institutional Chamber Portrait';
+      updatedCategory = 'branding';
+      updatedAlt = 'Founding Partners of Lalusis & Partners Law Firm';
+    } else if (urlLower.includes('justice') || urlLower.includes('scale') || urlLower.includes('statue')) {
+      updatedName = 'Supreme Court Architecture & Scale of Justice';
+      updatedCategory = 'branding';
+      updatedAlt = 'Supreme Court Architecture & Scale of Justice';
+    } else if (urlLower.includes('library') || urlLower.includes('book')) {
+      updatedName = 'Firm Reference Library & Classical Chambers';
+      updatedCategory = 'architectural';
+      updatedAlt = 'Firm Reference Library & Classical Chambers';
+    } else if (urlLower.includes('office') || urlLower.includes('hallway') || urlLower.includes('corridor')) {
+      updatedName = 'Corporate Chambers & Practice Facilities';
+      updatedCategory = 'architectural';
+      updatedAlt = 'Corporate Chambers & Practice Facilities';
+    }
+    // 3. Clean filename from URL if generic
+    else if (isGeneric) {
+      try {
+        const urlObj = item.url.split('?')[0].split('/');
+        const filename = decodeURIComponent(urlObj[urlObj.length - 1] || '');
+        const cleanName = filename
+          .replace(/^\d+-[a-z0-9]+-/, '')
+          .replace(/\.[^/.]+$/, '')
+          .replace(/[-_]+/g, ' ')
+          .trim()
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+
+        if (cleanName && !cleanName.toLowerCase().includes('picture file')) {
+          updatedName = cleanName;
+          updatedAlt = cleanName;
+        } else {
+          updatedName = 'Chamber Visual Asset';
+        }
+      } catch {
+        updatedName = 'Chamber Visual Asset';
+      }
+    }
+
+    if (!updatedCategory || updatedCategory === 'general') {
+      updatedCategory = 'branding';
+    }
+
+    const wasUpdated =
+      updatedName !== item.name ||
+      updatedCategory !== item.category ||
+      updatedAlt !== item.altText;
+
+    return {
+      item: {
+        ...item,
+        name: updatedName,
+        category: (updatedCategory as any) || 'branding',
+        altText: updatedAlt || updatedName,
+      },
+      wasUpdated,
+    };
+  }
+
   public getMedia(): MediaItem[] {
     const list = this.load<MediaItem[]>(DB_KEYS.MEDIA, initialMedia);
     let changed = false;
     const existingIds = new Set(list.map((m) => m.id));
-    const merged = [...list];
+    let merged = [...list];
 
     // Ensure all standard initial firm media assets are present
     for (const init of initialMedia) {
@@ -1209,6 +1381,18 @@ class DatabaseService {
       }
     }
 
+    // Automatically adapt all items and self-heal any generic titles
+    const attorneys = this.getAttorneys(true);
+    merged = merged.map((item) => {
+      const { item: adapted, wasUpdated } = this.autoAdaptMediaItem(item, attorneys);
+      if (wasUpdated) {
+        changed = true;
+        supabaseService.saveMedia(adapted).catch(() => {});
+        return adapted;
+      }
+      return item;
+    });
+
     if (changed) {
       this.save(DB_KEYS.MEDIA, merged);
     }
@@ -1216,6 +1400,24 @@ class DatabaseService {
   }
 
   public addMedia(item: Omit<MediaItem, 'id' | 'createdAt'> & { id?: string }): MediaItem {
+    const list = this.getMedia();
+    const existingIdx = item.id
+      ? list.findIndex((m) => m.id === item.id)
+      : list.findIndex((m) => m.url === item.url);
+
+    if (existingIdx >= 0) {
+      const existing = list[existingIdx];
+      const updatedItem: MediaItem = {
+        ...existing,
+        name: item.name,
+        category: item.category as any,
+        altText: item.altText || item.name,
+        uploadedAt: new Date().toISOString(),
+      };
+      this.saveMedia(updatedItem);
+      return updatedItem;
+    }
+
     const newItem: MediaItem = {
       id: item.id || `med-${Date.now()}`,
       name: item.name,
@@ -1225,7 +1427,7 @@ class DatabaseService {
       sizeBytes: item.sizeBytes || 102400,
       size: item.size || 'optimized',
       category: item.category as any,
-      altText: item.altText,
+      altText: item.altText || item.name,
       createdAt: new Date().toISOString(),
       uploadedAt: new Date().toISOString(),
     };
@@ -1235,15 +1437,16 @@ class DatabaseService {
 
   public saveMedia(item: MediaItem): void {
     const list = this.getMedia();
-    const idx = list.findIndex((m) => m.id === item.id);
+    const idx = list.findIndex((m) => m.id === item.id || m.url === item.url);
     let updated: MediaItem[];
     if (idx >= 0) {
       updated = [...list];
-      updated[idx] = item;
+      updated[idx] = { ...list[idx], ...item };
     } else {
       updated = [item, ...list];
     }
     this.save(DB_KEYS.MEDIA, updated);
+    supabaseService.saveMedia(item).catch((e) => console.warn('Supabase saveMedia:', e));
     this.logActivity(idx >= 0 ? 'Updated Media Item' : 'Uploaded Media Item', 'Media', item.id, `Media: ${item.name}`);
   }
 

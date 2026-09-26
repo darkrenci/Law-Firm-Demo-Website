@@ -8,7 +8,7 @@ import { isSupabaseConfigured } from '../../lib/supabase';
 export interface ImageUploadFieldProps {
   label?: string;
   value?: string;
-  onChange: (value: string, fileName?: string) => void;
+  onChange: (value: string, fileName?: string, mediaId?: string) => void;
   helperText?: string;
   required?: boolean;
   className?: string;
@@ -119,14 +119,20 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
     setError(null);
 
     try {
+      const cleaned = file.name
+        .replace(/\.[^/.]+$/, '')
+        .replace(/[-_]+/g, ' ')
+        .trim()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+
       if (isSupabaseConfigured) {
         const result = await supabaseService.uploadMediaFile(file, {
-          customName: label || file.name.replace(/\.[^/.]+$/, ''),
+          customName: cleaned,
         });
-        onChange(result.url, file.name);
+        onChange(result.url, cleaned, result.mediaItem.id);
       } else {
         const processed = await processImageFile(file);
-        onChange(processed.dataUrl, processed.name);
+        onChange(processed.dataUrl, cleaned);
       }
     } catch (err: any) {
       console.error('File upload error:', err);
