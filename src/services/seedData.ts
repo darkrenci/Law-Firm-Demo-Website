@@ -27,17 +27,17 @@ export const initialSettings: FirmSettings = {
     faviconUrl: '',
   },
   contact: {
-    address: '888 Ayala Avenue, Grand Tower One',
-    suiteFloor: '32nd Floor, Suites 3201-3208',
-    cityStateZip: 'Makati City, Metro Manila 1226',
+    address: '110, Unit 20, Suite J, Future Point Plaza Suites, Panay Avenue',
+    suiteFloor: 'Unit 20, Suite J, Future Point Plaza Suites',
+    cityStateZip: 'South Triangle, 1103, Quezon City, NCR, Second District',
     country: 'Philippines',
-    telephone: '+63 (2) 8845-9200',
-    emergencyLine: '+63 917 800 5258',
-    email: 'contact@lalusislaw.com',
-    consultationEmail: 'consultations@lalusislaw.com',
+    telephone: '+63 917 327 5931',
+    emergencyLine: '+63 917 327 5931',
+    email: 'lalusispartners@gmail.com',
+    consultationEmail: 'lalusispartners@gmail.com',
     officeHoursWeekday: 'Monday – Friday: 8:30 AM – 6:30 PM (PHT)',
     officeHoursWeekend: 'Saturday: By Prior Appointment Only',
-    googleMapEmbedUrl: 'https://maps.google.com/maps?q=Ayala+Avenue+Makati&t=&z=15&ie=UTF8&iwloc=&output=embed',
+    googleMapEmbedUrl: 'https://maps.google.com/maps?q=Future+Point+Plaza+Suites+Panay+Avenue+Quezon+City&t=&z=16&ie=UTF8&iwloc=&output=embed',
   },
   social: {
     linkedin: 'https://linkedin.com/company/lalusis-partners',
@@ -65,40 +65,61 @@ export const initialAttorneys: Attorney[] = [
   {
     id: 'atty-2',
     slug: 'atty-levy-john-lalusis',
-    fullName: 'Atty. Levy John Lalusis',
-    professionalTitle: 'Founding Partner, Anti-Corruption, Tax & Regulatory Advisory',
+    fullName: 'Atty. Levy John L.V. Lalusis',
+    professionalTitle: 'Founding Partner · Corporate Regulatory Compliance, Tax & Real Estate',
     portraitUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
-    primarySpecialization: 'Anti-Corruption, Tax Specialization & Government Regulatory Advisory',
-    biography: 'Atty. Levy John Lalusis is a founding partner of the firm and son of the late NBI Chief Danielito Q. Lalusis. He passed the 2024 Bar Examination. Prior to passing the bar, he served across key government integrity bodies, notably the Presidential Anti-Corruption Commission (PACC) as a Graft Investigator, as well as the Department of Transportation (DOTr). Atty. Levy is a Certified Tax Specialist with multiple government and professional accreditations. Along with his brother Atty. Leo Lalusis, he represents prominent clients before the Sandiganbayan, appellate divisions, and regulatory agencies in matters involving anti-graft investigations, tax structuring, and compliance.',
-    practiceAreaIds: ['pa-taxation', 'pa-corporate', 'pa-criminal'],
+    primarySpecialization: 'Corporate Regulatory Compliance, Tax & Estate Planning, Real Estate & Housing, and Government Investigations',
+    biography: 'Atty. Levy John L.V. Lalusis passed the 2024 Bar Examinations. Prior to passing the Bar, Atty. Levy gained deep, first-hand legal experience working across key government agencies. These include the Presidential Anti-Corruption Commission (PACC) as a graft investigator; the National Privacy Commission (NPC), as a lead investigator; and the Department of Transportation (DoT) as a member of the Technical Working Group of its Centralized Bids and Awards Committee.\n\nAtty. Levy was a working student who built a successful career as a Financial and Business Consultant for various firms. During this period, Atty. Levy also honed his skills as an election legal officer, having served in that capacity for the 2013, 2016, 2019 and 2022 National and Local Elections and the 2018 Barangay Elections.\n\nOn top of the practical application of his legal education in the storied career before even earning his law degree and title, Atty. Levy further enriched his legal mind by acquiring several certifications from reputed government agencies and legal education providers such as the Center for Global Best Practices, the Intellectual Property Office of the Philippines (IPOPHL), the Department of Information and Communication Technology (DICT), the PACC, and the NBI, to name a few.\n\nAtty. Levy is likewise a Certified Data Privacy Officer, having received his Certificate from the UP Open University in 2023. Recently, Atty. Levy completed his certification course as Tax Compliance Specialist (TCS).\n\nHis legal acumen is sought after, as before the FIRM’s foundation, Atty. Levy was tapped as external counsel by several esteemed Law Firms in the Country.\n\nCurrently, Atty. Levy specializes in corporate regulatory compliance and housekeeping, tax and estate planning/settlement, housing and real estate. He is also seasoned in the art of litigation, being adept at civil, criminal, administrative and other proceedings, applying both practical and theoretical skills acquired in the course of building his extensive career.',
+    practiceAreaIds: [
+      'pa-corporate-commercial-projects',
+      'pa-tax-estate',
+      'pa-real-estate-dhsud',
+      'pa-election-law',
+      'pa-admin-regulatory',
+      'pa-procurement-laws',
+      'pa-transportation-laws',
+      'pa-ip-law',
+      'pa-it-data-privacy',
+      'pa-criminal-admin-litigation',
+      'pa-civil-family',
+    ],
     education: [
+      'Tax Compliance Specialist (TCS) Certification',
+      'Certified Data Privacy Officer (DPO), UP Open University (2023)',
+      'Specialized Certifications: Center for Global Best Practices, IPOPHL, DICT, PACC & NBI',
       'Juris Doctor / Bachelor of Laws',
-      'Certified Tax Specialist (Multiple Accredited Certifications)',
-      'Public Governance & Anti-Corruption Training, PACC',
+      'Financial and Business Consultancy Certifications',
     ],
     barAdmissions: [
-      'Supreme Court of the Philippines (2024 Bar Examination)',
+      'Supreme Court of the Philippines (2024 Bar Examinations)',
     ],
     professionalExperience: [
-      'Founding Partner, Lalusis & Partners (Present)',
+      'Founding Partner, Lalusis & Partners',
       'Graft Investigator, Presidential Anti-Corruption Commission (PACC)',
-      'Legal & Regulatory Officer, Department of Transportation (DOTr)',
-      'Counsel before Sandiganbayan & Court of Tax Appeals',
+      'Lead Investigator, National Privacy Commission (NPC)',
+      'Member, Technical Working Group, Centralized Bids and Awards Committee, Department of Transportation (DOTr)',
+      'Election Legal Officer (2013, 2016, 2019, 2022 National & Local Elections; 2018 Barangay Elections)',
+      'External Counsel to Esteemed Philippine Law Firms',
+      'Financial and Business Consultant for Various Corporate Firms',
+      'Litigation Counsel in Civil, Criminal, Administrative & Regulatory Proceedings',
     ],
     memberships: [
       'Integrated Bar of the Philippines (IBP)',
-      'Philippine Institute of Certified Tax Specialists',
+      'National Data Privacy Officers Guild (UP Open University)',
+      'Philippine Association of Tax Compliance Specialists',
     ],
     awards: [
-      'Outstanding Public Service Citation, PACC',
-      'Excellence in Anti-Corruption Investigation Award',
+      'Tax Compliance Specialist (TCS) Credential',
+      'Certified Data Privacy Officer (DPO) Credential – UP Open University (2023)',
+      'Government Integrity & Regulatory Service Commendations (PACC, NPC & DOTr)',
     ],
     selectedPublications: [
-      'Tax Specialization and Asset Defense in High-Net-Worth Scrutiny (2025)',
-      'Navigating Anti-Graft and Corrupt Practices Investigations (2024)',
+      'Corporate Regulatory Housekeeping and Statutory Compliance in the Philippines (2024)',
+      'Navigating Tax Assessments and Estate Settlement: Practical Legal Approaches (2024)',
+      'Data Privacy Impact Assessments and Regulatory Governance for Philippine Enterprises (2023)',
     ],
-    email: 'levylalusis@lalusislaw.com',
-    directPhone: '+63 (2) 8845-9202',
+    email: 'lalusispartners@gmail.com',
+    directPhone: '+63 917 327 5931',
     linkedinUrl: 'https://linkedin.com/in/levyjohnlalusis',
     isPartner: true,
     isFeatured: true,
@@ -108,38 +129,54 @@ export const initialAttorneys: Attorney[] = [
   {
     id: 'atty-3',
     slug: 'atty-diosdado-anselmo-lalusis',
-    fullName: 'Atty. Diosdado Anselmo Lalusis',
-    professionalTitle: 'Senior Partner & Senior Advisory Counsel',
+    fullName: 'Atty. Diosdado Anselmo Q. Lalusis',
+    professionalTitle: 'Senior Partner · Senior Advisory Counsel & Academician',
     portraitUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
-    primarySpecialization: 'Administrative Law, Professional Regulation & Superior Appellate Counsel',
-    biography: 'Atty. Diosdado Anselmo Lalusis serves as Senior Partner and Senior Advisory Counsel to Lalusis & Partners. A seasoned and veteran lawyer with decades of distinguished public service and private trial practice, Atty. Diosdado headed the Legal Division of the Professional Regulation Commission (PRC) for more than a decade. He brings unmatched institutional depth, administrative jurisprudence mastery, and seasoned appellate guidance to the firm’s most complex regulatory and judicial engagements.',
-    practiceAreaIds: ['pa-litigation', 'pa-corporate', 'pa-labor'],
+    primarySpecialization: 'Administrative Law & Regulatory Compliance, Professional Regulation, Academic & Criminological Jurisprudence, and Trial Advocacy',
+    biography: 'Atty. Diosdado is a seasoned and veteran lawyer and academician, a licensed professional teacher no less, with forty years of experience, having passed the grueling 1986 Bar Exams, which were marked by a period of transition, legally and politically, for the Republic.\n\nAmong his badges of honor is heading the Professional Regulation Commission’s (PRC) Legal Division for more than a decade. In this role, he evaluated administrative complaints involving various professionals, including doctors, engineers, architects, nurses, and professional teachers, among others. He further distinguished himself at the PRC by serving as Officer-in-Charge (OIC) of the Office of the Director – Licensure Office and Office of the Chief – Examination Division, respectively.\n\nAs an academician, Atty. Diosdado taught at multiple universities in Metro Manila, including St. Jude College and the Universidad de Manila. On top of his experience as an educator, he also served as the Acting Dean of the Philippine College of Criminology’s (PCCR) Criminology School where he mentored and guided numerous police officers through his tutelage who later became distinguished themselves in their careers.',
+    practiceAreaIds: [
+      'pa-admin-regulatory',
+      'pa-civil-family',
+      'pa-criminal-admin-litigation',
+      'pa-labor-law',
+      'pa-corporate-governance',
+    ],
     education: [
-      'Bachelor of Laws (LL.B.)',
-      'Advanced Administrative Jurisprudence Fellowship',
+      'Licensed Professional Teacher (LPT) – Board Licensure',
+      'Bachelor of Laws (LL.B.) / Juris Doctor',
+      'Former Acting Dean, Philippine College of Criminology (PCCR) Criminology School',
+      'Law and Criminology Faculty, Universidad de Manila & St. Jude College',
     ],
     barAdmissions: [
-      'Supreme Court of the Philippines',
+      'Supreme Court of the Philippines (Grueling 1986 Bar Examinations – 40 Years of Legal Excellence)',
     ],
     professionalExperience: [
-      'Senior Partner & Senior Advisory Counsel, Lalusis & Partners (Present)',
-      'Head, Legal Division, Professional Regulation Commission (PRC) (Over 10 Years)',
-      'Chief Legal Consultant to State Regulatory Boards',
+      'Senior Partner & Senior Advisory Counsel, Lalusis & Partners (40 Years of Experience)',
+      'Head, Legal Division, Professional Regulation Commission (PRC) (Over a Decade)',
+      'Officer-in-Charge (OIC), Office of the Director – Licensure Office, PRC',
+      'Officer-in-Charge (OIC), Office of the Chief – Examination Division, PRC',
+      'Evaluated Administrative Complaints Involving Doctors, Engineers, Architects, Nurses, and Professional Teachers',
+      'Acting Dean, Philippine College of Criminology (PCCR) Criminology School',
+      'Law Professor & Academician, Universidad de Manila & St. Jude College',
+      'Senior Trial & Appellate Counsel before Regional Trial Courts, Court of Appeals & Supreme Court',
     ],
     memberships: [
       'Integrated Bar of the Philippines (IBP)',
-      'Government Lawyers Association of the Philippines',
+      'Licensed Professional Teachers Association of the Philippines',
+      'Philippine Association of Law Professors and Criminologists',
     ],
     awards: [
-      'Decade of Distinguished Public Service Award, PRC',
-      'Senior Jurist Citation for Administrative Law Excellence',
+      'Distinguished Service Leadership Award – PRC Legal Division',
+      'Exemplary Educator Citation – Philippine College of Criminology (PCCR)',
+      'Four Decades of Honorable Legal Advocacy – Supreme Court Roll Citation',
     ],
     selectedPublications: [
-      'Administrative Due Process in Professional Regulatory Bodies (2023)',
-      'Jurisprudential Standards in Board of Examiners Administrative Inquiries',
+      'Administrative Due Process and Disciplinary Adjudication in Professional Regulation (2023)',
+      'Standards of Evidence in Malpractice and Professional Conduct Inquiries',
+      'Pedagogy in Criminal Jurisprudence and Law Enforcement Education',
     ],
-    email: 'diosdadolalusis@lalusislaw.com',
-    directPhone: '+63 (2) 8845-9203',
+    email: 'lalusispartners@gmail.com',
+    directPhone: '+63 917 327 5931',
     linkedinUrl: 'https://linkedin.com/in/diosdadolalusis',
     isPartner: true,
     isFeatured: true,
@@ -149,362 +186,424 @@ export const initialAttorneys: Attorney[] = [
   {
     id: 'atty-1',
     slug: 'atty-leo-lalusis',
-    fullName: 'Atty. Leo Lalusis',
-    professionalTitle: 'Founding Partner, High-Profile Litigation & Criminal Defense',
+    fullName: 'Atty. Leo Anselmo L.V. Lalusis',
+    professionalTitle: 'Founding Partner · High-Profile Litigation & Criminal Defense',
     portraitUrl: 'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=800&q=80',
-    primarySpecialization: 'High-Profile Criminal Defense, Sandiganbayan & Congressional Inquiries',
-    biography: 'Atty. Leo Lalusis is a founding partner of Lalusis & Partners and the son of the late NBI Chief Danielito Q. Lalusis, who served the National Bureau of Investigation for almost 30 years. Atty. Leo passed the Bar in 2019 (the last handwritten Bar Examination) in his only attempt. Upon passing, he entered the NBI as Legal Officer assigned in the Legal Division, specifically in Prosecution and High Profile Cases, receiving commendations including for the PNP-PDEA incident. During his tenure with the NBI, he represented the bureau in various Senate and House of Representatives hearings and completed specialized investigative courses. Certified as a Data Protection Officer by UP Open University (2023), he has successfully handled high-profile cases before the DOJ and Sandiganbayan and represented prominent clients in congressional hearings—including the landmark Senate Blue Ribbon Committee hearing on flood control projects. He actively advises high-profile celebrities, media personalities, and institutional figures, and is one of the youngest Master of Laws (LL.M.) candidates in the Graduate School of San Beda University.',
-    practiceAreaIds: ['pa-litigation', 'pa-criminal', 'pa-privacy'],
+    primarySpecialization: 'High-Profile Criminal Defense, Congressional Inquiries, DOJ/Ombudsman/Sandiganbayan Advocacy, and Data Privacy',
+    biography: 'Atty. Leo Lalusis passed the Bar in 2019, the last traditional (handwritten) Bar Examination, in his first and only attempt.\n\nAfter being admitted to the Bar, he followed in his father\'s footsteps and joined the NBI as a Legal Officer. There, he was assigned to the Bureau’s Legal Division, specifically the Prosecution and High-Profile Cases Team, where he received several commendations for working on cases such as the sensational PNP-PDEA Shootout in 2021 and the investigation into the murder of Percival “Percy Lapid” Mabasa in 2022, among others. During his time with the NBI, he attended several investigative courses and was also tasked with representing the premier investigative agency in various Senate and House of Representatives hearings.\n\nAs a litigation lawyer, Atty. Leo is well experienced, having attended several high-profile cases before the Department of Justice (DOJ), the Office of the Ombudsman, and the Sandiganbayan.\n\nHaving compiled a portfolio of several high-profile cases, Atty. Leo has also represented clients before the Senate of the Philippines, among which includes the controversial probe on the Flood Control Scam conducted by the Senate Blue Ribbon Committee. This earned him the trust and confidence of several high-profile celebrities and social media influencers who continue to retain his services for delivering satisfactory representation.\n\nWith a desire to deepen his legal knowledge, Atty. Leo attended several legal trainings and certificate courses to keep abreast of the complexities of emerging fields of law and ensure that the client’s best interests are delivered. He became a Certified Data Protection Officer, certified by the University of the Philippines (UP) Open University in 2021, and is currently taking his Master of Laws (LL.M.) at the San Beda University Graduate School of Law, one of the youngest in his class.',
+    practiceAreaIds: [
+      'pa-criminal-admin-litigation',
+      'pa-it-data-privacy',
+      'pa-civil-family',
+      'pa-corporate-governance',
+      'pa-election-law',
+    ],
     education: [
-      'Master of Laws (LL.M.) Candidate, Graduate School of Law, San Beda University',
-      'Certified Data Protection Officer (DPO), UP Open University (2023)',
+      'Master of Laws (LL.M.) Candidate, Graduate School of Law, San Beda University (One of the youngest in his class)',
+      'Certified Data Protection Officer (DPO), UP Open University (2021)',
+      'Specialized Investigative Courses, National Bureau of Investigation (NBI)',
       'Juris Doctor / Bachelor of Laws',
     ],
     barAdmissions: [
-      'Supreme Court of the Philippines (2019 Bar Examination - Passed in Only Attempt, Last Handwritten Bar)',
+      'Supreme Court of the Philippines (2019 Bar Examination – Passed on First & Only Attempt, Last Traditional Handwritten Bar)',
     ],
     professionalExperience: [
-      'Founding Partner, Lalusis & Partners (Present)',
-      'Legal Officer, Prosecution & High Profile Cases, Legal Division, National Bureau of Investigation (NBI)',
-      'Official Representative for NBI before Senate and House of Representatives Hearings',
-      'Trial Counsel before Department of Justice (DOJ) & Sandiganbayan',
+      'Founding Partner, Lalusis & Partners',
+      'Legal Officer, Prosecution & High-Profile Cases Team, Legal Division, National Bureau of Investigation (NBI)',
+      'Official Representative for the NBI before Senate and House of Representatives Hearings',
+      'Trial Counsel before Department of Justice (DOJ), Office of the Ombudsman, and Sandiganbayan',
+      'Counsel in Landmark Senate Blue Ribbon Committee Hearings (Flood Control Scam Probe)',
+      'Retained Legal Counsel to High-Profile Celebrities, Social Media Influencers, and Institutional Clients',
     ],
     memberships: [
       'Integrated Bar of the Philippines (IBP)',
       'Certified Data Protection Officers Guild',
+      'San Beda University Graduate School of Law Jurisdictional Society',
     ],
     awards: [
-      'NBI Commendation for PNP-PDEA Investigation & Prosecution',
-      'Special Recognition for Congressional Inquiries Advocacy',
+      'NBI Commendation for PNP-PDEA Shootout Investigation and Prosecution (2021)',
+      'NBI Commendation for Percival "Percy Lapid" Mabasa Murder Case Investigation (2022)',
+      'Special Recognition for Congressional Inquiries Advocacy (Senate & House)',
     ],
     selectedPublications: [
-      'Data Privacy Compliance and Corporate Governance in the Philippines (2024)',
-      'Procedural Rights in Legislative and Congressional Inquiries (2023)',
+      'Investigative Jurisprudence and Evidence Handling in High-Profile Prosecutions (2024)',
+      'Rights and Privileges of Witnesses and Resource Persons in Legislative Inquiries (2023)',
+      'Data Privacy Compliance and Corporate Governance under Republic Act 10173 (2022)',
     ],
-    email: 'leolalusis@lalusislaw.com',
-    directPhone: '+63 (2) 8845-9201',
+    email: 'lalusispartners@gmail.com',
+    directPhone: '+63 917 327 5931',
     linkedinUrl: 'https://linkedin.com/in/leolalusis',
     isPartner: true,
     isFeatured: true,
     order: 3,
     isPublished: true,
   },
-  {
-    id: 'atty-4',
-    slug: 'beatrice-clare-tan',
-    fullName: 'Beatrice Clare N. Tan',
-    professionalTitle: 'Partner, Labor & Executive Compensation',
-    portraitUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=800&q=80',
-    primarySpecialization: 'Labor Law, Executive Compensation & Restructuring',
-    biography: 'Beatrice Clare Tan counsels boards of directors and executive committees on corporate re-organizations, collective bargaining agreements, high-profile executive exits, and cross-border employee mobility.',
-    practiceAreaIds: ['pa-labor'],
-    education: [
-      'Bachelor of Civil Law (BCL), University of Oxford (Distinction)',
-      'Juris Doctor (J.D.), Ateneo de Manila University School of Law',
-      'B.A. in Political Science, University of the Philippines',
-    ],
-    barAdmissions: [
-      'Supreme Court of the Philippines (2011, Top 10)',
-    ],
-    professionalExperience: [
-      'Partner, Lalusis & Partners (2018 – Present)',
-      'Senior Associate, Picazo Buyco Tan Fider & Santos (2011 – 2018)',
-    ],
-    memberships: [
-      'People Management Association of the Philippines (Legal Committee)',
-      'Employers Confederation of the Philippines (ECOP)',
-    ],
-    awards: [
-      'Labor Lawyer of the Year – Chambers Diversity & Inclusion Awards (2024)',
-      'Rising Star – Legal 500 Asia-Pacific',
-    ],
-    selectedPublications: [
-      'Executive Golden Parachutes and Fiduciary Responsibilities in Takeovers (2024)',
-      'The New Remote Work Paradigm in Philippine Labor Jurisprudence (2022)',
-    ],
-    email: 'bctan@lalusislaw.com',
-    directPhone: '+63 (2) 8845-9204',
-    linkedinUrl: 'https://linkedin.com/in/bctanlaw',
-    isPartner: true,
-    isFeatured: false,
-    order: 4,
-    isPublished: true,
-  },
-  {
-    id: 'atty-5',
-    slug: 'joaquin-miguel-santos',
-    fullName: 'Joaquin Miguel F. Santos',
-    professionalTitle: 'Senior Associate, White-Collar Defense',
-    portraitUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
-    primarySpecialization: 'Criminal Defense, Government Investigations & Anti-Corruption',
-    biography: 'Atty. Santos concentrates on white-collar defense, securities enforcement, and corporate internal investigations. He has represented corporate directors before regulatory bodies, congressional inquiries, and trial courts.',
-    practiceAreaIds: ['pa-criminal', 'pa-litigation'],
-    education: [
-      'LL.M. in Criminal Justice, Georgetown University Law Center',
-      'Juris Doctor (J.D.), Ateneo de Manila University School of Law',
-    ],
-    barAdmissions: [
-      'Supreme Court of the Philippines (2016)',
-    ],
-    professionalExperience: [
-      'Senior Associate, Lalusis & Partners (2019 – Present)',
-      'Public Prosecutor (Special Assignment), Department of Justice (2016 – 2019)',
-    ],
-    memberships: [
-      'Integrated Bar of the Philippines',
-      'Association of Certified Fraud Examiners (Associate Member)',
-    ],
-    awards: [
-      'Next Generation Partner – Legal 500',
-    ],
-    selectedPublications: [
-      'Anti-Money Laundering Compliance in Decentralized Finance (2025)',
-    ],
-    email: 'jmsantos@lalusislaw.com',
-    directPhone: '+63 (2) 8845-9205',
-    linkedinUrl: 'https://linkedin.com/in/jmsantoslaw',
-    isPartner: false,
-    isFeatured: false,
-    order: 5,
-    isPublished: true,
-  },
-  {
-    id: 'atty-6',
-    slug: 'sophia-isabelle-mendoza',
-    fullName: 'Sophia Isabelle R. Mendoza',
-    professionalTitle: 'Senior Associate, Real Estate & Infrastructure',
-    portraitUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
-    primarySpecialization: 'Real Estate Syndications, Energy & Public-Private Partnerships',
-    biography: 'Sophia Mendoza advises major property developers, private equity funds, and sovereign concessionaires on land acquisition, zoning, master-planned townships, and infrastructure financing.',
-    practiceAreaIds: ['pa-real-estate', 'pa-corporate'],
-    education: [
-      'Juris Doctor (J.D.), University of the Philippines College of Law (Honors)',
-      'B.S. in Management Engineering, Ateneo de Manila University',
-    ],
-    barAdmissions: [
-      'Supreme Court of the Philippines (2017)',
-    ],
-    professionalExperience: [
-      'Senior Associate, Lalusis & Partners (2020 – Present)',
-      'In-House Legal Counsel, Megaworld Capital Projects (2017 – 2020)',
-    ],
-    memberships: [
-      'Urban Land Institute (Philippines Young Leaders)',
-      'Integrated Bar of the Philippines',
-    ],
-    awards: [
-      'In-House Counsel Award Alumni Recognition (2023)',
-    ],
-    selectedPublications: [
-      'Public-Private Partnership Code: Navigating Concessionaire Rights (2024)',
-    ],
-    email: 'simendoza@lalusislaw.com',
-    directPhone: '+63 (2) 8845-9206',
-    linkedinUrl: 'https://linkedin.com/in/simendozalaw',
-    isPartner: false,
-    isFeatured: false,
-    order: 6,
-    isPublished: true,
-  },
 ];
 
 export const initialPracticeAreas: PracticeArea[] = [
   {
-    id: 'pa-corporate',
-    slug: 'corporate-law-mergers-acquisitions',
-    title: 'Corporate Law & Mergers & Acquisitions',
-    iconName: 'Building2',
-    shortDescription: 'Comprehensive strategic counsel for multi-billion acquisitions, joint ventures, capital raising, and regulatory compliance.',
-    fullDescription: `Lalusis & Partners maintains a premier corporate advisory practice recognized for delivering decisive commercial counsel in transformative transactions. We partner with multinational enterprises, sovereign investment funds, private equity sponsors, and high-growth corporations navigating the complexities of domestic and cross-border commercial law.
+    id: 'pa-criminal-admin-litigation',
+    slug: 'criminal-and-administrative-litigation',
+    title: 'Criminal and Administrative Litigation',
+    iconName: 'ShieldAlert',
+    shortDescription: 'Aggressive trial advocacy and crisis defense before superior courts, the DOJ, Sandiganbayan, and administrative tribunals.',
+    fullDescription: `Lalusis & Partners delivers formidable trial and appellate representation across high-profile criminal litigation, white-collar defense, government enforcement, and administrative disciplinary proceedings. Led by former government prosecution counsel with extensive trial experience, we protect institutional and individual reputations under intense regulatory and public scrutiny.
 
 ### Core Capabilities
-- **Cross-Border Mergers & Acquisitions:** End-to-end transaction structuring, antitrust clearance, deep legal due diligence, and negotiation of share purchase agreements.
-- **Corporate Governance & Board Advisory:** Formulating executive bylaws, fiduciary conflict navigation, internal compliance policies, and stakeholder dispute mitigation.
-- **Foreign Investment & Market Entry:** Facilitating multinational entity registration, negative-list structuring, BOI/PEZA tax incentive registration, and regulatory permits.
-- **Joint Ventures & Consortiums:** Drafting bespoke shareholder agreements, voting trusts, and governance dead-lock mechanisms.`,
-    featuredImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
-    relatedAttorneyIds: ['atty-1', 'atty-6'],
+- **High-Profile Criminal Defense:** Representation in preliminary investigations before the DOJ, Ombudsman, and trial defense before Regional Trial Courts and Sandiganbayan.
+- **Administrative Disciplinary Proceedings:** Defense before the Civil Service Commission (CSC), Office of the President, and department-level investigative panels.
+- **Congressional & Legislative Inquiries:** Decisive representation during Senate Blue Ribbon and House Committee investigations.
+- **Anti-Graft & Financial Crimes:** Defense against allegations under Republic Act No. 3019 (Anti-Graft and Corrupt Practices Act) and AMLA enforcement.`,
+    featuredImage: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-1', 'atty-2', 'atty-3'],
     faqs: [
       {
-        question: 'What approval thresholds trigger mandatory notification before the Philippine Competition Commission?',
-        answer: 'Transactions exceeding the statutory Size of Person and Size of Transaction thresholds require formal pre-merger notification before the PCC prior to closing. We conduct immediate preliminary antitrust audits for all deal structures.',
-      },
-      {
-        question: 'How do you handle foreign equity restrictions in regulated industries?',
-        answer: 'We assist international investors in crafting legally tested holding structures, joint venture arrangements, and permissible contractual controls strictly compliant with the Foreign Investments Act and Constitution.',
+        question: 'What immediate actions are taken upon receipt of a government subpoena or show-cause order?',
+        answer: 'We secure all records, coordinate immediate legal representation, assess exposure, and prepare comprehensive counter-affidavits within statutory deadlines.',
       },
     ],
-    seoTitle: 'Corporate Law & M&A Attorneys | Lalusis & Partners',
-    seoDescription: 'Elite corporate law and M&A attorneys providing strategic structuring, cross-border transactional counsel, and regulatory defense.',
+    seoTitle: 'Criminal and Administrative Litigation | Lalusis & Partners',
+    seoDescription: 'Elite criminal defense and administrative litigation counsel before trial courts, the DOJ, and Sandiganbayan.',
     status: 'published',
     order: 1,
   },
   {
-    id: 'pa-litigation',
-    slug: 'civil-commercial-litigation',
-    title: 'Civil & Commercial Litigation',
+    id: 'pa-civil-family',
+    slug: 'civil-and-family-laws',
+    title: 'Civil and Family Laws',
     iconName: 'Scale',
-    shortDescription: 'Formidable trial advocacy and dispute resolution before superior appellate courts and international arbitral panels.',
-    fullDescription: `When multi-million commercial interests, proprietary assets, or institutional reputations are at stake, our trial team delivers unyielding advocacy. Led by seasoned litigators with decades of supreme appellate and arbitration experience, we approach every dispute with disciplined preparation, rigorous legal analysis, and incisive courtroom strategy.
+    shortDescription: 'Discreet and comprehensive legal counsel in complex contractual obligations, torts, property actions, and matrimonial matters.',
+    fullDescription: `We navigate sensitive civil and domestic relations matters with utmost discretion, empathy, and uncompromising legal precision. Our advocates represent clients in complex civil actions, matrimonial dissolutions, child custody, and family wealth protections.
 
-### Areas of Focus
-- **Complex Commercial Disputes:** Shareholder derivative suits, breach of fiduciary obligations, contractual rescissions, and emergency injunctive relief.
-- **International & Domestic Arbitration:** Representation under PDRCI, ICC, SIAC, and UNCITRAL arbitration rules.
-- **Appellate Practice:** Direct petitions for review before the Court of Appeals and Supreme Court of the Philippines.
-- **Asset Recovery & Enforcement:** Cross-border recognition of foreign judgments, attachments, and receivership orders.`,
-    featuredImage: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
-    relatedAttorneyIds: ['atty-2', 'atty-5'],
+### Key Practices
+- **Civil Actions & Damages:** Breach of contract actions, specific performance, quasi-delicts, tort liability, and injunctions.
+- **Matrimonial Law:** Petitions for declaration of nullity of marriage, legal separation, and judicial recognition of foreign divorce decrees.
+- **Custody, Support & Paternity:** Child custody determinations, spousal and child support enforcement, and habeas corpus for minor custody.
+- **Family Estate & Partition:** Judicial and extrajudicial settlement of conjugal partnerships and absolute community properties.`,
+    featuredImage: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-3', 'atty-1'],
     faqs: [
       {
-        question: 'Can emergency preliminary injunctions be secured prior to full trial on the merits?',
-        answer: 'Yes. Upon showing an urgent and grave necessity, irreparable injury, and a clear legal right, our trial litigators frequently obtain temporary restraining orders (TROs) and preliminary writs within days.',
-      },
-      {
-        question: 'What is your success rate in international commercial arbitrations?',
-        answer: 'Our partners have successfully secured and enforced multi-million dollar arbitral awards under SIAC, ICC, and PDRCI rules across maritime, construction, and corporate joint ventures.',
+        question: 'How are foreign divorce decrees recognized in Philippine courts?',
+        answer: 'We initiate judicial recognition petitions before Regional Trial Courts, proving the foreign decree and foreign governing law pursuant to Rule 108 and Supreme Court jurisprudence.',
       },
     ],
-    seoTitle: 'Commercial Litigation & Dispute Resolution | Lalusis & Partners',
-    seoDescription: 'Renowned commercial trial attorneys representing clients in high-stakes disputes, arbitration, and supreme appellate litigation.',
+    seoTitle: 'Civil and Family Laws Attorneys | Lalusis & Partners',
+    seoDescription: 'Premier civil litigation, family law, annulment, and property dispute counsel in the Philippines.',
     status: 'published',
     order: 2,
   },
   {
-    id: 'pa-criminal',
-    slug: 'white-collar-defense-investigations',
-    title: 'White Collar Defense & Investigations',
-    iconName: 'ShieldAlert',
-    shortDescription: 'Discreet, vigorous defense for executives, directors, and organizations facing government investigations and financial offenses.',
-    fullDescription: `Our white-collar defense attorneys provide immediate, discreet counsel to corporations, managing directors, and high-profile individuals confronting allegations of regulatory violations, financial crime, or government inquiries. We emphasize preemptive risk mitigation, crisis response, and decisive trial representation.
+    id: 'pa-corporate-commercial-projects',
+    slug: 'corporate-commercial-and-special-projects',
+    title: 'Corporate, Commercial, and Special Projects',
+    iconName: 'Building2',
+    shortDescription: 'Strategic corporate structuring, commercial contracts, cross-border investments, and high-impact special commercial projects.',
+    fullDescription: `We provide comprehensive legal architecture for domestic and multinational enterprises. From day-to-day corporate housekeeping to multi-million cross-border transactions and infrastructure joint ventures, our counsel is commercially pragmatic and legally resilient.
 
-### Defense Capabilities
-- **Securities & Financial Crimes:** Defense against insider trading, market manipulation, and AMLA violations.
-- **Government & Congressional Inquiries:** Counsel during Senate, House, and Ombudsman investigations.
-- **Anti-Graft & Corrupt Practices Act (RA 3019):** Vigorous representation before the Sandiganbayan and Office of the Special Prosecutor.
-- **Internal Corporate Inquiries:** Independent internal forensic investigations, compliance audits, and whistleblower protocol reviews.`,
-    featuredImage: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80',
-    relatedAttorneyIds: ['atty-2', 'atty-5'],
+### Core Capabilities
+- **Entity Formation & Market Entry:** Domestic corporations, branch offices, regional operating headquarters (ROHQs), and foreign investment clearance.
+- **Mergers & Acquisitions:** End-to-end deal structuring, legal due diligence, antitrust pre-clearance, and drafting share and asset purchase agreements.
+- **Special Commercial Projects:** Public-private collaborations, concessions, joint ventures, and syndicated financing structures.
+- **Commercial Contracts:** Bespoke distribution, supply, licensing, and master service agreements.`,
+    featuredImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-2', 'atty-1'],
     faqs: [
       {
-        question: 'What immediate steps should a corporate executive take upon receipt of a government subpoena?',
-        answer: 'Preserve all documents, avoid informal communications with investigators, and immediately retain external defense counsel before making statements or producing evidence.',
+        question: 'How does the firm support foreign corporate entrants into restricted industries?',
+        answer: 'We structure compliant corporate vehicles in strict adherence to the Foreign Investment Negative List and relevant ownership thresholds.',
       },
     ],
-    seoTitle: 'White Collar Defense & Investigations | Lalusis & Partners',
-    seoDescription: 'Premier criminal defense and government investigation attorneys defending executives and institutions against corporate and financial charges.',
+    seoTitle: 'Corporate, Commercial & Special Projects Law | Lalusis & Partners',
+    seoDescription: 'Corporate structuring, commercial transactions, and specialized commercial project counsel.',
     status: 'published',
     order: 3,
   },
   {
-    id: 'pa-ip',
-    slug: 'intellectual-property-technology',
-    title: 'Intellectual Property & Technology',
-    iconName: 'ShieldCheck',
-    shortDescription: 'Safeguarding proprietary algorithms, patents, trademarks, and trade secrets in an evolving digital frontier.',
-    fullDescription: `Intellectual property constitutes the lifeblood of today’s modern enterprise. Lalusis & Partners delivers forward-thinking IP strategies that maximize the commercial value of patents, trademarks, software code, and creative works, while vigorously defending against infringement, counterfeiting, and trade secret misappropriation.
+    id: 'pa-election-law',
+    slug: 'election-law',
+    title: 'Election Law',
+    iconName: 'Vote',
+    shortDescription: 'Formidable counsel in certificate of candidacy filings, pre-proclamation controversies, disqualifications, and election protests.',
+    fullDescription: `Election campaigns and post-election contests require immediate, decisive legal intervention. Lalusis & Partners represents political candidates, parties, and party-lists before the Commission on Elections (COMELEC) and the Supreme Court.
 
-### Key Practices
-- **Patent & Trademark Prosecution:** Global portfolio filing, trademark opposition, and patent clearance opinions.
-- **Technology Licensing & SaaS Contracts:** Enterprise software agreements, IP monetization, and open-source compliance.
-- **IP Enforcement & Litigation:** Border seizures with Bureau of Customs, preliminary injunctions against counterfeiters, and damages litigation before the Special Commercial Courts.`,
-    featuredImage: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80',
-    relatedAttorneyIds: ['atty-3'],
+### Areas of Focus
+- **Candidacy & Qualification:** Petitions to deny due course or cancel Certificate of Candidacy (COC), nuisance candidate petitions, and disqualifications.
+- **Canvassing & Pre-Proclamation Controversies:** Board of Canvassers monitoring, automated election system audit interventions, and objections.
+- **Election Contests & Protests:** Quo warranto proceedings, recount and revision petitions before Municipal Courts, RTCs, COMELEC, HRET, and SET.
+- **Campaign Finance Compliance:** Statement of Contributions and Expenditures (SOCE) compliance and election offense defense.`,
+    featuredImage: 'https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-1', 'atty-3'],
     faqs: [
       {
-        question: 'How does the firm safeguard trade secrets during executive employee departures?',
-        answer: 'We draft enforceable non-disclosure and non-compete agreements, issue immediate preservation warnings, and pursue emergency injunctive relief if proprietary code or customer databases are compromised.',
+        question: 'What is the strict prescriptive period for filing an election protest?',
+        answer: 'Under COMELEC rules, an election protest must be filed within ten (10) days following the official proclamation of election results.',
       },
     ],
-    seoTitle: 'Intellectual Property & Technology Law | Lalusis & Partners',
-    seoDescription: 'Elite IP attorneys managing trademark prosecution, patent protection, technology transfer, and high-stakes infringement litigation.',
+    seoTitle: 'Election Law Attorneys | Lalusis & Partners',
+    seoDescription: 'Premier election law advocates handling COMELEC protests, disqualifications, and electoral litigation.',
     status: 'published',
     order: 4,
   },
   {
-    id: 'pa-labor',
-    slug: 'labor-executive-compensation',
-    title: 'Labor, Employment & Executive Strategy',
-    iconName: 'Briefcase',
-    shortDescription: 'Strategic employment counsel, union negotiations, executive compensation frameworks, and restructuring advisory.',
-    fullDescription: `We guide multinational employers through complex workforce management challenges. In an environment characterized by stringent labor regulations, our team balances corporate business agility with strict statutory compliance.
+    id: 'pa-immigration-law',
+    slug: 'immigration-law',
+    title: 'Immigration Law',
+    iconName: 'Globe',
+    shortDescription: 'Seamless visa processing, alien registrations, deportation defense, and Bureau of Immigration regulatory advocacy.',
+    fullDescription: `We advise multinational corporations, expatriates, and foreign investors on immigration clearance and cross-border mobility. We maintain active representation before the Bureau of Immigration (BI) and Department of Labor and Employment (DOLE).
 
-### Practice Highlights
-- **Executive Agreements & Golden Parachutes:** Severance terms, restrictive covenants, equity incentive schemes, and non-solicitation covenants.
-- **Corporate Restructuring & Redundancy:** Structuring legally defensible downsizings, closures, and retrenchment programs.
-- **Collective Bargaining & Labor Unions:** Managing negotiations, grievance handling, and strike prevention.
-- **National Labor Relations Commission (NLRC) Litigation:** Defense against illegal dismissal claims, constructive dismissal, and monetary claims.`,
-    featuredImage: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80',
-    relatedAttorneyIds: ['atty-4'],
+### Core Services
+- **Employment Visas & Work Permits:** 9(g) Pre-arranged Commercial Visas, Alien Employment Permits (AEP), and Special Work Permits (SWP).
+- **Investor & Retirement Visas:** Special Investor’s Resident Visa (SIRV) and Special Resident Retiree’s Visa (SRRV).
+- **Deportation Defense & Blacklist Lifting:** Representation in summary deportation proceedings and petitions for lifting of blacklist/hold departure orders.
+- **Citizenship & Dual Nationality:** Dual citizenship retention/re-acquisition (RA 9225) and judicial or administrative naturalization.`,
+    featuredImage: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-1', 'atty-2'],
     faqs: [
       {
-        question: 'What are the legal requisites for implementing a valid redundancy or retrenchment program?',
-        answer: 'Philippine labor law mandates proof of actual financial losses or redundant positions, adoption of fair and reasonable selection criteria, 30-day prior written notice to the DOLE and affected staff, and payment of statutory separation pay.',
+        question: 'How do you assist foreign executives in obtaining an Alien Employment Permit (AEP)?',
+        answer: 'We coordinate end-to-end filings with DOLE, ensuring full compliance with labor market verification and qualification documentary rules.',
       },
     ],
-    seoTitle: 'Labor & Employment Lawyers | Lalusis & Partners',
-    seoDescription: 'Strategic employment counsel for boards and executives on restructuring, compensation, collective bargaining, and NLRC defense.',
+    seoTitle: 'Immigration Law Firm | Lalusis & Partners',
+    seoDescription: 'Comprehensive Philippine immigration, employment visas, and Bureau of Immigration advocacy.',
     status: 'published',
     order: 5,
   },
   {
-    id: 'pa-real-estate',
-    slug: 'real-estate-infrastructure-projects',
-    title: 'Real Estate & Infrastructure Projects',
-    iconName: 'Compass',
-    shortDescription: 'Structuring master-planned developments, PPP concessions, land titles, and complex property acquisitions.',
-    fullDescription: `From sovereign public-private partnerships (PPP) to mega-township land assemblies, our real estate attorneys provide end-to-end guidance. We structure joint development agreements, oversee due diligence over complex titled estates, and resolve conflicting land claims with utmost diligence.`,
-    featuredImage: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
-    relatedAttorneyIds: ['atty-6', 'atty-1'],
+    id: 'pa-ip-law',
+    slug: 'intellectual-property-law',
+    title: 'Intellectual Property Law',
+    iconName: 'Sparkles',
+    shortDescription: 'Vigorous registration, monetization, and courtroom defense of trademarks, patents, copyrights, and proprietary trade secrets.',
+    fullDescription: `Intellectual capital represents the core value of contemporary enterprises. Lalusis & Partners safeguards brands, technical inventions, software code, and creative assets before the Intellectual Property Office of the Philippines (IPOPHL) and the courts.
+
+### Practice Highlights
+- **Trademark Prosecution & Portfolio Defense:** Trademark availability searches, domestic and Madrid Protocol filings, and opposition/cancellation proceedings.
+- **Patent Prosecution & Utility Models:** Technical patent clearance, drafting claims, and utility model registrations.
+- **IP Litigation & Anti-Counterfeiting:** Search warrants, preliminary injunctions, customs border protection seizures, and unfair competition suits.
+- **Licensing & Technology Transfer:** Commercial technology transfer agreements and software IP assignments.`,
+    featuredImage: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-1', 'atty-3'],
     faqs: [
       {
-        question: 'How do you verify land title authenticity and encumbrances for large tract acquisitions?',
-        answer: 'We conduct rigorous forensic title traces through the Registry of Deeds, Land Registration Authority, DAR, and DENR to ensure undisputed, unencumbered ownership before fund disbursement.',
+        question: 'How fast can an emergency IP injunction be obtained against counterfeit products?',
+        answer: 'Through Special Commercial Courts, we can apply for provisional remedies and search-and-seizure orders within days upon demonstrating irreparable harm.',
       },
     ],
-    seoTitle: 'Real Estate & Infrastructure Law Firm | Lalusis & Partners',
-    seoDescription: 'Advising institutional developers and concessionaires on infrastructure financing, land title diligence, and property syndication.',
+    seoTitle: 'Intellectual Property Law | Lalusis & Partners',
+    seoDescription: 'Premier intellectual property attorneys for trademark prosecution, patent defense, and anti-counterfeiting litigation.',
     status: 'published',
     order: 6,
   },
   {
-    id: 'pa-taxation',
-    slug: 'taxation-wealth-preservation',
-    title: 'Taxation & Family Wealth Preservation',
+    id: 'pa-tax-estate',
+    slug: 'tax-and-estate-settlement',
+    title: 'Tax and Estate Settlement',
     iconName: 'Coins',
-    shortDescription: 'Sophisticated cross-border tax advisory, family trust architectures, and Bureau of Internal Revenue controversy defense.',
-    fullDescription: `Our taxation lawyers structure tax-efficient corporate holding vehicles, advise on bilateral tax treaty relief, and build multi-generational trust and succession structures for distinguished family enterprises.`,
+    shortDescription: 'Strategic corporate taxation, BIR audit defense, wealth preservation, and judicial or extrajudicial estate settlement.',
+    fullDescription: `Led by certified tax specialists, our tax practice provides sophisticated transactional tax structuring, aggressive Bureau of Internal Revenue (BIR) assessment defense, and generational estate preservation architectures.
+
+### Key Practices
+- **Tax Controversy & BIR Assessment Defense:** Representation from Notice of Discrepancy (ND) and Final Assessment Notice (FAN) to the Court of Tax Appeals (CTA).
+- **Corporate Tax Advisory:** Tax-free exchanges, corporate reorganizations, tax treaty relief applications, and VAT refunds.
+- **Estate Planning & Wealth Preservation:** Testamentary trusts, family holding architectures, lifetime asset transfers, and donor planning.
+- **Estate Settlement:** Comprehensive extrajudicial settlements with BIR clearances (CAR issuance), judicial probate, and partition of estates.`,
     featuredImage: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1200&q=80',
-    relatedAttorneyIds: ['atty-1', 'atty-4'],
+    relatedAttorneyIds: ['atty-2', 'atty-3'],
     faqs: [
       {
-        question: 'How do you handle disputed tax assessments with the Bureau of Internal Revenue (BIR)?',
-        answer: 'We represent taxpayers from the issuance of the Notice of Discrepancy through the Court of Tax Appeals (CTA) and Supreme Court, challenging arbitrary assessments and procedural defects.',
+        question: 'What are the required steps to secure an eCAR for inherited real properties?',
+        answer: 'We prepare the estate tax return, execute the Deed of Extrajudicial Settlement, compute applicable estate taxes, settle with the BIR RDO, and obtain the electronic Certificate Authorizing Registration (eCAR).',
       },
     ],
-    seoTitle: 'Taxation & Wealth Preservation Law | Lalusis & Partners',
-    seoDescription: 'Bespoke tax optimization, family estate architectures, and aggressive BIR assessment defense.',
+    seoTitle: 'Tax and Estate Settlement Lawyers | Lalusis & Partners',
+    seoDescription: 'Certified tax specialists handling BIR assessment defense, CTA appeals, and estate settlement.',
     status: 'published',
     order: 7,
   },
   {
-    id: 'pa-privacy',
-    slug: 'data-privacy-cybersecurity',
-    title: 'Data Privacy & Cybersecurity',
-    iconName: 'Lock',
-    shortDescription: 'National Privacy Commission compliance, cross-border data transfer mechanisms, and ransomware crisis management.',
-    fullDescription: `We guide data controllers and processors through the complexities of the Data Privacy Act of 2012 (RA 10173) and international frameworks like GDPR. We structure privacy impact assessments, cross-border transfer agreements, and rapid-response protocols for data breach events.`,
-    featuredImage: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=80',
-    relatedAttorneyIds: ['atty-3'],
+    id: 'pa-real-estate-dhsud',
+    slug: 'real-estate-dhsud-hsac-land-titling',
+    title: 'Real Estate (DHSUD, HSAC, and land titling/transfer)',
+    iconName: 'Compass',
+    shortDescription: 'End-to-end property development compliance, DHSUD permits, HSAC dispute litigation, title transfers, and forensic title cleansing.',
+    fullDescription: `We guide property developers, institutional buyers, and landholders across the entire lifecycle of real property transactions. Our counsel spans Department of Human Settlements and Urban Development (DHSUD) compliance, Human Settlements Adjudication Commission (HSAC) litigation, and Land Registration Authority (LRA) titling.
+
+### Areas of Focus
+- **DHSUD Regulatory Compliance:** Subdivision and condominium licenses to sell, certificate of registration, and master-deed approvals.
+- **HSAC Litigation:** Adjudication of buyer-developer disputes, delayed turnovers, cancellation of contracts, and homeowners association (HOA) controversies.
+- **Land Titling & Transfers:** Registry of Deeds transactions, reconstitution of lost titles, forensic title trace, and cancellation of adverse claims.
+- **Agrarian Reform (DAR) & Conversions:** Certificates of agrarian reform exemption, land use conversions, and DENR environmental clearances.`,
+    featuredImage: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-2', 'atty-3'],
     faqs: [
       {
-        question: 'What is the mandatory timeline for reporting a data breach to the National Privacy Commission (NPC)?',
-        answer: 'Data controllers must notify the NPC and affected data subjects within 72 hours from knowledge of a breach involving sensitive personal information or financial data.',
+        question: 'How do you resolve overlapping or spurious land titles in the Philippines?',
+        answer: 'We execute forensic boundary surveys, trace historical decrees via LRA and DENR archives, and file petitions for cancellation of overlapping titles before Regional Trial Courts.',
       },
     ],
-    seoTitle: 'Data Privacy & Cybersecurity Legal Counsel | Lalusis & Partners',
-    seoDescription: 'Navigating NPC data regulations, international transfer architectures, and cyber incident breach response.',
+    seoTitle: 'Real Estate Law, DHSUD & HSAC Adjudication | Lalusis & Partners',
+    seoDescription: 'Leading real estate attorneys for DHSUD licensing, HSAC disputes, and title transfer diligence.',
     status: 'published',
     order: 8,
+  },
+  {
+    id: 'pa-labor-law',
+    slug: 'labor',
+    title: 'Labor',
+    iconName: 'Briefcase',
+    shortDescription: 'Strategic employer-employee counsel, collective bargaining negotiations, NLRC litigation, and corporate workforce restructuring.',
+    fullDescription: `We advise domestic corporations and multinational enterprises on the complex framework of Philippine labor law. We balance executive management prerogative with statutory protections to safeguard enterprise continuity.
+
+### Core Capabilities
+- **NLRC Litigation:** Decisive trial advocacy in illegal dismissal cases, money claims, and unfair labor practice charges before Labor Arbiters.
+- **Workforce Restructuring:** Legally bulletproof redundancy, retrenchment, and company closure programs complying with DOLE requirements.
+- **Union Relations & Collective Bargaining:** CBA negotiation strategy, grievance handling, strike prevention, and mandatory conciliation-mediation.
+- **Executive Contracts & Policies:** Drafting executive severance, non-compete agreements, code of conduct, and workplace policy manuals.`,
+    featuredImage: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-3', 'atty-1'],
+    faqs: [
+      {
+        question: 'What are the essential requisites for a valid termination due to redundancy?',
+        answer: 'Strict requirements include written notice to DOLE and the employee 30 days prior, payment of separation pay (at least 1 month per year of service), good faith, and objective selection criteria.',
+      },
+    ],
+    seoTitle: 'Labor Law & Employment Defense | Lalusis & Partners',
+    seoDescription: 'Premier employer labor defense, NLRC litigation, collective bargaining, and redundancy counsel.',
+    status: 'published',
+    order: 9,
+  },
+  {
+    id: 'pa-admin-regulatory',
+    slug: 'administrative-and-regulatory-compliance-sec-bir-lgu',
+    title: 'Administrative and Regulatory Compliance (SEC, BIR, LGU, etc.)',
+    iconName: 'FileCheck',
+    shortDescription: 'Proactive regulatory compliance, permits, and defense before the SEC, BIR, Local Government Units, and government agencies.',
+    fullDescription: `Navigating multi-tiered regulatory requirements in the Philippines demands deep institutional knowledge. We interface directly with regulators to secure permits, resolve audit discrepancies, and maintain pristine compliance standings.
+
+### Regulatory Interfaces
+- **Securities and Exchange Commission (SEC):** Mandatory disclosures, beneficial ownership declarations, capital increases, and penalty contestations.
+- **Bureau of Internal Revenue (BIR):** Tax clearances, authority to print, transfer clearances, and administrative protests.
+- **Local Government Units (LGUs):** Mayor's and business permits, local business tax (LBT) assessment defense, and zoning clearances.
+- **Sectoral Regulators:** Regulatory approvals before FDA, PRC, LTFRB, DICT, and other statutory oversight bodies.`,
+    featuredImage: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-3', 'atty-2'],
+    faqs: [
+      {
+        question: 'How do you contest arbitrary Local Business Tax (LBT) assessments from City Treasurers?',
+        answer: 'We file formal written protests under Section 195 of the Local Government Code within sixty (60) days, appealing adverse rulings to Regional Trial Courts.',
+      },
+    ],
+    seoTitle: 'Administrative & Regulatory Compliance Law | Lalusis & Partners',
+    seoDescription: 'Strategic regulatory compliance before SEC, BIR, LGUs, and government regulatory agencies.',
+    status: 'published',
+    order: 10,
+  },
+  {
+    id: 'pa-it-data-privacy',
+    slug: 'information-and-technology-and-data-privacy-law',
+    title: 'Information and Technology, and Data Privacy Law',
+    iconName: 'Lock',
+    shortDescription: 'National Privacy Commission compliance, certified DPO services, cyber incident breach protocols, and tech commercial contracts.',
+    fullDescription: `Led by certified Data Protection Officers (UP Open University), our practice provides forward-looking legal architecture for digital enterprises, fintech platforms, and data-intensive corporations under RA 10173 (Data Privacy Act of 2012).
+
+### Focus Areas
+- **NPC Registration & Compliance:** Enterprise privacy impact assessments (PIA), privacy manuals, and certified DPO representation.
+- **Cybersecurity & Data Breach Management:** 72-hour mandatory NPC breach notification, forensics coordination, and crisis mitigation.
+- **Technology & Cloud Contracts:** Software-as-a-Service (SaaS), data sharing agreements (DSA), cross-border transfers, and API agreements.
+- **Fintech & Digital Commerce:** E-commerce regulatory compliance, electronic signatures, and cybercrime defense.`,
+    featuredImage: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-1', 'atty-2'],
+    faqs: [
+      {
+        question: 'What is the required timeline for reporting a data breach to the NPC?',
+        answer: 'The Data Privacy Act mandates notification to the National Privacy Commission and affected data subjects within seventy-two (72) hours upon knowledge of a breach.',
+      },
+    ],
+    seoTitle: 'Data Privacy & IT Law | Lalusis & Partners',
+    seoDescription: 'Certified Data Protection Officers and tech law attorneys advising on NPC compliance and cyber response.',
+    status: 'published',
+    order: 11,
+  },
+  {
+    id: 'pa-corporate-governance',
+    slug: 'public-and-private-corporate-governance',
+    title: 'Public and Private Corporate Governance',
+    iconName: 'Landmark',
+    shortDescription: 'Boardroom advisory, fiduciary compliance, shareholder dispute management, ESG policies, and corporate integrity structures.',
+    fullDescription: `We counsel boards of directors, audit committees, and controlling shareholders of both public companies and major private corporations. We design governance structures that mitigate legal liabilities and uphold fiduciary standards.
+
+### Core Capabilities
+- **Boardroom Advisory & Fiduciary Duties:** Counseling independent directors, navigating conflicts of interest, and director liability mitigation.
+- **Shareholder Relations & Dispute Management:** Proxy contests, minority shareholder rights protection, voting trust arrangements, and dead-lock resolution.
+- **Internal Compliance & Ethics:** Whistleblower frameworks, anti-bribery policies, and corporate code of conduct audits.
+- **ESG & Sustainable Governance:** Environmental, Social, and Governance compliance architectures aligning with global standards.`,
+    featuredImage: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-3', 'atty-2'],
+    faqs: [
+      {
+        question: 'How do you safeguard minority shareholder rights in private corporations?',
+        answer: 'We advise on appraisal rights, books inspection under the Revised Corporation Code, derivative suits, and negotiated buy-outs.',
+      },
+    ],
+    seoTitle: 'Public & Private Corporate Governance Law | Lalusis & Partners',
+    seoDescription: 'Elite boardroom advisory, corporate governance architecture, and fiduciary compliance counsel.',
+    status: 'published',
+    order: 12,
+  },
+  {
+    id: 'pa-transportation-laws',
+    slug: 'transportation-laws',
+    title: 'Transportation Laws',
+    iconName: 'Truck',
+    shortDescription: 'Comprehensive regulatory advocacy, franchise certificates, DOTr/LTFRB/MARINA permits, and logistics legal structures.',
+    fullDescription: `With senior partners possessing investigative and legal service backgrounds within the Department of Transportation (DOTr), Lalusis & Partners provides unmatched insight into aviation, maritime, road transport, and logistics law.
+
+### Key Practices
+- **Franchise & Regulatory Permitting:** Certificates of Public Convenience (CPC) before the LTFRB, MARINA vessel registrations, and CAB aviation permits.
+- **Logistics & Supply Chain Contracts:** Master freight forwarding agreements, charter parties, carrier liabilities, and multimodal transport terms.
+- **Regulatory Defense & Administrative Inquiries:** Representation in DOTr, LTFRB, and Marina show-cause hearings, accident inquiries, and compliance audits.
+- **Infrastructure & Concession Agreements:** Public transit concession contracts, port operations, and tollway joint projects.`,
+    featuredImage: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-2', 'atty-1'],
+    faqs: [
+      {
+        question: 'How do you handle CPC cancellation proceedings before the LTFRB?',
+        answer: 'We prepare verified answers, appear at formal hearings, file motions for reconsideration, and pursue appellate relief before the DOTr and Court of Appeals.',
+      },
+    ],
+    seoTitle: 'Transportation Laws Attorneys | Lalusis & Partners',
+    seoDescription: 'Experienced transportation and logistics attorneys handling DOTr, LTFRB, and maritime regulatory compliance.',
+    status: 'published',
+    order: 13,
+  },
+  {
+    id: 'pa-procurement-laws',
+    slug: 'procurement-laws',
+    title: 'Procurement Laws',
+    iconName: 'FileText',
+    shortDescription: 'Government procurement advisory under RA 9184 & the New Government Procurement Act, bidding protests, and PhilGEPS compliance.',
+    fullDescription: `Government procurement in the Philippines is governed by stringent statutory rules. Our attorneys guide private contractors and sovereign agencies through the complexities of Republic Act No. 9184 and the recently enacted New Government Procurement Act (RA 12009).
+
+### Areas of Practice
+- **Bid Preparation & Compliance Diligence:** Review of Bidding Documents, eligibility requirements, and technical/financial bid compliance.
+- **Protest Mechanisms & Bidding Disputes:** Filing formal requests for reconsideration before Bids and Awards Committees (BAC) and protests before the Head of Procuring Entity (HoPE).
+- **Post-Award & Contract Execution:** Contract performance bonds, warranty securities, variations, and liquidated damages mitigation.
+- **Defense Against Blacklisting:** Vigorous defense in administrative blacklisting proceedings initiated by procuring entities before the GPPB and the courts.`,
+    featuredImage: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=1200&q=80',
+    relatedAttorneyIds: ['atty-1', 'atty-2', 'atty-3'],
+    faqs: [
+      {
+        question: 'What is the mandatory procedure for protesting a BAC disqualification?',
+        answer: 'A bidder must file a written Request for Reconsideration within three (3) calendar days. If denied, a verified protest accompanied by a protest fee must be filed with the HoPE within seven (7) calendar days.',
+      },
+    ],
+    seoTitle: 'Procurement Laws & Government Bidding Attorneys | Lalusis & Partners',
+    seoDescription: 'Strategic legal counsel for public procurement, RA 9184 / RA 12009 compliance, and BAC bidding protests.',
+    status: 'published',
+    order: 14,
   },
 ];
 
@@ -682,7 +781,7 @@ export const initialFAQs: FAQItem[] = [
     id: 'faq-3',
     categoryId: 'cat-consultation',
     question: 'What types of consultation formats are available?',
-    answer: 'We provide three consultation formats: In-Person conferences at our executive offices on Ayala Avenue, Secure Encrypted Video Conferences for international or provincial clients, and Confidential Telephone Consultations with our assigned partners.',
+    answer: 'We provide three consultation formats: In-Person conferences at our executive offices at Future Point Plaza Suites on Panay Avenue, Quezon City, Secure Encrypted Video Conferences for international or provincial clients, and Confidential Telephone Consultations with our assigned partners.',
     order: 3,
     isPublished: true,
   },
@@ -804,13 +903,13 @@ export const initialMedia: MediaItem[] = [
   },
   {
     id: 'med-2',
-    name: 'Executive Boardroom Ayala Avenue',
+    name: 'Executive Chambers Future Point Plaza Suites',
     url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80',
     fileType: 'image',
     format: 'JPEG',
     sizeBytes: 1240000,
     category: 'offices',
-    altText: 'Lalusis & Partners Grand Boardroom Suite, Makati City',
+    altText: 'Lalusis & Partners Executive Chambers Suite, Future Point Plaza, Quezon City',
     createdAt: '2026-09-01',
   },
   {
@@ -1069,8 +1168,8 @@ export const initialPages: Page[] = [
           eyebrow: '',
           heading: '',
           imageUrl: '/Group Picture.jpeg',
-          imageAlt: 'Lalusis & Partners Founding Partners – Left: Atty. Levy John Lalusis, Center: Atty. Diosdado Anselmo Lalusis, Right: Atty. Leo Lalusis',
-          imageCaption: 'Founding Partners of Lalusis & Partners · Left: Atty. Levy John Lalusis, Center: Atty. Diosdado Anselmo Lalusis, Right: Atty. Leo Lalusis',
+          imageAlt: 'Lalusis & Partners Founding Partners – Atty. Levy John Lalusis, Atty. Diosdado Anselmo Lalusis, and Atty. Leo Lalusis',
+          imageCaption: 'Founding Partners of Lalusis & Partners · Atty. Levy John Lalusis · Atty. Diosdado Anselmo Lalusis · Atty. Leo Lalusis',
           body: "The FIRM is founded by Atty. Leo Lalusis and Atty. Levy John Lalusis, under the guidance of their senior partner, Atty. Diosdado Anselmo Lalusis. Brothers Lalusis, is the son of the late NBI Chief Danielito Q. Lalusis, who served the NBI for almost 30 years prior to his untimely passing.\n\nAtty. Leo Lalusis passed the Bar in 2019 (the last handwritten Bar Examination) in his only attempt. Upon passing, he entered the NBI as Legal Officer assigned in the Legal Division, specifically in Prosecution and High Profile Cases, where he received several commendations, including for the PNP-PDEA incident. During his stay with the NBI, he was also tasked to represent the bureau in various Senate and House of Representatives hearings and attended several specialized investigative courses. Atty. Leo is also a certified Data Protection Officer (UP Open University, 2023) and has handled high-profile cases before the DOJ and Sandiganbayan. He has represented prominent clients in congressional hearings, including the landmark Senate Blue Ribbon Committee hearings in flood control cases, as well as leading public figures and influencers. To further broaden his jurisprudential acumen, he is one of the youngest Master of Laws candidates in the Graduate School of San Beda University.\n\nMeanwhile, Atty. Levy John Lalusis passed the 2024 Bar Examination. Prior to his admission to the bar, he served with distinguished government bodies, specifically within the Presidential Anti-Corruption Commission (PACC) as a graft investigator and the Department of Transportation (DOTr). Atty. Levy is a certified Tax Specialist with multiple accreditations. Alongside his brother Atty. Leo, he has appeared before the Sandiganbayan representing high-profile institutional and private clients in contentious matters.\n\nOn the other hand, Atty. Diosdado Anselmo Lalusis is a seasoned and veteran lawyer who headed the Professional Regulation Commission (PRC) Legal Division for more than a decade. Atty. Diosdado brings seasoned appellate advocacy, exemplary institutional integrity, and foundational legal mentorship to the firm's sovereign and corporate clientele.",
         },
       },
@@ -1098,8 +1197,8 @@ export const initialPages: Page[] = [
         content: {
           eyebrow: 'Practice Areas',
           heading: 'Comprehensive Capabilities across Disciplines',
-          description: 'From cross-border corporate mergers and supreme court appeals to digital privacy defense and white-collar government enforcement.',
-          limit: 6,
+          description: 'Fourteen dedicated disciplines encompassing trial litigation, corporate restructuring, regulatory compliance, elections, and specialized transactional legal affairs.',
+          limit: 14,
           showAllLink: true,
         },
       },
@@ -1152,7 +1251,7 @@ export const initialPages: Page[] = [
           buttonText: 'Request Consultation',
           buttonLink: '/consultation',
           secondaryText: 'Speak to Managing Partners Directly',
-          phoneText: '+63 (2) 8845-9200',
+          phoneText: '+63 917 327 5931',
         },
       },
       {
@@ -1164,7 +1263,7 @@ export const initialPages: Page[] = [
         order: 8,
         content: {
           heading: 'Executive Chambers',
-          subheading: 'Grand Tower One, Ayala Avenue, Makati City',
+          subheading: '110, Unit 20, Suite J, Future Point Plaza Suites, Panay Avenue, Quezon City',
         },
       },
     ],
@@ -1293,7 +1392,7 @@ export const initialPages: Page[] = [
           body: 'Schedule a confidential evaluation of your dispute, criminal defense matter, or regulatory challenge.',
           buttonText: 'Request Consultation',
           buttonLink: '/consultation',
-          phoneText: '+63 (2) 8845-9200',
+          phoneText: '+63 917 327 5931',
         },
       },
     ],
@@ -1348,7 +1447,7 @@ export const initialPages: Page[] = [
           body: 'Whether navigating complex regulatory inquiries or corporate dispute resolution, our legal team stands ready.',
           buttonText: 'Schedule Consultation',
           buttonLink: '/consultation',
-          phoneText: '+63 (2) 8845-9200',
+          phoneText: '+63 917 327 5931',
         },
       },
     ],
@@ -1362,7 +1461,7 @@ export const initialPages: Page[] = [
     updatedAt: '2026-09-15T12:00:00Z',
     createdAt: '2026-01-01T00:00:00Z',
     seoTitle: 'Contact Our Legal Chambers | Lalusis & Partners',
-    seoDescription: 'Principal legal chambers and communications directory for Lalusis & Partners, Makati City, Philippines.',
+    seoDescription: 'Principal legal chambers and communications directory for Lalusis & Partners, Quezon City, Philippines.',
     sections: [
       {
         id: 'sec-contact-hero',
@@ -1373,7 +1472,7 @@ export const initialPages: Page[] = [
         content: {
           eyebrow: 'Executive Chambers',
           heading: 'Connect with Our Chambers & Partners',
-          subheading: 'Direct access to senior partners, confidential intake desks, and consultation scheduling in Makati City.',
+          subheading: 'Direct access to senior partners, confidential intake desks, and consultation scheduling in Quezon City.',
         },
       },
       {
@@ -1386,11 +1485,11 @@ export const initialPages: Page[] = [
         content: {
           eyebrow: 'Principal Office',
           headline: 'Official Legal Chambers & Direct Telephone Lines',
-          subheadline: 'Ayala Triangle Tower Two, Ayala Avenue, Makati City. Consultations by appointment.',
-          phone: '+63 (2) 8845-9200',
-          email: 'contact@lalusislaw.com',
+          subheadline: 'Future Point Plaza Suites, Panay Avenue, South Triangle, Quezon City. Consultations by appointment.',
+          phone: '+63 917 327 5931',
+          email: 'lalusispartners@gmail.com',
           addressTitle: 'Principal Legal Chambers',
-          address: '32nd Floor, Ayala Triangle Tower Two, Ayala Avenue, Makati City 1226, Metro Manila, Philippines',
+          address: '110, Unit 20, Suite J, Future Point Plaza Suites, Panay Avenue, South Triangle, 1103, Quezon City, NCR, Second District, Philippines',
         },
       },
     ],

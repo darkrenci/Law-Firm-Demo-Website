@@ -58,7 +58,7 @@ export const ContactView: React.FC<ContactViewProps> = ({ onNavigate }) => {
             Contact Lalusis &amp; Partners
           </h1>
           <p className="text-sm text-[#a8a199] leading-relaxed">
-            Headquartered in the Ayala Triangle financial core of Makati City, with consultative facilities in Bonifacio Global City.
+            Headquartered at Future Point Plaza Suites, Panay Avenue, South Triangle, Quezon City, serving corporate, institutional, and private clients nationwide and across the Asia-Pacific.
           </p>
         </div>
 
@@ -95,7 +95,7 @@ export const ContactView: React.FC<ContactViewProps> = ({ onNavigate }) => {
                       Direct Telephony
                     </h4>
                     <p className="text-[#f7f4ee] font-mono mt-1">{settings.contact.telephone}</p>
-                    <p className="text-[11px] text-[#7e776e]">Facsimile: {settings.contact.fax}</p>
+                    <p className="text-[11px] text-[#7e776e]">Direct Hotline: +63 917 327 5931</p>
                   </div>
                 </div>
 
@@ -108,7 +108,7 @@ export const ContactView: React.FC<ContactViewProps> = ({ onNavigate }) => {
                       Chamber Communications
                     </h4>
                     <p className="text-[#ded6c9] mt-1 font-mono">{settings.contact.email}</p>
-                    <p className="text-[11px] text-[#7e776e]">Intake: consultation@lalusislaw.com</p>
+                    <p className="text-[11px] text-[#7e776e]">Direct Inquiries: {settings.contact.email}</p>
                   </div>
                 </div>
 

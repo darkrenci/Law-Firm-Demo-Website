@@ -352,7 +352,7 @@ const InstitutionalImageFrame: React.FC<{
 }> = ({
   imageUrl,
   imageAlt = 'Lalusis & Partners Founding Partners',
-  caption = 'Partners of Lalusis & Partners · Left: Atty. Levy John Lalusis, Center: Atty. Diosdado Anselmo Lalusis, Right: Atty. Leo Lalusis',
+  caption = 'Partners of Lalusis & Partners · Atty. Levy John L.V. Lalusis · Atty. Diosdado Anselmo Q. Lalusis · Atty. Leo Anselmo L.V. Lalusis',
   sectionId,
   editMode = false,
   isAdmin = false,
@@ -526,7 +526,7 @@ const InstitutionalImageFrame: React.FC<{
                 Founding Partners · Lalusis &amp; Partners
               </span>
               <span className="font-sans text-[11px] text-[#c59b63] tracking-wide block sm:inline mt-0.5">
-                Left: Atty. Levy John Lalusis · Center: Atty. Diosdado Anselmo Lalusis · Right: Atty. Leo Lalusis
+                Atty. Levy John L.V. Lalusis · Senior Partner Atty. Diosdado Anselmo Q. Lalusis · Atty. Leo Anselmo L.V. Lalusis
               </span>
             </div>
           </div>
@@ -1640,7 +1640,7 @@ const RenderSectionItem: React.FC<{
                 <InstitutionalImageFrame
                   imageUrl={content.imageUrl || content.image || '/Group Picture.jpeg'}
                   imageAlt={content.imageAlt || 'Lalusis & Partners Founding Partners'}
-                  caption={content.imageCaption || 'Partners of Lalusis & Partners · Atty. Leo Lalusis, Senior Partner Atty. Diosdado Anselmo Lalusis, and Atty. Levy John Lalusis'}
+                  caption={content.imageCaption || 'Partners of Lalusis & Partners · Atty. Levy John L.V. Lalusis, Senior Partner Atty. Diosdado Anselmo Q. Lalusis, and Atty. Leo Anselmo L.V. Lalusis'}
                   sectionId={section.id}
                   editMode={editMode}
                   isAdmin={isAdmin}
@@ -1814,7 +1814,7 @@ const RenderSectionItem: React.FC<{
                       Institutional Standard
                     </span>
                     <p className="font-cormorant text-lg text-[#f4e6d0] mt-0.5">
-                      Makati Financial District
+                      Quezon City Legal Chambers
                     </p>
                   </div>
                 </div>
@@ -2119,13 +2119,10 @@ const RenderSectionItem: React.FC<{
               onSelectPart={onSelectPart}
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-                {attorneys.map((atty, idx) => {
-                  const positionLabel =
-                    idx === 0
-                      ? 'Left Side · Founding Partner'
-                      : idx === 1
-                      ? 'Center · Senior Partner'
-                      : 'Right Side · Founding Partner';
+                {attorneys.map((atty) => {
+                  const roleBadge = atty.professionalTitle.includes('Senior')
+                    ? 'Senior Partner'
+                    : 'Founding Partner';
 
                   return (
                     <div
@@ -2159,10 +2156,10 @@ const RenderSectionItem: React.FC<{
                         {/* Gradient Scrim */}
                         <div className="absolute inset-0 bg-gradient-to-t from-[#101015] via-black/25 to-transparent opacity-90" />
 
-                        {/* Top Role Badge with Layout Position */}
+                        {/* Top Role Badge */}
                         <div className="absolute top-3 left-3">
                           <span className="px-2.5 py-1 text-[9px] font-cinzel font-semibold tracking-widest uppercase bg-[#0a0a0d]/90 text-[#c59b63] border border-[#c59b63]/40 backdrop-blur-sm shadow-md">
-                            {positionLabel}
+                            {roleBadge}
                           </span>
                         </div>
 
@@ -2197,7 +2194,11 @@ const RenderSectionItem: React.FC<{
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-mono bg-[#181822] text-[#c59b63] border border-[#2b2b3b]">
                                 <Scale className="w-2.5 h-2.5 text-[#c59b63]" />
                                 <span className="truncate max-w-[180px]">
-                                  {atty.barAdmissions[0].includes('2019') ? 'Bar 2019 (1st Attempt)' : atty.barAdmissions[0].includes('2024') ? 'Bar 2024 (PACC/DOTr)' : 'Supreme Court Roll'}
+                                  {atty.barAdmissions[0].includes('2019')
+                                    ? 'Bar 2019 (1st Attempt)'
+                                    : atty.barAdmissions[0].includes('2024')
+                                    ? 'Bar 2024 (PACC/NPC/DOTr)'
+                                    : 'Bar 1986 (40 Yrs Exp)'}
                                 </span>
                               </span>
                             )}
@@ -2205,7 +2206,13 @@ const RenderSectionItem: React.FC<{
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-mono bg-[#181822] text-[#ded6c9] border border-[#2b2b3b]">
                                 <GraduationCap className="w-2.5 h-2.5 text-[#a8a199]" />
                                 <span className="truncate max-w-[180px]">
-                                  {atty.education[0].includes('Master of Laws') ? 'LL.M. Candidate' : atty.education[0].includes('DPO') ? 'Certified DPO' : atty.education[0].includes('Fellowship') ? 'PRC Legal Head' : 'Juris Doctor'}
+                                  {atty.education[0].includes('Master of Laws')
+                                    ? 'LL.M. Candidate'
+                                    : atty.education[0].includes('Tax Compliance')
+                                    ? 'Tax Compliance Specialist'
+                                    : atty.education[0].includes('Teacher')
+                                    ? 'Licensed Prof. Teacher'
+                                    : 'Juris Doctor'}
                                 </span>
                               </span>
                             )}
@@ -2213,7 +2220,11 @@ const RenderSectionItem: React.FC<{
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-mono bg-[#181822] text-[#ded6c9] border border-[#2b2b3b]">
                                 <Award className="w-2.5 h-2.5 text-[#c59b63]" />
                                 <span className="truncate max-w-[180px]">
-                                  {atty.awards[0].includes('NBI') ? 'NBI Commended' : atty.awards[0].includes('PACC') ? 'PACC Service Citation' : 'PRC Decade Award'}
+                                  {atty.awards[0].includes('NBI')
+                                    ? 'NBI Commended'
+                                    : atty.awards[0].includes('PRC')
+                                    ? 'PRC Legal Head (10+ Yrs)'
+                                    : 'Certified TCS & DPO'}
                                 </span>
                               </span>
                             )}
@@ -2510,7 +2521,7 @@ const RenderSectionItem: React.FC<{
 
     case 'stats': {
       const statItems = content.stats || content.items || [
-        { label: 'Advocacy History', value: '1998', subtitle: 'Makati Chambers' },
+        { label: 'Advocacy History', value: '1986', subtitle: 'Quezon City Chambers' },
         { label: 'Deals Advised', value: '₱180B+', subtitle: 'M&A and Transactions' },
         { label: 'Precedents', value: '150+', subtitle: 'Supreme Court Decisions' },
         { label: 'Corporate Clients', value: '350+', subtitle: 'Institutional Retainers' },
@@ -3067,7 +3078,7 @@ const RenderSectionItem: React.FC<{
                             {content.addressTitle || 'Principal Legal Chambers'}
                           </h4>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            {content.address || '32nd Floor, Ayala Triangle Tower Two, Ayala Avenue, Makati City 1226, Metro Manila, Philippines'}
+                            {content.address || '110, Unit 20, Suite J, Future Point Plaza Suites, Panay Avenue, South Triangle, 1103, Quezon City, NCR, Second District, Philippines'}
                           </p>
                           <span className="text-[10px] text-[#c59b63] block pt-1 font-mono">
                             By Appointment &amp; Scheduled Retainers
@@ -3086,10 +3097,10 @@ const RenderSectionItem: React.FC<{
                             Direct Telephone Lines
                           </h4>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            Trunkline: <span className="text-[#f7f4ee] font-mono">{content.phone || '+63 (2) 8888-0000'}</span>
+                            Primary Mobile / Hotline: <span className="text-[#f7f4ee] font-mono">{content.phone || '+63 917 327 5931'}</span>
                           </p>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            Direct Line: <span className="text-[#f7f4ee] font-mono">+63 (2) 8888-0001</span>
+                            Chambers Contact: <span className="text-[#f7f4ee] font-mono">+63 917 327 5931</span>
                           </p>
                           <p className="text-[11px] text-[#8e877e] leading-relaxed pt-1">
                             Urgent Criminal Defense &amp; Injunction Dispatch: 24/7
@@ -3108,10 +3119,10 @@ const RenderSectionItem: React.FC<{
                             Electronic Communications
                           </h4>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            General: <span className="text-[#c59b63] font-mono">{content.email || 'info@lalusislaw.com'}</span>
+                            General: <span className="text-[#c59b63] font-mono">{content.email || 'lalusispartners@gmail.com'}</span>
                           </p>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            Conflict Check Clearance: <span className="text-[#c59b63] font-mono">intake@lalusislaw.com</span>
+                            Client Intake &amp; Retainer: <span className="text-[#c59b63] font-mono">lalusispartners@gmail.com</span>
                           </p>
                         </div>
                       </div>

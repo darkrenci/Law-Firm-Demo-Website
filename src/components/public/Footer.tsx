@@ -40,7 +40,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenAdmin }) => {
             </p>
             <div className="pt-2">
               <span className="font-cinzel text-[11px] tracking-[0.2em] text-[#c59b63] uppercase block">
-                Established {settings.general.establishedYear} · Makati City
+                Established {settings.general.establishedYear} · Quezon City
               </span>
               <p className="text-xs text-[#6e6860] mt-1 font-mono">
                 Republic of the Philippines

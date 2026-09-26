@@ -167,6 +167,28 @@ class DatabaseService {
       settings.seo.defaultTitle = 'Lalusis & Partners | Attorneys at Law – Legal Precision';
       changed = true;
     }
+    if (
+      !settings.contact ||
+      settings.contact.email !== 'lalusispartners@gmail.com' ||
+      settings.contact.telephone !== '+63 917 327 5931' ||
+      !settings.contact.address?.includes('Future Point Plaza')
+    ) {
+      settings.contact = {
+        ...settings.contact,
+        address: '110, Unit 20, Suite J, Future Point Plaza Suites, Panay Avenue',
+        suiteFloor: 'Unit 20, Suite J, Future Point Plaza Suites',
+        cityStateZip: 'South Triangle, 1103, Quezon City, NCR, Second District',
+        country: 'Philippines',
+        telephone: '+63 917 327 5931',
+        emergencyLine: '+63 917 327 5931',
+        email: 'lalusispartners@gmail.com',
+        consultationEmail: 'lalusispartners@gmail.com',
+        officeHoursWeekday: 'Monday – Friday: 8:30 AM – 6:30 PM (PHT)',
+        officeHoursWeekend: 'Saturday: By Prior Appointment Only',
+        googleMapEmbedUrl: 'https://maps.google.com/maps?q=Future+Point+Plaza+Suites+Panay+Avenue+Quezon+City&t=&z=16&ie=UTF8&iwloc=&output=embed',
+      };
+      changed = true;
+    }
     if (changed) {
       this.save(DB_KEYS.SETTINGS, settings);
     }
@@ -374,8 +396,14 @@ class DatabaseService {
           introSec.content.imageUrl = '/Group Picture.jpeg';
           changed = true;
         }
-        if (!introSec.content.imageCaption || introSec.content.imageCaption.startsWith('Founding Partners of Lalusis & Partners · Atty. Leo')) {
-          introSec.content.imageCaption = 'Founding Partners of Lalusis & Partners · Left: Atty. Levy John Lalusis, Center: Atty. Diosdado Anselmo Lalusis, Right: Atty. Leo Lalusis';
+        if (
+          !introSec.content.imageCaption ||
+          introSec.content.imageCaption.includes('Left:') ||
+          introSec.content.imageCaption.includes('Center:') ||
+          introSec.content.imageCaption.includes('Right:') ||
+          !introSec.content.imageCaption.includes('L.V.')
+        ) {
+          introSec.content.imageCaption = 'Founding Partners · Atty. Levy John L.V. Lalusis · Atty. Diosdado Anselmo Q. Lalusis · Atty. Leo Anselmo L.V. Lalusis';
           changed = true;
         }
         if (introSec.content.body && !introSec.content.body.includes('\n\n')) {
@@ -396,6 +424,18 @@ class DatabaseService {
           if (s.type === 'hero' && s.content && s.content.headline && s.content.headline.includes('Strategic Counsel')) {
             s.content.headline = 'Legal Precision.';
             changed = true;
+          }
+          if (s.content && typeof s.content === 'object') {
+            for (const key of Object.keys(s.content)) {
+              const val = (s.content as any)[key];
+              if (typeof val === 'string' && (/Left:\s*/i.test(val) || /Center:\s*/i.test(val) || /Right:\s*/i.test(val))) {
+                (s.content as any)[key] = val
+                  .replace(/Left:\s*/gi, '')
+                  .replace(/Center:\s*/gi, '')
+                  .replace(/Right:\s*/gi, '');
+                changed = true;
+              }
+            }
           }
         }
       }
@@ -428,6 +468,21 @@ class DatabaseService {
             gridSec.content.heading = 'Partners';
             changed = true;
           }
+        }
+      }
+    }
+
+    // Ensure home page sec-practices has limit 14
+    if (homePage) {
+      const practiceSec = homePage.sections?.find((s) => s.id === 'sec-practices' || s.type === 'practiceAreas');
+      if (practiceSec && practiceSec.content) {
+        if (!practiceSec.content.limit || practiceSec.content.limit < 14) {
+          practiceSec.content.limit = 14;
+          changed = true;
+        }
+        if (!practiceSec.content.heading || practiceSec.content.heading === 'Practice Areas') {
+          practiceSec.content.heading = 'Comprehensive Capabilities across Disciplines';
+          changed = true;
         }
       }
     }
@@ -610,37 +665,36 @@ class DatabaseService {
   // --- ATTORNEYS ---
   public getAttorneys(includeUnpublished: boolean = true): Attorney[] {
     let list = this.load<Attorney[]>(DB_KEYS.ATTORNEYS, initialAttorneys);
-    // If the database has outdated attorney records, update them with the authentic Lalusis partners
-    const atty1 = list.find((a) => a.id === 'atty-1');
-    if (atty1 && atty1.fullName.includes('Gabriel')) {
-      const idMap = new Map(initialAttorneys.map((a) => [a.id, a]));
-      list = list.map((a) => idMap.get(a.id) || a);
+
+    // Keep the authentic 3 Lalusis partners synchronized with the latest credentials, biographies, and contact details
+    const initMap = new Map(initialAttorneys.map((a) => [a.id, a]));
+    const synchronized: Attorney[] = initialAttorneys.map((initAtty) => {
+      const existing = list.find((a) => a.id === initAtty.id);
+      return existing
+        ? {
+            ...initAtty,
+            isPublished: existing.isPublished ?? initAtty.isPublished,
+            isPartner: true,
+            isFeatured: true,
+          }
+        : initAtty;
+    });
+
+    const isDifferent =
+      list.length !== synchronized.length ||
+      list.some(
+        (a, i) =>
+          a.id !== synchronized[i]?.id ||
+          a.fullName !== synchronized[i]?.fullName ||
+          a.biography !== synchronized[i]?.biography ||
+          a.email !== synchronized[i]?.email
+      );
+
+    if (isDifferent) {
+      list = synchronized;
       this.save(DB_KEYS.ATTORNEYS, list);
     }
-    // Ensure the 3 primary partners are ordered Left to Right as requested:
-    // Left: Atty. Levy John Lalusis (order 1)
-    // Center: Atty. Diosdado Anselmo Lalusis (order 2)
-    // Right: Atty. Leo Lalusis (order 3)
-    let needsSave = false;
-    const levy = list.find((a) => a.id === 'atty-2' || a.fullName.toLowerCase().includes('levy'));
-    const diosdado = list.find((a) => a.id === 'atty-3' || a.fullName.toLowerCase().includes('diosdado'));
-    const leo = list.find((a) => a.id === 'atty-1' || a.fullName.toLowerCase().includes('leo'));
-    if (levy && levy.order !== 1) {
-      levy.order = 1;
-      needsSave = true;
-    }
-    if (diosdado && diosdado.order !== 2) {
-      diosdado.order = 2;
-      needsSave = true;
-    }
-    if (leo && leo.order !== 3) {
-      leo.order = 3;
-      needsSave = true;
-    }
-    if (needsSave) {
-      list.sort((a, b) => (a.order || 0) - (b.order || 0));
-      this.save(DB_KEYS.ATTORNEYS, list);
-    }
+
     if (includeUnpublished) return list;
     return list.filter((a) => a.isPublished);
   }
@@ -677,7 +731,12 @@ class DatabaseService {
 
   // --- PRACTICE AREAS ---
   public getPracticeAreas(includeDrafts: boolean = true): PracticeArea[] {
-    const list = this.load<PracticeArea[]>(DB_KEYS.PRACTICE_AREAS, initialPracticeAreas);
+    let list = this.load<PracticeArea[]>(DB_KEYS.PRACTICE_AREAS, initialPracticeAreas);
+    // Ensure the 14 standardized practice areas are present and updated:
+    if (!list || list.length < 14 || !list.some((p) => p.slug === 'criminal-and-administrative-litigation')) {
+      list = initialPracticeAreas;
+      this.save(DB_KEYS.PRACTICE_AREAS, list);
+    }
     if (includeDrafts) return list;
     return list.filter((pa) => pa.status === 'published');
   }

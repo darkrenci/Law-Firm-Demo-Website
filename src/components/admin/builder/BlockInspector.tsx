@@ -61,7 +61,7 @@ const PRESET_IMAGES = [
     url: 'https://images.unsplash.com/photo-1479142506502-19b3a3b7ff33?auto=format&fit=crop&w=1200&q=80',
   },
   {
-    label: 'Ayala Triangle Highrise',
+    label: 'Executive Chambers Highrise',
     url: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
   },
 ];

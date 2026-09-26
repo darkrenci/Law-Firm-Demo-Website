@@ -238,7 +238,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
       },
       stats: {
         stats: [
-          { label: 'Advocacy History', value: '2012', subtitle: 'Founded in Makati' },
+          { label: 'Advocacy History', value: '1986', subtitle: 'Quezon City Chambers' },
           { label: 'Deals Advised', value: '₱180B+', subtitle: 'M&A and Transactions' },
           { label: 'Precedents', value: '140+', subtitle: 'Supreme Court Decisions' },
           { label: 'Corporate Clients', value: '350+', subtitle: 'Institutional Retainers' },
@@ -275,7 +275,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
       contactForm: {},
       image: {
         imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80',
-        caption: 'Ayala Triangle Chambers, Makati City',
+        caption: 'Future Point Plaza Suites, Quezon City',
       },
       gallery: {
         images: [

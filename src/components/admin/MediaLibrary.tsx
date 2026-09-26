@@ -234,7 +234,7 @@ const AddMediaModal: React.FC<{
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Ayala Triangle Chambers Boardroom"
+            placeholder="e.g. Future Point Plaza Chambers Suite"
             className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
           />
         </div>
