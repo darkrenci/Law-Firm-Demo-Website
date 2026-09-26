@@ -392,8 +392,8 @@ class DatabaseService {
           delete introSec.content.stat3Label;
           changed = true;
         }
-        if (!introSec.content.imageUrl) {
-          introSec.content.imageUrl = '/Group Picture.jpeg';
+        if (!introSec.content.imageUrl || introSec.content.imageUrl === '/Group Picture.jpeg' || introSec.content.imageUrl === '/Group%20Picture.jpeg') {
+          introSec.content.imageUrl = '/assets/group-picture.svg';
           changed = true;
         }
         if (

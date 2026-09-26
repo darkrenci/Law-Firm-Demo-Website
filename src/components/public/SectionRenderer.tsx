@@ -357,8 +357,16 @@ const InstitutionalImageFrame: React.FC<{
   editMode = false,
   isAdmin = false,
 }) => {
+  const DEFAULT_PORTRAIT = '/assets/group-picture.svg';
+  const resolveSrc = (src?: string) => {
+    if (!src || src === '/Group Picture.jpeg' || src === '/Group%20Picture.jpeg') {
+      return DEFAULT_PORTRAIT;
+    }
+    return src;
+  };
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [localSrc, setLocalSrc] = useState<string>(imageUrl || '/Group Picture.jpeg');
+  const [localSrc, setLocalSrc] = useState<string>(() => resolveSrc(imageUrl));
   const [hasError, setHasError] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -374,10 +382,8 @@ const InstitutionalImageFrame: React.FC<{
   );
 
   useEffect(() => {
-    if (imageUrl) {
-      setLocalSrc(imageUrl);
-      setHasError(false);
-    }
+    setLocalSrc(resolveSrc(imageUrl));
+    setHasError(false);
   }, [imageUrl]);
 
   const handleFile = async (file: File) => {
@@ -444,7 +450,13 @@ const InstitutionalImageFrame: React.FC<{
             <img
               src={localSrc}
               alt={imageAlt}
-              onError={() => setHasError(true)}
+              onError={() => {
+                if (localSrc !== DEFAULT_PORTRAIT) {
+                  setLocalSrc(DEFAULT_PORTRAIT);
+                } else {
+                  setHasError(true);
+                }
+              }}
               className="w-full h-auto max-h-[580px] object-cover object-top block select-none transition-transform duration-500 group-hover:scale-[1.01]"
             />
             {/* Ambient vignette gradient overlay */}
@@ -1638,7 +1650,7 @@ const RenderSectionItem: React.FC<{
                 className="w-full my-2"
               >
                 <InstitutionalImageFrame
-                  imageUrl={content.imageUrl || content.image || '/Group Picture.jpeg'}
+                  imageUrl={content.imageUrl || content.image || '/assets/group-picture.svg'}
                   imageAlt={content.imageAlt || 'Lalusis & Partners Founding Partners'}
                   caption={content.imageCaption || 'Partners of Lalusis & Partners · Atty. Levy John L.V. Lalusis, Senior Partner Atty. Diosdado Anselmo Q. Lalusis, and Atty. Leo Anselmo L.V. Lalusis'}
                   sectionId={section.id}
@@ -2149,6 +2161,12 @@ const RenderSectionItem: React.FC<{
                         <img
                           src={atty.portraitUrl}
                           alt={atty.fullName}
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            if (!target.src.includes('attorney-placeholder.svg')) {
+                              target.src = '/assets/attorney-placeholder.svg';
+                            }
+                          }}
                           className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 filter brightness-95 group-hover:brightness-100"
                           referrerPolicy="no-referrer"
                           loading="lazy"
@@ -2293,6 +2311,12 @@ const RenderSectionItem: React.FC<{
                         <img
                           src={selectedPartnerModal.portraitUrl}
                           alt={selectedPartnerModal.fullName}
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            if (!target.src.includes('attorney-placeholder.svg')) {
+                              target.src = '/assets/attorney-placeholder.svg';
+                            }
+                          }}
                           className="w-full aspect-[3/4] object-cover object-top filter brightness-95"
                           referrerPolicy="no-referrer"
                         />

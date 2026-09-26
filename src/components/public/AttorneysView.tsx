@@ -142,6 +142,12 @@ const AttorneysDirectory: React.FC<{
                   <img
                     src={attorney.portraitUrl}
                     alt={attorney.fullName}
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.includes('attorney-placeholder.svg')) {
+                        target.src = '/assets/attorney-placeholder.svg';
+                      }
+                    }}
                     className="w-full h-full object-cover object-top filter brightness-90 group-hover:scale-105 group-hover:brightness-100 transition-all duration-500"
                     referrerPolicy="no-referrer"
                   />
@@ -233,6 +239,12 @@ const AttorneyProfileDetail: React.FC<{
               <img
                 src={attorney.portraitUrl}
                 alt={attorney.fullName}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (!target.src.includes('attorney-placeholder.svg')) {
+                    target.src = '/assets/attorney-placeholder.svg';
+                  }
+                }}
                 className="w-full aspect-[3/4] object-cover object-top filter brightness-95"
                 referrerPolicy="no-referrer"
               />

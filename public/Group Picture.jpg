@@ -1,0 +1,439 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14110f"/>
+      <stop offset="50%" stop-color="#1a1410"/>
+      <stop offset="100%" stop-color="#0a090b"/>
+    </linearGradient>
+
+    <radialGradient id="centerGlow" cx="50%" cy="38%" r="48%">
+      <stop offset="0%" stop-color="#d4af7a" stop-opacity="0.22"/>
+      <stop offset="45%" stop-color="#8a6d3b" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdf4d8"/>
+      <stop offset="30%" stop-color="#e5c388"/>
+      <stop offset="70%" stop-color="#b88b4a"/>
+      <stop offset="100%" stop-color="#e8c992"/>
+    </linearGradient>
+
+    <linearGradient id="goldPlateGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2a2217"/>
+      <stop offset="50%" stop-color="#191510"/>
+      <stop offset="100%" stop-color="#0d0a07"/>
+    </linearGradient>
+
+    <linearGradient id="mahoganyWood" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1c130d"/>
+      <stop offset="25%" stop-color="#2c1d14"/>
+      <stop offset="50%" stop-color="#1e140e"/>
+      <stop offset="75%" stop-color="#2b1c13"/>
+      <stop offset="100%" stop-color="#1a120c"/>
+    </linearGradient>
+
+    <linearGradient id="suitCharcoal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#25252c"/>
+      <stop offset="50%" stop-color="#191920"/>
+      <stop offset="100%" stop-color="#121217"/>
+    </linearGradient>
+
+    <linearGradient id="suitNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1d2433"/>
+      <stop offset="50%" stop-color="#131924"/>
+      <stop offset="100%" stop-color="#0c111a"/>
+    </linearGradient>
+
+    <linearGradient id="suitBlack" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#232328"/>
+      <stop offset="50%" stop-color="#15151a"/>
+      <stop offset="100%" stop-color="#0d0d12"/>
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="shadowGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.8"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#c59b63" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Base Wall & Chamber Atmosphere -->
+  <rect width="1200" height="675" fill="url(#bgGrad)"/>
+  <rect width="1200" height="675" fill="url(#centerGlow)"/>
+
+  <!-- Classical Architectural Archway Background -->
+  <g opacity="0.45">
+    <!-- Back Arch Outline -->
+    <path d="M 220 675 L 220 230 Q 600 50 980 230 L 980 675 Z" fill="none" stroke="#c59b63" stroke-width="1.5" stroke-dasharray="8 6"/>
+    <path d="M 240 675 L 240 240 Q 600 70 960 240 L 960 675 Z" fill="none" stroke="#8a6d3b" stroke-width="0.75"/>
+    
+    <!-- Left Column (Fluted Pilaster) -->
+    <rect x="140" y="80" width="60" height="595" fill="url(#mahoganyWood)" stroke="#523c24" stroke-width="1"/>
+    <line x1="152" y1="90" x2="152" y2="675" stroke="#3d2a17" stroke-width="1.5"/>
+    <line x1="165" y1="90" x2="165" y2="675" stroke="#3d2a17" stroke-width="1.5"/>
+    <line x1="178" y1="90" x2="178" y2="675" stroke="#3d2a17" stroke-width="1.5"/>
+    <line x1="190" y1="90" x2="190" y2="675" stroke="#3d2a17" stroke-width="1.5"/>
+    <!-- Left Capital -->
+    <path d="M 130 80 L 210 80 L 200 100 L 140 100 Z" fill="#3b2b1d" stroke="#c59b63" stroke-width="1"/>
+
+    <!-- Right Column (Fluted Pilaster) -->
+    <rect x="1000" y="80" width="60" height="595" fill="url(#mahoganyWood)" stroke="#523c24" stroke-width="1"/>
+    <line x1="1012" y1="90" x2="1012" y2="675" stroke="#3d2a17" stroke-width="1.5"/>
+    <line x1="1025" y1="90" x2="1025" y2="675" stroke="#3d2a17" stroke-width="1.5"/>
+    <line x1="1038" y1="90" x2="1038" y2="675" stroke="#3d2a17" stroke-width="1.5"/>
+    <line x1="1050" y1="90" x2="1050" y2="675" stroke="#3d2a17" stroke-width="1.5"/>
+    <!-- Right Capital -->
+    <path d="M 990 80 L 1070 80 L 1060 100 L 1000 100 Z" fill="#3b2b1d" stroke="#c59b63" stroke-width="1"/>
+  </g>
+
+  <!-- Law Library Bookshelves in Ambient Wings -->
+  <!-- Left Wing Books -->
+  <g opacity="0.6">
+    <rect x="30" y="110" width="95" height="520" fill="#140e0a" stroke="#332215" stroke-width="1"/>
+    <!-- Shelf Dividers -->
+    <line x1="30" y1="210" x2="125" y2="210" stroke="#8a6d3b" stroke-width="2"/>
+    <line x1="30" y1="310" x2="125" y2="310" stroke="#8a6d3b" stroke-width="2"/>
+    <line x1="30" y1="410" x2="125" y2="410" stroke="#8a6d3b" stroke-width="2"/>
+    <line x1="30" y1="510" x2="125" y2="510" stroke="#8a6d3b" stroke-width="2"/>
+    <!-- Book Spines Row 1 -->
+    <rect x="34" y="125" width="16" height="85" fill="#382115" stroke="#22130b"/>
+    <line x1="42" y1="135" x2="42" y2="195" stroke="#c59b63" stroke-width="1"/>
+    <rect x="52" y="120" width="20" height="90" fill="#1c2d42" stroke="#101b29"/>
+    <rect x="74" y="123" width="17" height="87" fill="#4a1e1e" stroke="#2b0f0f"/>
+    <rect x="93" y="122" width="28" height="88" fill="#2d331e" stroke="#191c10"/>
+    <!-- Book Spines Row 2 -->
+    <rect x="34" y="225" width="22" height="85" fill="#1f232b"/>
+    <rect x="58" y="220" width="18" height="90" fill="#3d281a"/>
+    <rect x="78" y="223" width="24" height="87" fill="#42251d"/>
+    <rect x="104" y="222" width="17" height="88" fill="#1a2836"/>
+  </g>
+
+  <!-- Right Wing Books -->
+  <g opacity="0.6">
+    <rect x="1075" y="110" width="95" height="520" fill="#140e0a" stroke="#332215" stroke-width="1"/>
+    <line x1="1075" y1="210" x2="1170" y2="210" stroke="#8a6d3b" stroke-width="2"/>
+    <line x1="1075" y1="310" x2="1170" y2="310" stroke="#8a6d3b" stroke-width="2"/>
+    <line x1="1075" y1="410" x2="1170" y2="410" stroke="#8a6d3b" stroke-width="2"/>
+    <line x1="1075" y1="510" x2="1170" y2="510" stroke="#8a6d3b" stroke-width="2"/>
+    <!-- Spines -->
+    <rect x="1079" y="122" width="24" height="88" fill="#4a1e1e"/>
+    <rect x="1105" y="120" width="18" height="90" fill="#1c2d42"/>
+    <rect x="1125" y="124" width="20" height="86" fill="#382115"/>
+    <rect x="1147" y="121" width="19" height="89" fill="#242b1a"/>
+    <rect x="1079" y="223" width="19" height="87" fill="#1a2836"/>
+    <rect x="1100" y="221" width="24" height="89" fill="#3d281a"/>
+    <rect x="1126" y="225" width="20" height="85" fill="#2d331e"/>
+    <rect x="1148" y="222" width="18" height="88" fill="#42251d"/>
+  </g>
+
+  <!-- Upper Arch Pediment: Scales of Justice & Crest -->
+  <g transform="translate(600, 75)" text-anchor="middle">
+    <!-- Radiant Halo -->
+    <circle cx="0" cy="0" r="48" fill="#c59b63" opacity="0.12"/>
+    <!-- Scales of Justice Emblem -->
+    <g stroke="url(#goldGrad)" stroke-width="2" fill="none">
+      <!-- Beam -->
+      <line x1="-32" y1="-8" x2="32" y2="-8"/>
+      <!-- Center Stem -->
+      <line x1="0" y1="-26" x2="0" y2="24"/>
+      <!-- Base -->
+      <line x1="-16" y1="24" x2="16" y2="24" stroke-width="3"/>
+      <!-- Finial Top -->
+      <circle cx="0" cy="-26" r="3.5" fill="url(#goldGrad)"/>
+      <!-- Left Pan Cords & Pan -->
+      <line x1="-32" y1="-8" x2="-44" y2="12"/>
+      <line x1="-32" y1="-8" x2="-20" y2="12"/>
+      <path d="M -47 12 Q -32 20 -17 12 Z" fill="url(#goldGrad)" opacity="0.9"/>
+      <!-- Right Pan Cords & Pan -->
+      <line x1="32" y1="-8" x2="20" y2="12"/>
+      <line x1="32" y1="-8" x2="44" y2="12"/>
+      <path d="M 17 12 Q 32 20 47 12 Z" fill="url(#goldGrad)" opacity="0.9"/>
+    </g>
+    <!-- Firm Inscription -->
+    <text y="52" font-family="'Cinzel', 'Trajan Pro', Georgia, serif" font-size="12" font-weight="700" fill="#e5c388" letter-spacing="4">
+      LALUSIS &amp; PARTNERS · LAW FIRM
+    </text>
+    <text y="68" font-family="'Cinzel', 'Trajan Pro', Georgia, serif" font-size="9" fill="#9e8561" letter-spacing="3">
+      ESTABLISHED IN INTEGRITY · DEDICATED TO JUSTICE
+    </text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- THREE FOUNDING PARTNERS (CENTER, LEFT, RIGHT) -->
+  <!-- ======================================================== -->
+
+  <!-- PARTNER 2 (LEFT): ATTY. LEVY JOHN L.V. LALUSIS -->
+  <g transform="translate(350, 160)">
+    <!-- Aura Glow -->
+    <ellipse cx="0" cy="180" rx="140" ry="190" fill="#000000" opacity="0.6"/>
+
+    <!-- Suit Torso & Shoulders -->
+    <!-- Shoulder Silhouette -->
+    <path d="M -130 350 C -125 240, -85 200, -45 190 L 45 190 C 85 200, 125 240, 130 350 Z" fill="url(#suitCharcoal)" stroke="#3a3a46" stroke-width="1.5"/>
+    
+    <!-- White Crisp Shirt Collar -->
+    <path d="M -32 188 L 0 235 L 32 188 L 18 185 L 0 205 L -18 185 Z" fill="#f8f8fb"/>
+    <!-- Gold / Amber Silk Tie -->
+    <path d="M -10 208 L 10 208 L 14 310 L 0 335 L -14 310 Z" fill="#b3843b" stroke="#7a551e" stroke-width="1"/>
+    <!-- Suit Lapels -->
+    <path d="M -45 190 L -12 285 L -35 295 L -75 225 Z" fill="#2b2b36"/>
+    <path d="M 45 190 L 12 285 L 35 295 L 75 225 Z" fill="#2b2b36"/>
+    <!-- Subtle Lapel Pin (Scales / IBP Pin) -->
+    <circle cx="-52" cy="235" r="3.5" fill="url(#goldGrad)"/>
+
+    <!-- Neck -->
+    <rect x="-18" y="145" width="36" height="48" rx="4" fill="#dfb393"/>
+    <path d="M -18 165 Q 0 178 18 165 L 18 190 L -18 190 Z" fill="#be9477" opacity="0.5"/>
+
+    <!-- Head & Face Profile -->
+    <ellipse cx="0" cy="115" rx="40" ry="50" fill="#e8c2a5"/>
+    <!-- Jawline definition -->
+    <path d="M -38 105 C -36 145, -24 165, 0 166 C 24 165, 36 145, 38 105 Z" fill="#e2b99a"/>
+    <!-- Handsome clean short executive hair -->
+    <path d="M -42 105 C -42 62, -28 50, 0 48 C 28 50, 44 62, 42 105 C 40 92, 34 80, 22 75 C 5 70, -25 72, -38 88 Z" fill="#1b1715"/>
+    <!-- Hair Texture / Highlight -->
+    <path d="M -30 68 Q 0 54 28 65" stroke="#332a24" stroke-width="2" fill="none"/>
+    <!-- Eyes, Eyebrows & Features (Distinguished, Confident) -->
+    <!-- Eyebrows -->
+    <path d="M -30 96 Q -18 91 -8 95" stroke="#251e19" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 8 95 Q 18 91 30 96" stroke="#251e19" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Eyes -->
+    <ellipse cx="-18" cy="106" rx="5" ry="3" fill="#201a16"/>
+    <ellipse cx="18" cy="106" rx="5" ry="3" fill="#201a16"/>
+    <circle cx="-16.5" cy="105" r="1.2" fill="#ffffff"/>
+    <circle cx="19.5" cy="105" r="1.2" fill="#ffffff"/>
+    <!-- Nose -->
+    <path d="M 0 100 L -2 124 L 5 125" stroke="#b88a6d" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <!-- Mouth / Confident expression -->
+    <path d="M -12 142 Q 0 146 12 142" stroke="#945749" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+    <!-- Subtle Vignette Edge -->
+    <ellipse cx="0" cy="180" rx="145" ry="195" fill="none" stroke="#c59b63" stroke-width="0.75" opacity="0.3"/>
+  </g>
+
+
+  <!-- PARTNER 3 (RIGHT): ATTY. LEO ANSELMO L.V. LALUSIS -->
+  <g transform="translate(850, 160)">
+    <!-- Aura Glow -->
+    <ellipse cx="0" cy="180" rx="140" ry="190" fill="#000000" opacity="0.6"/>
+
+    <!-- Suit Torso & Shoulders -->
+    <path d="M -130 350 C -125 240, -85 200, -45 190 L 45 190 C 85 200, 125 240, 130 350 Z" fill="url(#suitBlack)" stroke="#383842" stroke-width="1.5"/>
+
+    <!-- White Crisp Shirt Collar -->
+    <path d="M -32 188 L 0 235 L 32 188 L 18 185 L 0 205 L -18 185 Z" fill="#fafaff"/>
+    <!-- Silk Navy / Slate Blue Tie -->
+    <path d="M -10 208 L 10 208 L 14 310 L 0 335 L -14 310 Z" fill="#24334a" stroke="#162030" stroke-width="1"/>
+    <!-- Suit Lapels (Sharp Bespoke) -->
+    <path d="M -45 190 L -12 285 L -35 295 L -75 225 Z" fill="#202026"/>
+    <path d="M 45 190 L 12 285 L 35 295 L 75 225 Z" fill="#202026"/>
+    <!-- NBI Commendation / Bar Pin -->
+    <circle cx="-52" cy="235" r="3.5" fill="url(#goldGrad)"/>
+
+    <!-- Neck -->
+    <rect x="-18" y="145" width="36" height="48" rx="4" fill="#dfb393"/>
+    <path d="M -18 165 Q 0 178 18 165 L 18 190 L -18 190 Z" fill="#be9477" opacity="0.5"/>
+
+    <!-- Head & Face Profile -->
+    <ellipse cx="0" cy="115" rx="39" ry="49" fill="#e8c2a5"/>
+    <path d="M -37 105 C -35 145, -23 165, 0 166 C 23 165, 35 145, 37 105 Z" fill="#e2b99a"/>
+    <!-- Sharp Modern Executive Hair -->
+    <path d="M -40 105 C -40 60, -25 46, 0 46 C 26 46, 42 60, 40 105 C 38 90, 32 78, 18 72 C 3 68, -25 70, -36 86 Z" fill="#141211"/>
+    <path d="M -28 65 Q 0 52 26 62" stroke="#2e2722" stroke-width="2" fill="none"/>
+    <!-- Eyes, Eyebrows & Features (Sharp, Direct Litigator Look) -->
+    <path d="M -29 96 Q -17 91 -7 95" stroke="#201a16" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 7 95 Q 17 91 29 96" stroke="#201a16" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="-17" cy="106" rx="5" ry="3" fill="#1b1613"/>
+    <ellipse cx="17" cy="106" rx="5" ry="3" fill="#1b1613"/>
+    <circle cx="-15.5" cy="105" r="1.2" fill="#ffffff"/>
+    <circle cx="18.5" cy="105" r="1.2" fill="#ffffff"/>
+    <!-- Sharp Defined Nose -->
+    <path d="M 0 100 L -2 124 L 5 125" stroke="#b88a6d" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <!-- Firm Determinate Mouth -->
+    <path d="M -12 142 Q 0 145 12 142" stroke="#945749" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+    <ellipse cx="0" cy="180" rx="145" ry="195" fill="none" stroke="#c59b63" stroke-width="0.75" opacity="0.3"/>
+  </g>
+
+
+  <!-- PARTNER 1 (CENTER): SENIOR PARTNER ATTY. DIOSDADO ANSELMO Q. LALUSIS -->
+  <!-- Centered, prominent, elevated, commanding 40 years of legal mastery -->
+  <g transform="translate(600, 135)" filter="url(#shadowGlow)">
+    <!-- Elevated Aura Glow -->
+    <ellipse cx="0" cy="190" rx="160" ry="210" fill="#000000" opacity="0.75"/>
+    <ellipse cx="0" cy="190" rx="150" ry="200" fill="#c59b63" opacity="0.08"/>
+
+    <!-- Senior Tailored Double-Breasted Midnight Navy Suit -->
+    <path d="M -145 375 C -140 250, -95 205, -50 195 L 50 195 C 95 205, 140 250, 145 375 Z" fill="url(#suitNavy)" stroke="#45546e" stroke-width="2"/>
+
+    <!-- Crisp White Collar & Wing Tips -->
+    <path d="M -36 193 L 0 242 L 36 193 L 20 189 L 0 210 L -20 189 Z" fill="#ffffff"/>
+    <!-- Regally Patterned Dark Crimson / Burgundy Silk Tie -->
+    <path d="M -12 215 L 12 215 L 16 325 L 0 355 L -16 325 Z" fill="#5c1921" stroke="#3d0e14" stroke-width="1"/>
+    <!-- Tie Pattern Accent -->
+    <line x1="-8" y1="245" x2="8" y2="245" stroke="#d4af7a" stroke-width="1" opacity="0.6"/>
+    <line x1="-10" y1="275" x2="10" y2="275" stroke="#d4af7a" stroke-width="1" opacity="0.6"/>
+    <line x1="-12" y1="305" x2="12" y2="305" stroke="#d4af7a" stroke-width="1" opacity="0.6"/>
+
+    <!-- Broad Peak Lapels -->
+    <path d="M -50 195 L -14 295 L -42 308 L -85 235 Z" fill="#18202d"/>
+    <path d="M 50 195 L 14 295 L 42 308 L 85 235 Z" fill="#18202d"/>
+    <!-- Gold 40-Year Supreme Court Roll & PRC Honor Pin -->
+    <circle cx="-60" cy="242" r="4.5" fill="url(#goldGrad)" stroke="#61441b" stroke-width="1"/>
+    <path d="M -60 239 L -60 245 M -63 242 L -57 242" stroke="#1a140d" stroke-width="1"/>
+
+    <!-- Pocket Square (Cream Silk) -->
+    <polygon points="45,248 55,236 68,242 62,252" fill="#f4ece1" stroke="#c59b63" stroke-width="0.8"/>
+
+    <!-- Stately Neck -->
+    <rect x="-21" y="148" width="42" height="52" rx="4" fill="#dfb393"/>
+    <path d="M -21 170 Q 0 185 21 170 L 21 200 L -21 200 Z" fill="#be9477" opacity="0.55"/>
+
+    <!-- Head & Face Profile (Dignified Senior Statesman, 40-Year Veteran) -->
+    <ellipse cx="0" cy="116" rx="42" ry="52" fill="#e8c2a5"/>
+    <path d="M -40 106 C -38 148, -25 168, 0 170 C 25 168, 38 148, 40 106 Z" fill="#e0b695"/>
+    
+    <!-- Distinguished Silver-Grey Hair (Refined Academician & Jurist) -->
+    <path d="M -44 106 C -44 56, -30 40, 0 38 C 30 40, 44 56, 44 106 C 42 88, 35 74, 20 68 C 5 62, -26 64, -38 82 Z" fill="#b0b5be"/>
+    <!-- Silver Streaks / Depth -->
+    <path d="M -34 62 Q 0 46 32 58" stroke="#d5dae2" stroke-width="2.5" fill="none"/>
+    <path d="M -26 78 Q 0 66 26 74" stroke="#8c939e" stroke-width="1.8" fill="none"/>
+    
+    <!-- Character Lines & Expression (Wise, Authoritative, Kind) -->
+    <!-- Silver Eyebrows -->
+    <path d="M -31 96 Q -18 90 -7 94" stroke="#888f9c" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M 7 94 Q 18 90 31 96" stroke="#888f9c" stroke-width="2.8" stroke-linecap="round"/>
+    
+    <!-- Eyes with Wisdom Lines -->
+    <ellipse cx="-18" cy="106" rx="5.2" ry="3.2" fill="#1f1a16"/>
+    <ellipse cx="18" cy="106" rx="5.2" ry="3.2" fill="#1f1a16"/>
+    <circle cx="-16.5" cy="105" r="1.3" fill="#ffffff"/>
+    <circle cx="19.5" cy="105" r="1.3" fill="#ffffff"/>
+    <!-- Laugh / Experience Crinkles -->
+    <path d="M -26 104 L -30 107" stroke="#b08668" stroke-width="1"/>
+    <path d="M 26 104 L 30 107" stroke="#b08668" stroke-width="1"/>
+    
+    <!-- Classical Tortoiseshell / Gold Eyeglass Frames -->
+    <rect x="-28" y="99" width="20" height="15" rx="3" fill="none" stroke="url(#goldGrad)" stroke-width="1.8"/>
+    <rect x="8" y="99" width="20" height="15" rx="3" fill="none" stroke="url(#goldGrad)" stroke-width="1.8"/>
+    <line x1="-8" y1="106" x2="8" y2="106" stroke="url(#goldGrad)" stroke-width="1.8"/>
+
+    <!-- Prominent Nose -->
+    <path d="M 0 102 L -2 126 L 6 127" stroke="#b88a6d" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <!-- Gentle Smiles of a Veteran Dean -->
+    <path d="M -13 144 Q 0 148 13 144" stroke="#874e40" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    <!-- Stately Gold Laurel Rim Frame -->
+    <ellipse cx="0" cy="190" rx="155" ry="205" fill="none" stroke="url(#goldGrad)" stroke-width="1.2" opacity="0.6"/>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- FOREGROUND ARCHITECTURAL BRASS NAMEPLATES -->
+  <!-- ======================================================== -->
+
+  <!-- Left Nameplate: Atty. Levy John L.V. Lalusis -->
+  <g transform="translate(140, 520)">
+    <rect x="0" y="0" width="280" height="82" rx="2" fill="url(#goldPlateGrad)" stroke="url(#goldGrad)" stroke-width="1.5" filter="url(#shadowGlow)"/>
+    <line x1="6" y1="6" x2="274" y2="6" stroke="#c59b63" stroke-width="0.5" opacity="0.6"/>
+    <line x1="6" y1="76" x2="274" y2="76" stroke="#c59b63" stroke-width="0.5" opacity="0.6"/>
+    <!-- Corner Rivets -->
+    <circle cx="8" cy="8" r="2" fill="#c59b63"/>
+    <circle cx="272" cy="8" r="2" fill="#c59b63"/>
+    <circle cx="8" cy="74" r="2" fill="#c59b63"/>
+    <circle cx="272" cy="74" r="2" fill="#c59b63"/>
+    <!-- Text -->
+    <text x="140" y="25" text-anchor="middle" font-family="'Cinzel', 'Trajan Pro', Georgia, serif" font-size="11" font-weight="700" fill="#f4e6d0" letter-spacing="1.5">
+      ATTY. LEVY JOHN L.V. LALUSIS
+    </text>
+    <text x="140" y="42" text-anchor="middle" font-family="'Cinzel', 'Trajan Pro', Georgia, serif" font-size="8.5" font-weight="600" fill="#c59b63" letter-spacing="1.2">
+      FOUNDING PARTNER · TAX SPECIALIST
+    </text>
+    <text x="140" y="60" text-anchor="middle" font-family="'Inter', system-ui, sans-serif" font-size="8" fill="#a8a199">
+      Former PACC Graft &amp; NPC Lead Investigator
+    </text>
+  </g>
+
+  <!-- Center Elevated Nameplate: Atty. Diosdado Anselmo Q. Lalusis -->
+  <g transform="translate(440, 505)">
+    <rect x="0" y="0" width="320" height="97" rx="3" fill="url(#goldPlateGrad)" stroke="url(#goldGrad)" stroke-width="2" filter="url(#shadowGlow)"/>
+    <!-- Ornamental Inset Border -->
+    <rect x="5" y="5" width="310" height="87" rx="2" fill="none" stroke="#d4af7a" stroke-width="0.75" opacity="0.8"/>
+    <!-- Corner Rivets -->
+    <circle cx="9" cy="9" r="2.5" fill="#fdf4d8"/>
+    <circle cx="311" cy="9" r="2.5" fill="#fdf4d8"/>
+    <circle cx="9" cy="88" r="2.5" fill="#fdf4d8"/>
+    <circle cx="311" cy="88" r="2.5" fill="#fdf4d8"/>
+    <!-- Senior Crest Header -->
+    <path d="M 160 14 L 165 20 L 155 20 Z" fill="#d4af7a"/>
+    <!-- Text -->
+    <text x="160" y="32" text-anchor="middle" font-family="'Cinzel', 'Trajan Pro', Georgia, serif" font-size="12.5" font-weight="700" fill="#ffffff" letter-spacing="2">
+      ATTY. DIOSDADO ANSELMO Q. LALUSIS
+    </text>
+    <text x="160" y="50" text-anchor="middle" font-family="'Cinzel', 'Trajan Pro', Georgia, serif" font-size="9.5" font-weight="700" fill="#e5c388" letter-spacing="1.8">
+      SENIOR PARTNER &amp; ADVISORY COUNSEL
+    </text>
+    <text x="160" y="68" text-anchor="middle" font-family="'Inter', system-ui, sans-serif" font-size="8.5" font-weight="500" fill="#d0c7bd">
+      40 Years Experience · Former PRC Legal Head
+    </text>
+    <text x="160" y="82" text-anchor="middle" font-family="'Inter', system-ui, sans-serif" font-size="7.5" fill="#9e968c">
+      Acting Dean PCCR Criminology · Law Professor
+    </text>
+  </g>
+
+  <!-- Right Nameplate: Atty. Leo Anselmo L.V. Lalusis -->
+  <g transform="translate(780, 520)">
+    <rect x="0" y="0" width="280" height="82" rx="2" fill="url(#goldPlateGrad)" stroke="url(#goldGrad)" stroke-width="1.5" filter="url(#shadowGlow)"/>
+    <line x1="6" y1="6" x2="274" y2="6" stroke="#c59b63" stroke-width="0.5" opacity="0.6"/>
+    <line x1="6" y1="76" x2="274" y2="76" stroke="#c59b63" stroke-width="0.5" opacity="0.6"/>
+    <!-- Corner Rivets -->
+    <circle cx="8" cy="8" r="2" fill="#c59b63"/>
+    <circle cx="272" cy="8" r="2" fill="#c59b63"/>
+    <circle cx="8" cy="74" r="2" fill="#c59b63"/>
+    <circle cx="272" cy="74" r="2" fill="#c59b63"/>
+    <!-- Text -->
+    <text x="140" y="25" text-anchor="middle" font-family="'Cinzel', 'Trajan Pro', Georgia, serif" font-size="11" font-weight="700" fill="#f4e6d0" letter-spacing="1.5">
+      ATTY. LEO ANSELMO L.V. LALUSIS
+    </text>
+    <text x="140" y="42" text-anchor="middle" font-family="'Cinzel', 'Trajan Pro', Georgia, serif" font-size="8.5" font-weight="600" fill="#c59b63" letter-spacing="1.2">
+      FOUNDING PARTNER · LITIGATION COUNSEL
+    </text>
+    <text x="140" y="60" text-anchor="middle" font-family="'Inter', system-ui, sans-serif" font-size="8" fill="#a8a199">
+      Former NBI High-Profile Legal Officer · LL.M. Cand.
+    </text>
+  </g>
+
+  <!-- Outer Grand Picture Frame & Brass Border -->
+  <rect x="4" y="4" width="1192" height="667" rx="2" fill="none" stroke="url(#goldGrad)" stroke-width="3"/>
+  <rect x="12" y="12" width="1176" height="651" rx="1" fill="none" stroke="#5c4424" stroke-width="1"/>
+
+  <!-- Four Ornamental Cast-Brass Corner Rosettes -->
+  <!-- Top Left -->
+  <g transform="translate(18, 18)">
+    <path d="M 0 0 L 26 0 L 26 6 L 6 6 L 6 26 L 0 26 Z" fill="url(#goldGrad)"/>
+    <circle cx="12" cy="12" r="3" fill="#fdf4d8"/>
+  </g>
+  <!-- Top Right -->
+  <g transform="translate(1182, 18)">
+    <path d="M 0 0 L -26 0 L -26 6 L -6 6 L -6 26 L 0 26 Z" fill="url(#goldGrad)"/>
+    <circle cx="-12" cy="12" r="3" fill="#fdf4d8"/>
+  </g>
+  <!-- Bottom Left -->
+  <g transform="translate(18, 657)">
+    <path d="M 0 0 L 26 0 L 26 -6 L 6 -6 L 6 -26 L 0 -26 Z" fill="url(#goldGrad)"/>
+    <circle cx="12" cy="-12" r="3" fill="#fdf4d8"/>
+  </g>
+  <!-- Bottom Right -->
+  <g transform="translate(1182, 657)">
+    <path d="M 0 0 L -26 0 L -26 -6 L -6 -6 L -6 -26 L 0 -26 Z" fill="url(#goldGrad)"/>
+    <circle cx="-12" cy="-12" r="3" fill="#fdf4d8"/>
+  </g>
+
+  <!-- Bottom Architrave Inscription Plaque -->
+  <g transform="translate(600, 642)" text-anchor="middle">
+    <rect x="-260" y="-12" width="520" height="24" rx="2" fill="#0c0a08" stroke="#8a6d3b" stroke-width="1"/>
+    <text y="4" font-family="'Cinzel', 'Trajan Pro', Georgia, serif" font-size="8.5" font-weight="600" fill="#c59b63" letter-spacing="3.5">
+      FOUNDING PARTNERS · LALUSIS &amp; PARTNERS LAW OFFICES
+    </text>
+  </g>
+</svg>

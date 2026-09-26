@@ -891,6 +891,17 @@ export const initialContactMessages: ContactMessage[] = [
 
 export const initialMedia: MediaItem[] = [
   {
+    id: 'med-group-portrait',
+    name: 'Founding Partners Institutional Chamber Portrait',
+    url: '/assets/group-picture.svg',
+    fileType: 'image',
+    format: 'SVG',
+    sizeBytes: 18450,
+    category: 'branding',
+    altText: 'Founding Partners of Lalusis & Partners: Atty. Levy John L.V. Lalusis, Senior Partner Atty. Diosdado Anselmo Q. Lalusis, and Atty. Leo Anselmo L.V. Lalusis',
+    createdAt: '2026-09-01',
+  },
+  {
     id: 'med-1',
     name: 'Firm Executive Monogram Gold',
     url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
@@ -1167,7 +1178,7 @@ export const initialPages: Page[] = [
         content: {
           eyebrow: '',
           heading: '',
-          imageUrl: '/Group Picture.jpeg',
+          imageUrl: '/assets/group-picture.svg',
           imageAlt: 'Lalusis & Partners Founding Partners – Atty. Levy John Lalusis, Atty. Diosdado Anselmo Lalusis, and Atty. Leo Lalusis',
           imageCaption: 'Founding Partners of Lalusis & Partners · Atty. Levy John Lalusis · Atty. Diosdado Anselmo Lalusis · Atty. Leo Lalusis',
           body: "The FIRM is founded by Atty. Leo Lalusis and Atty. Levy John Lalusis, under the guidance of their senior partner, Atty. Diosdado Anselmo Lalusis. Brothers Lalusis, is the son of the late NBI Chief Danielito Q. Lalusis, who served the NBI for almost 30 years prior to his untimely passing.\n\nAtty. Leo Lalusis passed the Bar in 2019 (the last handwritten Bar Examination) in his only attempt. Upon passing, he entered the NBI as Legal Officer assigned in the Legal Division, specifically in Prosecution and High Profile Cases, where he received several commendations, including for the PNP-PDEA incident. During his stay with the NBI, he was also tasked to represent the bureau in various Senate and House of Representatives hearings and attended several specialized investigative courses. Atty. Leo is also a certified Data Protection Officer (UP Open University, 2023) and has handled high-profile cases before the DOJ and Sandiganbayan. He has represented prominent clients in congressional hearings, including the landmark Senate Blue Ribbon Committee hearings in flood control cases, as well as leading public figures and influencers. To further broaden his jurisprudential acumen, he is one of the youngest Master of Laws candidates in the Graduate School of San Beda University.\n\nMeanwhile, Atty. Levy John Lalusis passed the 2024 Bar Examination. Prior to his admission to the bar, he served with distinguished government bodies, specifically within the Presidential Anti-Corruption Commission (PACC) as a graft investigator and the Department of Transportation (DOTr). Atty. Levy is a certified Tax Specialist with multiple accreditations. Alongside his brother Atty. Leo, he has appeared before the Sandiganbayan representing high-profile institutional and private clients in contentious matters.\n\nOn the other hand, Atty. Diosdado Anselmo Lalusis is a seasoned and veteran lawyer who headed the Professional Regulation Commission (PRC) Legal Division for more than a decade. Atty. Diosdado brings seasoned appellate advocacy, exemplary institutional integrity, and foundational legal mentorship to the firm's sovereign and corporate clientele.",
