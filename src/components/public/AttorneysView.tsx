@@ -15,6 +15,14 @@ import {
 } from 'lucide-react';
 import { resolveItemTypography } from '../admin/ItemTypographyControls';
 
+export const getPartnerOfficialPortrait = (fullName?: string, slug?: string, id?: string) => {
+  const s = `${fullName || ''} ${slug || ''} ${id || ''}`.toLowerCase();
+  if (s.includes('levy')) return '/assets/atty-levy-lalusis.svg';
+  if (s.includes('diosdado')) return '/assets/atty-diosdado-lalusis.svg';
+  if (s.includes('leo')) return '/assets/atty-leo-lalusis.svg';
+  return '/assets/attorney-placeholder.svg';
+};
+
 interface AttorneysViewProps {
   slug?: string;
   currentSlug?: string;
@@ -140,11 +148,14 @@ const AttorneysDirectory: React.FC<{
               >
                 <div className="relative aspect-[4/5] overflow-hidden bg-[#181820]">
                   <img
-                    src={attorney.portraitUrl}
+                    src={attorney.portraitUrl || getPartnerOfficialPortrait(attorney.fullName, attorney.slug, attorney.id)}
                     alt={attorney.fullName}
                     onError={(e) => {
                       const target = e.currentTarget;
-                      if (!target.src.includes('attorney-placeholder.svg')) {
+                      const fallback = getPartnerOfficialPortrait(attorney.fullName, attorney.slug, attorney.id);
+                      if (!target.src.endsWith(fallback)) {
+                        target.src = fallback;
+                      } else if (!target.src.includes('attorney-placeholder.svg')) {
                         target.src = '/assets/attorney-placeholder.svg';
                       }
                     }}
@@ -237,11 +248,14 @@ const AttorneyProfileDetail: React.FC<{
           <div className="lg:col-span-4 space-y-4">
             <div className="border border-[#c59b63]/40 p-1.5 bg-[#17171e]">
               <img
-                src={attorney.portraitUrl}
+                src={attorney.portraitUrl || getPartnerOfficialPortrait(attorney.fullName, attorney.slug, attorney.id)}
                 alt={attorney.fullName}
                 onError={(e) => {
                   const target = e.currentTarget;
-                  if (!target.src.includes('attorney-placeholder.svg')) {
+                  const fallback = getPartnerOfficialPortrait(attorney.fullName, attorney.slug, attorney.id);
+                  if (!target.src.endsWith(fallback)) {
+                    target.src = fallback;
+                  } else if (!target.src.includes('attorney-placeholder.svg')) {
                     target.src = '/assets/attorney-placeholder.svg';
                   }
                 }}

@@ -98,7 +98,24 @@ class DatabaseService {
 
   // --- CURRENT USER & AUTH ---
   public getUsers(): User[] {
-    return this.load<User[]>(DB_KEYS.USERS, initialUsers);
+    const users = this.load<User[]>(DB_KEYS.USERS, initialUsers);
+    let changed = false;
+    const updated = users.map((u) => {
+      if (u.id === 'usr-1' && (u.name.includes('Gabriel') || u.avatarUrl?.includes('unsplash.com'))) {
+        changed = true;
+        return {
+          ...u,
+          name: 'Atty. Levy John L.V. Lalusis',
+          title: 'Founding Partner',
+          avatarUrl: '/assets/atty-levy-lalusis.svg',
+        };
+      }
+      return u;
+    });
+    if (changed) {
+      this.save(DB_KEYS.USERS, updated);
+    }
+    return updated;
   }
 
   public getCurrentUser(): User {
@@ -670,14 +687,23 @@ class DatabaseService {
     const initMap = new Map(initialAttorneys.map((a) => [a.id, a]));
     const synchronized: Attorney[] = initialAttorneys.map((initAtty) => {
       const existing = list.find((a) => a.id === initAtty.id);
-      return existing
-        ? {
-            ...initAtty,
-            isPublished: existing.isPublished ?? initAtty.isPublished,
-            isPartner: true,
-            isFeatured: true,
-          }
-        : initAtty;
+      if (!existing) return initAtty;
+
+      // Migrate outdated template unsplash portraits to official vector portraits
+      const portraitUrl =
+        !existing.portraitUrl ||
+        existing.portraitUrl.includes('unsplash.com') ||
+        existing.portraitUrl.includes('placeholder')
+          ? initAtty.portraitUrl
+          : existing.portraitUrl;
+
+      return {
+        ...initAtty,
+        ...existing,
+        portraitUrl,
+        isPartner: true,
+        isFeatured: true,
+      };
     });
 
     const isDifferent =
@@ -687,7 +713,8 @@ class DatabaseService {
           a.id !== synchronized[i]?.id ||
           a.fullName !== synchronized[i]?.fullName ||
           a.biography !== synchronized[i]?.biography ||
-          a.email !== synchronized[i]?.email
+          a.email !== synchronized[i]?.email ||
+          a.portraitUrl !== synchronized[i]?.portraitUrl
       );
 
     if (isDifferent) {
@@ -1012,7 +1039,29 @@ class DatabaseService {
 
   // --- MEDIA LIBRARY ---
   public getMedia(): MediaItem[] {
-    return this.load<MediaItem[]>(DB_KEYS.MEDIA, initialMedia);
+    const list = this.load<MediaItem[]>(DB_KEYS.MEDIA, initialMedia);
+    let changed = false;
+    const existingIds = new Set(list.map((m) => m.id));
+    const merged = [...list];
+
+    // Ensure all standard initial firm media assets are present
+    for (const init of initialMedia) {
+      if (!existingIds.has(init.id)) {
+        merged.unshift(init);
+        changed = true;
+      } else {
+        const idx = merged.findIndex((m) => m.id === init.id);
+        if (idx >= 0 && (merged[idx].url !== init.url || merged[idx].name !== init.name)) {
+          merged[idx] = { ...merged[idx], ...init };
+          changed = true;
+        }
+      }
+    }
+
+    if (changed) {
+      this.save(DB_KEYS.MEDIA, merged);
+    }
+    return merged;
   }
 
   public addMedia(item: Omit<MediaItem, 'id' | 'createdAt'> & { id?: string }): MediaItem {

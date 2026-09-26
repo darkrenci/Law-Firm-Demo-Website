@@ -1,0 +1,235 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGradLevy" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#181512"/>
+      <stop offset="50%" stop-color="#211b15"/>
+      <stop offset="100%" stop-color="#0e0d0b"/>
+    </linearGradient>
+
+    <radialGradient id="glowLevy" cx="50%" cy="32%" r="42%">
+      <stop offset="0%" stop-color="#c59b63" stop-opacity="0.28"/>
+      <stop offset="60%" stop-color="#8a6d3b" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="goldPlate" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef5d8"/>
+      <stop offset="35%" stop-color="#dfba76"/>
+      <stop offset="70%" stop-color="#ab8240"/>
+      <stop offset="100%" stop-color="#e8c992"/>
+    </linearGradient>
+
+    <linearGradient id="suitCharcoalLevy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d2a2e"/>
+      <stop offset="45%" stop-color="#1e1c1f"/>
+      <stop offset="100%" stop-color="#131215"/>
+    </linearGradient>
+
+    <linearGradient id="lapelLevy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#242125"/>
+      <stop offset="100%" stop-color="#111012"/>
+    </linearGradient>
+
+    <linearGradient id="skinGradLevy" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c99e74"/>
+      <stop offset="40%" stop-color="#b6895d"/>
+      <stop offset="100%" stop-color="#9a7147"/>
+    </linearGradient>
+
+    <linearGradient id="tieLevy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7a1c1c"/>
+      <stop offset="50%" stop-color="#992626"/>
+      <stop offset="100%" stop-color="#541212"/>
+    </linearGradient>
+
+    <linearGradient id="bookshelfWood" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#18110b"/>
+      <stop offset="50%" stop-color="#2a1d13"/>
+      <stop offset="100%" stop-color="#160f09"/>
+    </linearGradient>
+
+    <filter id="shadowLevy" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.85"/>
+    </filter>
+  </defs>
+
+  <!-- Background Wall & Atmosphere -->
+  <rect width="600" height="750" fill="url(#bgGradLevy)"/>
+  <rect width="600" height="750" fill="url(#glowLevy)"/>
+
+  <!-- Law Library Bookshelf Background Elements -->
+  <g opacity="0.4">
+    <!-- Bookshelf Pillars and Shelves -->
+    <rect x="25" y="40" width="70" height="520" fill="url(#bookshelfWood)" stroke="#3a2717" stroke-width="1"/>
+    <line x1="25" y1="150" x2="95" y2="150" stroke="#c59b63" stroke-width="1.5"/>
+    <line x1="25" y1="260" x2="95" y2="260" stroke="#c59b63" stroke-width="1.5"/>
+    <line x1="25" y1="370" x2="95" y2="370" stroke="#c59b63" stroke-width="1.5"/>
+    <line x1="25" y1="480" x2="95" y2="480" stroke="#c59b63" stroke-width="1.5"/>
+    <!-- Book Spines Left -->
+    <rect x="30" y="160" width="12" height="95" fill="#4d1a1a" rx="1"/>
+    <rect x="44" y="165" width="14" height="90" fill="#1c2938" rx="1"/>
+    <rect x="60" y="158" width="13" height="97" fill="#3b2b1a" rx="1"/>
+    <rect x="75" y="163" width="15" height="92" fill="#2d1f3b" rx="1"/>
+
+    <!-- Right Side Bookshelf -->
+    <rect x="505" y="40" width="70" height="520" fill="url(#bookshelfWood)" stroke="#3a2717" stroke-width="1"/>
+    <line x1="505" y1="150" x2="575" y2="150" stroke="#c59b63" stroke-width="1.5"/>
+    <line x1="505" y1="260" x2="575" y2="260" stroke="#c59b63" stroke-width="1.5"/>
+    <line x1="505" y1="370" x2="575" y2="370" stroke="#c59b63" stroke-width="1.5"/>
+    <line x1="505" y1="480" x2="575" y2="480" stroke="#c59b63" stroke-width="1.5"/>
+    <!-- Book Spines Right -->
+    <rect x="510" y="162" width="14" height="93" fill="#283a24" rx="1"/>
+    <rect x="526" y="158" width="12" height="97" fill="#422518" rx="1"/>
+    <rect x="540" y="166" width="15" height="89" fill="#1e2530" rx="1"/>
+    <rect x="557" y="160" width="13" height="95" fill="#451e2b" rx="1"/>
+
+    <!-- Soft Arch Contour -->
+    <path d="M 95 350 Q 300 80 505 350" fill="none" stroke="#c59b63" stroke-width="1" stroke-dasharray="6 4" opacity="0.5"/>
+  </g>
+
+  <!-- Legal Scales Emblem in Upper Crest -->
+  <g transform="translate(300, 68) scale(0.65)" filter="url(#shadowLevy)">
+    <circle cx="0" cy="0" r="28" fill="#171410" stroke="url(#goldPlate)" stroke-width="1.5"/>
+    <!-- Pillar & Crossbar -->
+    <line x1="0" y1="-16" x2="0" y2="18" stroke="url(#goldPlate)" stroke-width="2.5"/>
+    <line x1="-18" y1="-8" x2="18" y2="-8" stroke="url(#goldPlate)" stroke-width="2"/>
+    <circle cx="0" cy="-16" r="3" fill="url(#goldPlate)"/>
+    <!-- Left Pan -->
+    <line x1="-18" y1="-8" x2="-22" y2="4" stroke="url(#goldPlate)" stroke-width="1"/>
+    <line x1="-18" y1="-8" x2="-14" y2="4" stroke="url(#goldPlate)" stroke-width="1"/>
+    <path d="M -24 4 Q -18 8 -12 4 Z" fill="url(#goldPlate)"/>
+    <!-- Right Pan -->
+    <line x1="18" y1="-8" x2="14" y2="4" stroke="url(#goldPlate)" stroke-width="1"/>
+    <line x1="18" y1="-8" x2="22" y2="4" stroke="url(#goldPlate)" stroke-width="1"/>
+    <path d="M 12 4 Q 18 8 24 4 Z" fill="url(#goldPlate)"/>
+    <!-- Base -->
+    <line x1="-12" y1="18" x2="12" y2="18" stroke="url(#goldPlate)" stroke-width="2.5"/>
+  </g>
+
+  <!-- Portrait Silhouette & Attire - Atty. Levy John L.V. Lalusis -->
+  <g id="attyLevyBody" filter="url(#shadowLevy)">
+    <!-- Broad Executive Suit Shoulders -->
+    <path d="M 115 670 C 120 520 180 435 225 410 L 375 410 C 420 435 480 520 485 670 Z" fill="url(#suitCharcoalLevy)"/>
+
+    <!-- Crisp White Dress Shirt Collar -->
+    <path d="M 265 375 L 300 445 L 335 375 L 320 340 L 280 340 Z" fill="#f8f7f5"/>
+    <!-- Collar Leaves -->
+    <path d="M 270 345 L 298 400 L 290 405 L 260 365 Z" fill="#ffffff" stroke="#e0deda" stroke-width="0.75"/>
+    <path d="M 330 345 L 302 400 L 310 405 L 340 365 Z" fill="#f0eeea" stroke="#e0deda" stroke-width="0.75"/>
+
+    <!-- Rich Crimson / Burgundy Silk Tie -->
+    <path d="M 294 398 L 306 398 L 312 485 L 300 545 L 288 485 Z" fill="url(#tieLevy)"/>
+    <!-- Tie Knot -->
+    <polygon points="293,392 307,392 309,408 291,408" fill="#5c1313"/>
+    <!-- Gold Tie Clip -->
+    <line x1="292" y1="440" x2="310" y2="440" stroke="url(#goldPlate)" stroke-width="2"/>
+
+    <!-- Suit Lapels (Peak Lapel) -->
+    <!-- Left Lapel -->
+    <path d="M 225 410 L 262 490 L 295 565 L 290 670 L 205 670 C 175 600 135 550 115 670 Z" fill="url(#lapelLevy)"/>
+    <path d="M 225 410 L 255 460 L 240 465 L 295 565" fill="none" stroke="#38343b" stroke-width="1.5"/>
+    
+    <!-- Right Lapel -->
+    <path d="M 375 410 L 338 490 L 305 565 L 310 670 L 395 670 C 425 600 465 550 485 670 Z" fill="url(#lapelLevy)"/>
+    <path d="M 375 410 L 345 460 L 360 465 L 305 565" fill="none" stroke="#38343b" stroke-width="1.5"/>
+
+    <!-- Gold Lapel Pin (Scales / IBP Pin on Left Lapel) -->
+    <circle cx="250" cy="460" r="4.5" fill="url(#goldPlate)" stroke="#7d5d2b" stroke-width="0.75"/>
+    <circle cx="250" cy="460" r="2" fill="#ffffff"/>
+
+    <!-- White Pocket Square -->
+    <polygon points="380,485 412,480 405,472 388,477" fill="#ffffff" stroke="#d5d3ce" stroke-width="0.75"/>
+    <line x1="375" y1="486" x2="418" y2="482" stroke="#171518" stroke-width="2"/>
+
+    <!-- Neck & Jawline -->
+    <path d="M 276 330 L 276 375 C 285 390 315 390 324 375 L 324 330 Z" fill="url(#skinGradLevy)"/>
+    <path d="M 276 355 C 290 372 310 372 324 355" fill="none" stroke="#7e5732" stroke-width="1" opacity="0.4"/>
+
+    <!-- Head & Face Structure -->
+    <path d="M 242 225 C 240 295 258 340 300 340 C 342 340 360 295 358 225 C 356 160 340 145 300 145 C 260 145 244 160 242 225 Z" fill="url(#skinGradLevy)"/>
+
+    <!-- Clean Executive Haircut (Modern, Professional, Dark Brunette/Black) -->
+    <path d="M 240 220 C 238 175 255 130 300 128 C 340 128 360 160 362 205 C 362 215 356 220 354 205 C 350 170 338 145 302 145 C 270 145 250 170 246 222 Z" fill="#131011"/>
+    <!-- Top Hair Volume & Texture -->
+    <path d="M 245 185 C 248 145 272 130 305 130 C 338 130 358 145 360 180 C 350 152 332 140 300 142 C 268 144 252 162 245 185 Z" fill="#201a1c"/>
+    <path d="M 244 205 L 244 235 L 249 235 L 249 200 Z" fill="#131011"/> <!-- Left sideburn -->
+    <path d="M 356 205 L 356 235 L 351 235 L 351 200 Z" fill="#131011"/> <!-- Right sideburn -->
+
+    <!-- Ears -->
+    <path d="M 238 225 C 235 210 242 205 244 220 C 246 235 242 250 238 245 Z" fill="#b0845a"/>
+    <path d="M 362 225 C 365 210 358 205 356 220 C 354 235 358 250 362 245 Z" fill="#b0845a"/>
+
+    <!-- Eyebrows -->
+    <path d="M 258 212 Q 275 208 288 214" fill="none" stroke="#181517" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M 342 212 Q 325 208 312 214" fill="none" stroke="#181517" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Eyes (Refined, Confident Corporate Gaze) -->
+    <!-- Left Eye -->
+    <path d="M 262 224 Q 274 220 286 225 Q 274 230 262 224 Z" fill="#f8f7f5"/>
+    <circle cx="274" cy="225" r="3.2" fill="#241710"/>
+    <circle cx="275" cy="224" r="1" fill="#ffffff"/>
+    <path d="M 261 223 Q 274 218 287 223" fill="none" stroke="#2a1d13" stroke-width="1"/>
+
+    <!-- Right Eye -->
+    <path d="M 338 224 Q 326 220 314 225 Q 326 230 338 224 Z" fill="#f8f7f5"/>
+    <circle cx="326" cy="225" r="3.2" fill="#241710"/>
+    <circle cx="327" cy="224" r="1" fill="#ffffff"/>
+    <path d="M 339 223 Q 326 218 313 223" fill="none" stroke="#2a1d13" stroke-width="1"/>
+
+    <!-- Nose Bridge & Base -->
+    <path d="M 300 216 L 297 252 L 293 258 L 307 258 L 303 252 Z" fill="#a4774c" opacity="0.6"/>
+    <circle cx="295" cy="257" r="1.5" fill="#4d321c"/>
+    <circle cx="305" cy="257" r="1.5" fill="#4d321c"/>
+
+    <!-- Mouth & Confident Expression -->
+    <path d="M 284 285 Q 300 291 316 285" fill="none" stroke="#523223" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M 288 285 Q 300 298 312 285" fill="#884d3b" opacity="0.5"/>
+    <!-- Chin Definition -->
+    <path d="M 292 312 Q 300 316 308 312" fill="none" stroke="#875d38" stroke-width="1.5" opacity="0.6"/>
+  </g>
+
+  <!-- Brass Executive Nameplate Frame at Bottom -->
+  <g transform="translate(0, 630)">
+    <!-- Base Plate Bar -->
+    <rect x="30" y="0" width="540" height="96" fill="#100e0c" stroke="#33271b" stroke-width="1.5" rx="4"/>
+    <rect x="36" y="6" width="528" height="84" fill="#181410" stroke="url(#goldPlate)" stroke-width="1" rx="3"/>
+
+    <!-- Inner Plate Accent -->
+    <line x1="50" y1="12" x2="550" y2="12" stroke="url(#goldPlate)" stroke-width="0.75" opacity="0.6"/>
+    <line x1="50" y1="84" x2="550" y2="84" stroke="url(#goldPlate)" stroke-width="0.75" opacity="0.6"/>
+
+    <!-- Corner Screws -->
+    <circle cx="48" cy="18" r="2.5" fill="url(#goldPlate)"/>
+    <circle cx="552" cy="18" r="2.5" fill="url(#goldPlate)"/>
+    <circle cx="48" cy="78" r="2.5" fill="url(#goldPlate)"/>
+    <circle cx="552" cy="78" r="2.5" fill="url(#goldPlate)"/>
+
+    <!-- Attorney Name -->
+    <text x="300" y="40" font-family="'Cinzel', 'Playfair Display', Georgia, serif" font-size="19" font-weight="700" fill="url(#goldPlate)" text-anchor="middle" letter-spacing="2">
+      ATTY. LEVY JOHN L.V. LALUSIS
+    </text>
+
+    <!-- Subtitle / Title -->
+    <text x="300" y="60" font-family="'Cinzel', 'Trajan Pro', serif" font-size="10" font-weight="600" fill="#dfc08b" text-anchor="middle" letter-spacing="3">
+      FOUNDING PARTNER
+    </text>
+
+    <!-- Specialization -->
+    <text x="300" y="76" font-family="system-ui, -apple-system, sans-serif" font-size="9.5" fill="#a89e92" text-anchor="middle" letter-spacing="1">
+      Corporate Compliance · Tax &amp; Estate · Real Estate · DPO
+    </text>
+  </g>
+
+  <!-- Outer Executive Fine Frame -->
+  <rect x="8" y="8" width="584" height="734" fill="none" stroke="url(#goldPlate)" stroke-width="1.5" opacity="0.85"/>
+  <rect x="14" y="14" width="572" height="722" fill="none" stroke="#4a3622" stroke-width="0.75" opacity="0.7"/>
+
+  <!-- Ornate Corner Accents -->
+  <g fill="none" stroke="url(#goldPlate)" stroke-width="1.5">
+    <path d="M 12 36 L 36 12"/>
+    <path d="M 588 36 L 564 12"/>
+    <path d="M 12 714 L 36 738"/>
+    <path d="M 588 714 L 564 738"/>
+  </g>
+</svg>

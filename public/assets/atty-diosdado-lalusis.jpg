@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGradDiosdado" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14161b"/>
+      <stop offset="50%" stop-color="#191c24"/>
+      <stop offset="100%" stop-color="#0b0d12"/>
+    </linearGradient>
+
+    <radialGradient id="glowDiosdado" cx="50%" cy="32%" r="44%">
+      <stop offset="0%" stop-color="#c59b63" stop-opacity="0.30"/>
+      <stop offset="55%" stop-color="#8a6d3b" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="goldPlateD" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef5d8"/>
+      <stop offset="35%" stop-color="#dfba76"/>
+      <stop offset="70%" stop-color="#ab8240"/>
+      <stop offset="100%" stop-color="#e8c992"/>
+    </linearGradient>
+
+    <linearGradient id="suitNavyDiosdado" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#222b3d"/>
+      <stop offset="45%" stop-color="#171e2c"/>
+      <stop offset="100%" stop-color="#0d111a"/>
+    </linearGradient>
+
+    <linearGradient id="lapelDiosdado" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b2333"/>
+      <stop offset="100%" stop-color="#0b0f17"/>
+    </linearGradient>
+
+    <linearGradient id="skinGradDiosdado" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#d1a782"/>
+      <stop offset="45%" stop-color="#bd9168"/>
+      <stop offset="100%" stop-color="#9e744e"/>
+    </linearGradient>
+
+    <linearGradient id="tieDiosdado" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3454"/>
+      <stop offset="50%" stop-color="#2a4975"/>
+      <stop offset="100%" stop-color="#132238"/>
+    </linearGradient>
+
+    <linearGradient id="woodPanels" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1b140d"/>
+      <stop offset="50%" stop-color="#2b1f14"/>
+      <stop offset="100%" stop-color="#17100a"/>
+    </linearGradient>
+
+    <filter id="shadowDiosdado" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.85"/>
+    </filter>
+  </defs>
+
+  <!-- Background Wall & Atmosphere -->
+  <rect width="600" height="750" fill="url(#bgGradDiosdado)"/>
+  <rect width="600" height="750" fill="url(#glowDiosdado)"/>
+
+  <!-- Judicial Chamber Columns & Law Repository in Background -->
+  <g opacity="0.45">
+    <!-- Fluted Columns flanking the portrait -->
+    <rect x="20" y="35" width="65" height="535" fill="url(#woodPanels)" stroke="#3e2d1c" stroke-width="1"/>
+    <line x1="32" y1="45" x2="32" y2="570" stroke="#5c442c" stroke-width="1.5"/>
+    <line x1="45" y1="45" x2="45" y2="570" stroke="#5c442c" stroke-width="1.5"/>
+    <line x1="58" y1="45" x2="58" y2="570" stroke="#5c442c" stroke-width="1.5"/>
+    <line x1="72" y1="45" x2="72" y2="570" stroke="#5c442c" stroke-width="1.5"/>
+
+    <rect x="515" y="35" width="65" height="535" fill="url(#woodPanels)" stroke="#3e2d1c" stroke-width="1"/>
+    <line x1="527" y1="45" x2="527" y2="570" stroke="#5c442c" stroke-width="1.5"/>
+    <line x1="540" y1="45" x2="540" y2="570" stroke="#5c442c" stroke-width="1.5"/>
+    <line x1="553" y1="45" x2="553" y2="570" stroke="#5c442c" stroke-width="1.5"/>
+    <line x1="566" y1="45" x2="566" y2="570" stroke="#5c442c" stroke-width="1.5"/>
+
+    <!-- Classical Archway Curve -->
+    <path d="M 85 360 Q 300 60 515 360" fill="none" stroke="#c59b63" stroke-width="1.2" stroke-dasharray="7 5"/>
+    <path d="M 95 365 Q 300 75 505 365" fill="none" stroke="#8a6d3b" stroke-width="0.8"/>
+  </g>
+
+  <!-- 40-Year Legal Excellence Laurel Crest -->
+  <g transform="translate(300, 68) scale(0.68)" filter="url(#shadowDiosdado)">
+    <circle cx="0" cy="0" r="32" fill="#111317" stroke="url(#goldPlateD)" stroke-width="1.5"/>
+    <!-- Laurel Wreath -->
+    <path d="M -22 14 C -30 -2 -24 -18 -8 -25 C -15 -14 -16 2 -12 12 Z" fill="url(#goldPlateD)" opacity="0.85"/>
+    <path d="M 22 14 C 30 -2 24 -18 8 -25 C 15 -14 16 2 12 12 Z" fill="url(#goldPlateD)" opacity="0.85"/>
+    <!-- Scales & Gavel Symbol -->
+    <line x1="0" y1="-14" x2="0" y2="16" stroke="url(#goldPlateD)" stroke-width="2.5"/>
+    <line x1="-16" y1="-7" x2="16" y2="-7" stroke="url(#goldPlateD)" stroke-width="2"/>
+    <circle cx="0" cy="-14" r="3" fill="url(#goldPlateD)"/>
+    <line x1="-9" y1="16" x2="9" y2="16" stroke="url(#goldPlateD)" stroke-width="2.5"/>
+  </g>
+
+  <!-- Portrait Silhouette & Attire - Senior Partner Atty. Diosdado Anselmo Q. Lalusis -->
+  <g id="attyDiosdadoBody" filter="url(#shadowDiosdado)">
+    <!-- Broad Dignified Executive Shoulders -->
+    <path d="M 105 670 C 112 510 175 425 220 405 L 380 405 C 425 425 488 510 495 670 Z" fill="url(#suitNavyDiosdado)"/>
+
+    <!-- Crisp White Shirt Collar -->
+    <path d="M 260 375 L 300 445 L 340 375 L 325 340 L 275 340 Z" fill="#f8f7f5"/>
+    <!-- Collar Leaves -->
+    <path d="M 268 345 L 298 402 L 290 407 L 258 365 Z" fill="#ffffff" stroke="#dedcd6" stroke-width="0.75"/>
+    <path d="M 332 345 L 302 402 L 310 407 L 342 365 Z" fill="#eeebe5" stroke="#dedcd6" stroke-width="0.75"/>
+
+    <!-- Regal Midnight Navy Silk Tie with Subtle Gold Dots -->
+    <path d="M 293 400 L 307 400 L 314 490 L 300 550 L 286 490 Z" fill="url(#tieDiosdado)"/>
+    <polygon points="292,393 308,393 310,410 290,410" fill="#142136"/>
+    <!-- Gold Tie Bar -->
+    <line x1="290" y1="442" x2="310" y2="442" stroke="url(#goldPlateD)" stroke-width="2"/>
+
+    <!-- Suit Lapels (Classic Notched Executive Cut) -->
+    <!-- Left Lapel -->
+    <path d="M 220 405 L 260 490 L 295 570 L 288 670 L 195 670 C 165 595 125 545 105 670 Z" fill="url(#lapelDiosdado)"/>
+    <path d="M 220 405 L 252 455 L 238 460 L 295 570" fill="none" stroke="#2d374a" stroke-width="1.5"/>
+
+    <!-- Right Lapel -->
+    <path d="M 380 405 L 340 490 L 305 570 L 312 670 L 405 670 C 435 595 475 545 495 670 Z" fill="url(#lapelDiosdado)"/>
+    <path d="M 380 405 L 348 455 L 362 460 L 305 570" fill="none" stroke="#2d374a" stroke-width="1.5"/>
+
+    <!-- Distinguished PRC / Senior Gold Lapel Pin on Left Lapel -->
+    <circle cx="245" cy="455" r="5" fill="url(#goldPlateD)" stroke="#6d5124" stroke-width="0.75"/>
+    <polygon points="245,451 247,454 250,455 248,457 248,460 245,458 242,460 242,457 240,455 243,454" fill="#1a1c22"/>
+
+    <!-- White Linen Pocket Square -->
+    <polygon points="385,482 418,477 410,470 392,474" fill="#ffffff" stroke="#cfccc5" stroke-width="0.75"/>
+    <line x1="380" y1="483" x2="422" y2="479" stroke="#121620" stroke-width="2"/>
+
+    <!-- Neck & Mature Defined Jaw -->
+    <path d="M 272 328 L 272 375 C 282 392 318 392 328 375 L 328 328 Z" fill="url(#skinGradDiosdado)"/>
+    <path d="M 275 358 C 290 375 310 375 325 358" fill="none" stroke="#775130" stroke-width="1" opacity="0.45"/>
+
+    <!-- Head & Face Structure -->
+    <path d="M 238 220 C 235 295 255 342 300 342 C 345 342 365 295 362 220 C 360 155 342 140 300 140 C 258 140 240 155 238 220 Z" fill="url(#skinGradDiosdado)"/>
+
+    <!-- Distinguished Silver-Gray Hair (Full, Dignified Statesman Wave) -->
+    <path d="M 236 215 C 234 165 252 124 300 122 C 344 122 366 155 366 200 C 366 212 360 216 358 200 C 354 162 340 138 300 138 C 265 138 246 162 242 218 Z" fill="#989ca6"/>
+    <!-- Top Silver Highlights & Volume -->
+    <path d="M 240 180 C 244 140 270 125 304 125 C 338 125 362 140 364 175 C 354 148 335 135 302 136 C 266 138 248 156 240 180 Z" fill="#cfd3dc"/>
+    <path d="M 240 200 L 240 238 L 246 238 L 246 195 Z" fill="#888c96"/> <!-- Silver sideburn left -->
+    <path d="M 360 200 L 360 238 L 354 238 L 354 195 Z" fill="#888c96"/> <!-- Silver sideburn right -->
+
+    <!-- Ears -->
+    <path d="M 234 225 C 230 208 238 202 241 218 C 243 234 238 252 234 246 Z" fill="#b3865c"/>
+    <path d="M 366 225 C 370 208 362 202 359 218 C 357 234 362 252 366 246 Z" fill="#b3865c"/>
+
+    <!-- Eyebrows (Distinguished Salt & Pepper) -->
+    <path d="M 256 210 Q 274 205 288 211" fill="none" stroke="#636670" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M 344 210 Q 326 205 312 211" fill="none" stroke="#636670" stroke-width="2.8" stroke-linecap="round"/>
+
+    <!-- Sophisticated Executive Wire-Rimmed Glasses (Gold Trim) -->
+    <!-- Left Lens -->
+    <rect x="256" y="217" width="34" height="23" rx="5" fill="#fdfbfa" fill-opacity="0.25" stroke="url(#goldPlateD)" stroke-width="1.8"/>
+    <!-- Right Lens -->
+    <rect x="310" y="217" width="34" height="23" rx="5" fill="#fdfbfa" fill-opacity="0.25" stroke="url(#goldPlateD)" stroke-width="1.8"/>
+    <!-- Bridge -->
+    <path d="M 290 226 Q 300 223 310 226" fill="none" stroke="url(#goldPlateD)" stroke-width="1.8"/>
+    <!-- Temples -->
+    <line x1="256" y1="223" x2="240" y2="221" stroke="url(#goldPlateD)" stroke-width="1.5"/>
+    <line x1="344" y1="223" x2="360" y2="221" stroke="url(#goldPlateD)" stroke-width="1.5"/>
+
+    <!-- Eyes (Wise, Experienced, Authoritative Senior Partner) -->
+    <circle cx="273" cy="228" r="3.2" fill="#241a12"/>
+    <circle cx="274" cy="227" r="1" fill="#ffffff"/>
+    <circle cx="327" cy="228" r="3.2" fill="#241a12"/>
+    <circle cx="328" cy="227" r="1" fill="#ffffff"/>
+
+    <!-- Wisdom Character Lines (Subtle, Distinguished) -->
+    <path d="M 252 225 Q 248 228 252 232" fill="none" stroke="#8d623e" stroke-width="1" opacity="0.6"/>
+    <path d="M 348 225 Q 352 228 348 232" fill="none" stroke="#8d623e" stroke-width="1" opacity="0.6"/>
+    <path d="M 270 200 Q 300 198 330 200" fill="none" stroke="#8d623e" stroke-width="0.8" opacity="0.5"/>
+
+    <!-- Nose Bridge & Structure -->
+    <path d="M 300 220 L 297 254 L 292 260 L 308 260 L 303 254 Z" fill="#9e6e44" opacity="0.55"/>
+    <circle cx="295" cy="259" r="1.6" fill="#472b15"/>
+    <circle cx="305" cy="259" r="1.6" fill="#472b15"/>
+
+    <!-- Expression / Mouth (Dignified Warmth and Gravitas) -->
+    <path d="M 282 288 Q 300 293 318 288" fill="none" stroke="#4a2a1b" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 286 288 Q 300 298 314 288" fill="#753e2e" opacity="0.45"/>
+    <!-- Chin & Jaw Definition -->
+    <path d="M 290 315 Q 300 319 310 315" fill="none" stroke="#7e5330" stroke-width="1.5" opacity="0.65"/>
+  </g>
+
+  <!-- Brass Executive Nameplate Frame at Bottom -->
+  <g transform="translate(0, 630)">
+    <rect x="30" y="0" width="540" height="96" fill="#0d0f14" stroke="#252c3b" stroke-width="1.5" rx="4"/>
+    <rect x="36" y="6" width="528" height="84" fill="#131720" stroke="url(#goldPlateD)" stroke-width="1" rx="3"/>
+
+    <line x1="50" y1="12" x2="550" y2="12" stroke="url(#goldPlateD)" stroke-width="0.75" opacity="0.6"/>
+    <line x1="50" y1="84" x2="550" y2="84" stroke="url(#goldPlateD)" stroke-width="0.75" opacity="0.6"/>
+
+    <circle cx="48" cy="18" r="2.5" fill="url(#goldPlateD)"/>
+    <circle cx="552" cy="18" r="2.5" fill="url(#goldPlateD)"/>
+    <circle cx="48" cy="78" r="2.5" fill="url(#goldPlateD)"/>
+    <circle cx="552" cy="78" r="2.5" fill="url(#goldPlateD)"/>
+
+    <text x="300" y="40" font-family="'Cinzel', 'Playfair Display', Georgia, serif" font-size="19" font-weight="700" fill="url(#goldPlateD)" text-anchor="middle" letter-spacing="2">
+      ATTY. DIOSDADO ANSELMO Q. LALUSIS
+    </text>
+
+    <text x="300" y="60" font-family="'Cinzel', 'Trajan Pro', serif" font-size="10" font-weight="600" fill="#dfc08b" text-anchor="middle" letter-spacing="3">
+      SENIOR PARTNER · SENIOR ADVISORY COUNSEL
+    </text>
+
+    <text x="300" y="76" font-family="system-ui, -apple-system, sans-serif" font-size="9.5" fill="#98a3b8" text-anchor="middle" letter-spacing="1">
+      40 Years Experience (1986 Bar) · Former Head PRC Legal Division · Former Dean PCCR
+    </text>
+  </g>
+
+  <!-- Outer Executive Fine Frame -->
+  <rect x="8" y="8" width="584" height="734" fill="none" stroke="url(#goldPlateD)" stroke-width="1.5" opacity="0.85"/>
+  <rect x="14" y="14" width="572" height="722" fill="none" stroke="#324058" stroke-width="0.75" opacity="0.7"/>
+
+  <!-- Ornate Corner Accents -->
+  <g fill="none" stroke="url(#goldPlateD)" stroke-width="1.5">
+    <path d="M 12 36 L 36 12"/>
+    <path d="M 588 36 L 564 12"/>
+    <path d="M 12 714 L 36 738"/>
+    <path d="M 588 714 L 564 738"/>
+  </g>
+</svg>

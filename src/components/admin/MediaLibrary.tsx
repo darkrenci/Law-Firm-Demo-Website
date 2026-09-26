@@ -104,6 +104,20 @@ export const MediaLibrary: React.FC = () => {
               <img
                 src={item.url}
                 alt={item.altText}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (item.url.includes('group')) {
+                    target.src = '/assets/group-picture.svg';
+                  } else if (item.url.includes('levy')) {
+                    target.src = '/assets/atty-levy-lalusis.svg';
+                  } else if (item.url.includes('diosdado')) {
+                    target.src = '/assets/atty-diosdado-lalusis.svg';
+                  } else if (item.url.includes('leo')) {
+                    target.src = '/assets/atty-leo-lalusis.svg';
+                  } else {
+                    target.src = '/assets/attorney-placeholder.svg';
+                  }
+                }}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 referrerPolicy="no-referrer"
               />

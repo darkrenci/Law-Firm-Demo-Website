@@ -30,6 +30,14 @@ import {
 import { useToast } from '../ui/Toast';
 import { resolveItemTypography } from '../admin/ItemTypographyControls';
 
+const getPartnerOfficialPortrait = (fullName?: string, slug?: string, id?: string) => {
+  const s = `${fullName || ''} ${slug || ''} ${id || ''}`.toLowerCase();
+  if (s.includes('levy')) return '/assets/atty-levy-lalusis.svg';
+  if (s.includes('diosdado')) return '/assets/atty-diosdado-lalusis.svg';
+  if (s.includes('leo')) return '/assets/atty-leo-lalusis.svg';
+  return '/assets/attorney-placeholder.svg';
+};
+
 const getEmbedVideoUrl = (url: string) => {
   if (!url) return '';
   if (url.includes('youtube.com/watch?v=')) {
@@ -2159,11 +2167,14 @@ const RenderSectionItem: React.FC<{
                       {/* Portrait Frame with Executive Brass Accent */}
                       <div className="aspect-[4/5] sm:h-80 overflow-hidden relative bg-[#0a0a0e]">
                         <img
-                          src={atty.portraitUrl}
+                          src={atty.portraitUrl || getPartnerOfficialPortrait(atty.fullName, atty.slug, atty.id)}
                           alt={atty.fullName}
                           onError={(e) => {
                             const target = e.currentTarget;
-                            if (!target.src.includes('attorney-placeholder.svg')) {
+                            const fallback = getPartnerOfficialPortrait(atty.fullName, atty.slug, atty.id);
+                            if (!target.src.endsWith(fallback)) {
+                              target.src = fallback;
+                            } else if (!target.src.includes('attorney-placeholder.svg')) {
                               target.src = '/assets/attorney-placeholder.svg';
                             }
                           }}
@@ -2309,11 +2320,14 @@ const RenderSectionItem: React.FC<{
                     <div className="md:col-span-4 space-y-4">
                       <div className="border border-[#c59b63]/50 p-1.5 bg-[#14141c] shadow-lg">
                         <img
-                          src={selectedPartnerModal.portraitUrl}
+                          src={selectedPartnerModal.portraitUrl || getPartnerOfficialPortrait(selectedPartnerModal.fullName, selectedPartnerModal.slug, selectedPartnerModal.id)}
                           alt={selectedPartnerModal.fullName}
                           onError={(e) => {
                             const target = e.currentTarget;
-                            if (!target.src.includes('attorney-placeholder.svg')) {
+                            const fallback = getPartnerOfficialPortrait(selectedPartnerModal.fullName, selectedPartnerModal.slug, selectedPartnerModal.id);
+                            if (!target.src.endsWith(fallback)) {
+                              target.src = fallback;
+                            } else if (!target.src.includes('attorney-placeholder.svg')) {
                               target.src = '/assets/attorney-placeholder.svg';
                             }
                           }}

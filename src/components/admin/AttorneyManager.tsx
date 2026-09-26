@@ -390,7 +390,7 @@ const AttorneyEditModal: React.FC<{
             { key: 'desc', label: 'Professional Title / Rank', defaultFamily: 'cinzel', defaultSize: 'xs', defaultColor: 'gold' },
             { key: 'body', label: 'Biography / Profile Text', defaultFamily: 'sans', defaultSize: 'xs', defaultColor: 'muted' },
           ]}
-          previewTitle={form.fullName || 'Atty. Gabriel M. Lalusis'}
+          previewTitle={form.fullName || 'Atty. Levy John L.V. Lalusis'}
           previewDesc={form.biography || `${form.professionalTitle || 'Senior Partner'} · ${form.primarySpecialization || 'Corporate Practice'}`}
         />
 

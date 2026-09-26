@@ -1,0 +1,210 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGradLeo" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#151318"/>
+      <stop offset="50%" stop-color="#1c1822"/>
+      <stop offset="100%" stop-color="#0c0b0e"/>
+    </linearGradient>
+
+    <radialGradient id="glowLeo" cx="50%" cy="32%" r="44%">
+      <stop offset="0%" stop-color="#c59b63" stop-opacity="0.28"/>
+      <stop offset="55%" stop-color="#8a6d3b" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="goldPlateL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef5d8"/>
+      <stop offset="35%" stop-color="#dfba76"/>
+      <stop offset="70%" stop-color="#ab8240"/>
+      <stop offset="100%" stop-color="#e8c992"/>
+    </linearGradient>
+
+    <linearGradient id="suitBlackLeo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2a282f"/>
+      <stop offset="45%" stop-color="#1b1a1f"/>
+      <stop offset="100%" stop-color="#100f14"/>
+    </linearGradient>
+
+    <linearGradient id="lapelLeo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#211f26"/>
+      <stop offset="100%" stop-color="#0e0d11"/>
+    </linearGradient>
+
+    <linearGradient id="skinGradLeo" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#cba179"/>
+      <stop offset="40%" stop-color="#b88c61"/>
+      <stop offset="100%" stop-color="#9a7148"/>
+    </linearGradient>
+
+    <linearGradient id="tieSilverLeo" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4a4d55"/>
+      <stop offset="40%" stop-color="#696e79"/>
+      <stop offset="70%" stop-color="#3b3e45"/>
+      <stop offset="100%" stop-color="#25272c"/>
+    </linearGradient>
+
+    <linearGradient id="darkWoodPanels" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#171216"/>
+      <stop offset="50%" stop-color="#281c26"/>
+      <stop offset="100%" stop-color="#150f14"/>
+    </linearGradient>
+
+    <filter id="shadowLeo" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.85"/>
+    </filter>
+  </defs>
+
+  <!-- Background Wall & Atmosphere -->
+  <rect width="600" height="750" fill="url(#bgGradLeo)"/>
+  <rect width="600" height="750" fill="url(#glowLeo)"/>
+
+  <!-- Senate & Courtroom Architecture Backdrop -->
+  <g opacity="0.4">
+    <!-- Tall Classical Pilasters -->
+    <rect x="25" y="40" width="65" height="530" fill="url(#darkWoodPanels)" stroke="#392636" stroke-width="1"/>
+    <line x1="38" y1="50" x2="38" y2="570" stroke="#5a3d54" stroke-width="1.5"/>
+    <line x1="51" y1="50" x2="51" y2="570" stroke="#5a3d54" stroke-width="1.5"/>
+    <line x1="64" y1="50" x2="64" y2="570" stroke="#5a3d54" stroke-width="1.5"/>
+    <line x1="77" y1="50" x2="77" y2="570" stroke="#5a3d54" stroke-width="1.5"/>
+
+    <rect x="510" y="40" width="65" height="530" fill="url(#darkWoodPanels)" stroke="#392636" stroke-width="1"/>
+    <line x1="523" y1="50" x2="523" y2="570" stroke="#5a3d54" stroke-width="1.5"/>
+    <line x1="536" y1="50" x2="536" y2="570" stroke="#5a3d54" stroke-width="1.5"/>
+    <line x1="549" y1="50" x2="549" y2="570" stroke="#5a3d54" stroke-width="1.5"/>
+    <line x1="562" y1="50" x2="562" y2="570" stroke="#5a3d54" stroke-width="1.5"/>
+
+    <!-- Geometric Legal Chamber Archway -->
+    <path d="M 90 355 Q 300 70 510 355" fill="none" stroke="#c59b63" stroke-width="1.2" stroke-dasharray="7 5"/>
+    <path d="M 100 360 Q 300 85 500 360" fill="none" stroke="#8a6d3b" stroke-width="0.8"/>
+  </g>
+
+  <!-- High-Profile Litigation & Trial Shield Crest in Upper Center -->
+  <g transform="translate(300, 68) scale(0.68)" filter="url(#shadowLeo)">
+    <circle cx="0" cy="0" r="30" fill="#141117" stroke="url(#goldPlateL)" stroke-width="1.5"/>
+    <!-- Heraldic Shield -->
+    <path d="M -16 -12 L 16 -12 L 16 2 C 16 14 0 22 0 22 C 0 22 -16 14 -16 2 Z" fill="#1e1824" stroke="url(#goldPlateL)" stroke-width="1.5"/>
+    <!-- Scales inside Shield -->
+    <line x1="0" y1="-8" x2="0" y2="10" stroke="url(#goldPlateL)" stroke-width="1.8"/>
+    <line x1="-10" y1="-3" x2="10" y2="-3" stroke="url(#goldPlateL)" stroke-width="1.5"/>
+    <path d="M -13 4 Q -10 6 -7 4 Z" fill="url(#goldPlateL)"/>
+    <path d="M 7 4 Q 10 6 13 4 Z" fill="url(#goldPlateL)"/>
+    <circle cx="0" cy="-8" r="2" fill="url(#goldPlateL)"/>
+  </g>
+
+  <!-- Portrait Silhouette & Attire - Atty. Leo Anselmo L.V. Lalusis -->
+  <g id="attyLeoBody" filter="url(#shadowLeo)">
+    <!-- Broad Sharp Litigation Shoulders -->
+    <path d="M 115 670 C 120 520 180 435 225 410 L 375 410 C 420 435 480 520 485 670 Z" fill="url(#suitBlackLeo)"/>
+
+    <!-- Crisp White Shirt Collar -->
+    <path d="M 265 375 L 300 445 L 335 375 L 320 340 L 280 340 Z" fill="#f8f7f5"/>
+    <!-- Collar Leaves -->
+    <path d="M 270 345 L 298 400 L 290 405 L 260 365 Z" fill="#ffffff" stroke="#dedcd6" stroke-width="0.75"/>
+    <path d="M 330 345 L 302 400 L 310 405 L 340 365 Z" fill="#eeebe5" stroke="#dedcd6" stroke-width="0.75"/>
+
+    <!-- Executive Charcoal & Silver Silk Tie -->
+    <path d="M 294 398 L 306 398 L 312 485 L 300 545 L 288 485 Z" fill="url(#tieSilverLeo)"/>
+    <polygon points="293,392 307,392 309,408 291,408" fill="#282a30"/>
+    <!-- Gold Tie Bar -->
+    <line x1="292" y1="440" x2="310" y2="440" stroke="url(#goldPlateL)" stroke-width="2"/>
+
+    <!-- Suit Lapels (Modern Slim Peak Lapel) -->
+    <!-- Left Lapel -->
+    <path d="M 225 410 L 262 490 L 295 565 L 290 670 L 205 670 C 175 600 135 550 115 670 Z" fill="url(#lapelLeo)"/>
+    <path d="M 225 410 L 255 460 L 240 465 L 295 565" fill="none" stroke="#35323a" stroke-width="1.5"/>
+
+    <!-- Right Lapel -->
+    <path d="M 375 410 L 338 490 L 305 565 L 310 670 L 395 670 C 425 600 465 550 485 670 Z" fill="url(#lapelLeo)"/>
+    <path d="M 375 410 L 345 460 L 360 465 L 305 565" fill="none" stroke="#35323a" stroke-width="1.5"/>
+
+    <!-- Gold NBI Commendation / Bar Pin on Left Lapel -->
+    <circle cx="250" cy="460" r="4.5" fill="url(#goldPlateL)" stroke="#6d5427" stroke-width="0.75"/>
+    <circle cx="250" cy="460" r="2" fill="#ffffff"/>
+
+    <!-- White Linen Pocket Square -->
+    <polygon points="380,485 412,480 405,472 388,477" fill="#ffffff" stroke="#dedcd6" stroke-width="0.75"/>
+    <line x1="375" y1="486" x2="418" y2="482" stroke="#131215" stroke-width="2"/>
+
+    <!-- Neck & Strong Jawline -->
+    <path d="M 276 330 L 276 375 C 285 390 315 390 324 375 L 324 330 Z" fill="url(#skinGradLeo)"/>
+    <path d="M 276 355 C 290 372 310 372 324 355" fill="none" stroke="#7e5732" stroke-width="1" opacity="0.4"/>
+
+    <!-- Head & Strong Facial Features -->
+    <path d="M 242 225 C 240 295 258 340 300 340 C 342 340 360 295 358 225 C 356 160 340 145 300 145 C 260 145 244 160 242 225 Z" fill="url(#skinGradLeo)"/>
+
+    <!-- Sharp Modern Haircut (Dark Black, Tapered, Pompadour-inspired Executive Part) -->
+    <path d="M 240 220 C 238 170 255 128 300 125 C 342 125 362 155 364 205 C 364 216 358 220 356 205 C 352 165 338 140 302 140 C 268 140 248 165 244 220 Z" fill="#100e12"/>
+    <!-- Top Hair Volume -->
+    <path d="M 244 180 C 248 138 274 124 305 124 C 338 124 360 140 362 175 C 352 148 334 135 300 137 C 266 139 250 158 244 180 Z" fill="#1c1920"/>
+    <path d="M 244 205 L 244 235 L 249 235 L 249 200 Z" fill="#100e12"/> <!-- Left sideburn -->
+    <path d="M 356 205 L 356 235 L 351 235 L 351 200 Z" fill="#100e12"/> <!-- Right sideburn -->
+
+    <!-- Ears -->
+    <path d="M 238 225 C 235 210 242 205 244 220 C 246 235 242 250 238 245 Z" fill="#b0845a"/>
+    <path d="M 362 225 C 365 210 358 205 356 220 C 354 235 358 250 362 245 Z" fill="#b0845a"/>
+
+    <!-- Strong Eyebrows -->
+    <path d="M 258 212 Q 275 207 288 213" fill="none" stroke="#131114" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M 342 212 Q 325 207 312 213" fill="none" stroke="#131114" stroke-width="2.6" stroke-linecap="round"/>
+
+    <!-- Eyes (Determined, Keen Litigator's Focus) -->
+    <path d="M 262 224 Q 274 219 286 225 Q 274 231 262 224 Z" fill="#f8f7f5"/>
+    <circle cx="274" cy="225" r="3.2" fill="#1c1613"/>
+    <circle cx="275" cy="224" r="1" fill="#ffffff"/>
+    <path d="M 261 223 Q 274 217 287 223" fill="none" stroke="#251a13" stroke-width="1.2"/>
+
+    <path d="M 338 224 Q 326 219 314 225 Q 326 231 338 224 Z" fill="#f8f7f5"/>
+    <circle cx="326" cy="225" r="3.2" fill="#1c1613"/>
+    <circle cx="327" cy="224" r="1" fill="#ffffff"/>
+    <path d="M 339 223 Q 326 217 313 223" fill="none" stroke="#251a13" stroke-width="1.2"/>
+
+    <!-- Nose Bridge & Base -->
+    <path d="M 300 216 L 297 252 L 293 258 L 307 258 L 303 252 Z" fill="#a4774c" opacity="0.6"/>
+    <circle cx="295" cy="257" r="1.5" fill="#4d321c"/>
+    <circle cx="305" cy="257" r="1.5" fill="#4d321c"/>
+
+    <!-- Mouth & Firm Composed Demeanor -->
+    <path d="M 284 285 Q 300 290 316 285" fill="none" stroke="#503022" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M 288 285 Q 300 297 312 285" fill="#844a39" opacity="0.45"/>
+    <path d="M 292 312 Q 300 316 308 312" fill="none" stroke="#875d38" stroke-width="1.5" opacity="0.6"/>
+  </g>
+
+  <!-- Brass Executive Nameplate Frame at Bottom -->
+  <g transform="translate(0, 630)">
+    <rect x="30" y="0" width="540" height="96" fill="#100e12" stroke="#2c2433" stroke-width="1.5" rx="4"/>
+    <rect x="36" y="6" width="528" height="84" fill="#16131a" stroke="url(#goldPlateL)" stroke-width="1" rx="3"/>
+
+    <line x1="50" y1="12" x2="550" y2="12" stroke="url(#goldPlateL)" stroke-width="0.75" opacity="0.6"/>
+    <line x1="50" y1="84" x2="550" y2="84" stroke="url(#goldPlateL)" stroke-width="0.75" opacity="0.6"/>
+
+    <circle cx="48" cy="18" r="2.5" fill="url(#goldPlateL)"/>
+    <circle cx="552" cy="18" r="2.5" fill="url(#goldPlateL)"/>
+    <circle cx="48" cy="78" r="2.5" fill="url(#goldPlateL)"/>
+    <circle cx="552" cy="78" r="2.5" fill="url(#goldPlateL)"/>
+
+    <text x="300" y="40" font-family="'Cinzel', 'Playfair Display', Georgia, serif" font-size="19" font-weight="700" fill="url(#goldPlateL)" text-anchor="middle" letter-spacing="2">
+      ATTY. LEO ANSELMO L.V. LALUSIS
+    </text>
+
+    <text x="300" y="60" font-family="'Cinzel', 'Trajan Pro', serif" font-size="10" font-weight="600" fill="#dfc08b" text-anchor="middle" letter-spacing="3">
+      FOUNDING PARTNER
+    </text>
+
+    <text x="300" y="76" font-family="system-ui, -apple-system, sans-serif" font-size="9.5" fill="#a49da9" text-anchor="middle" letter-spacing="1">
+      High-Profile Litigation · Criminal Defense · Former NBI Legal Officer · LL.M.
+    </text>
+  </g>
+
+  <!-- Outer Executive Fine Frame -->
+  <rect x="8" y="8" width="584" height="734" fill="none" stroke="url(#goldPlateL)" stroke-width="1.5" opacity="0.85"/>
+  <rect x="14" y="14" width="572" height="722" fill="none" stroke="#483648" stroke-width="0.75" opacity="0.7"/>
+
+  <!-- Ornate Corner Accents -->
+  <g fill="none" stroke="url(#goldPlateL)" stroke-width="1.5">
+    <path d="M 12 36 L 36 12"/>
+    <path d="M 588 36 L 564 12"/>
+    <path d="M 12 714 L 36 738"/>
+    <path d="M 588 714 L 564 738"/>
+  </g>
+</svg>
