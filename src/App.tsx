@@ -34,6 +34,7 @@ import { MediaLibrary } from './components/admin/MediaLibrary';
 import { SettingsManager } from './components/admin/SettingsManager';
 import { AuditLogs } from './components/admin/AuditLogs';
 import { AdminLogin } from './components/admin/AdminLogin';
+import { supabase, isSupabaseConfigured } from './lib/supabase';
 
 export default function App() {
   const [currentPath, setCurrentPath] = useState<string>(
@@ -53,6 +54,25 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Check and listen to Supabase Auth session
+  useEffect(() => {
+    if (isSupabaseConfigured) {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          setIsAdminAuthenticated(true);
+        }
+      });
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setIsAdminAuthenticated(Boolean(session));
+      });
+
+      return () => subscription.unsubscribe();
+    }
+  }, []);
+
   // Subscribe to db changes to keep pages up to date
   useEffect(() => {
     const unsub = db.subscribe(() => {
@@ -63,13 +83,22 @@ export default function App() {
 
   const handleNavigate = (path: string) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (path.startsWith('/admin')) {
-      setIsAdminAuthenticated(true);
-    }
     if (path !== currentPath) {
       window.history.pushState(null, '', path);
       setCurrentPath(path);
     }
+  };
+
+  const handleExitAdmin = async () => {
+    if (isSupabaseConfigured) {
+      try {
+        await supabase.auth.signOut();
+      } catch (e) {
+        console.warn('Sign out error:', e);
+      }
+    }
+    setIsAdminAuthenticated(false);
+    handleNavigate('/');
   };
 
   // Keyboard shortcut Cmd+K / Ctrl+K for search
@@ -105,7 +134,7 @@ export default function App() {
         <AdminLayout
           currentTab={adminTab}
           onTabChange={(tab) => setAdminTab(tab)}
-          onExitAdmin={() => handleNavigate('/')}
+          onExitAdmin={handleExitAdmin}
         >
           {adminTab === 'dashboard' && (
             <AdminDashboard onNavigateTab={(tab) => setAdminTab(tab)} />

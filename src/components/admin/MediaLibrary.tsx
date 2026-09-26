@@ -5,8 +5,9 @@ import { Button } from '../ui/Buttons';
 import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
 import { useToast } from '../ui/Toast';
-import { Image as ImageIcon, Plus, Trash2, Copy, Check, Search, ExternalLink, Upload } from 'lucide-react';
+import { Image as ImageIcon, Plus, Trash2, Copy, Check, Search, ExternalLink, Upload, RefreshCw } from 'lucide-react';
 import { ImageUploadField } from '../ui/ImageUploadField';
+import { isSupabaseConfigured } from '../../lib/supabase';
 
 export const MediaLibrary: React.FC = () => {
   const toast = useToast();
@@ -16,12 +17,27 @@ export const MediaLibrary: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
   useEffect(() => {
     const unsub = db.subscribe(() => {
       setMedia(db.getMedia());
     });
     return unsub;
   }, []);
+
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    try {
+      await db.refreshFromSupabase();
+      setMedia(db.getMedia());
+      toast.success('Media Library Synced', 'Updated with latest Supabase records.');
+    } catch (e: any) {
+      toast.error('Sync Error', e?.message || 'Failed to sync with Supabase');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const handleCopy = (url: string, id: string) => {
     navigator.clipboard.writeText(url);
@@ -52,15 +68,36 @@ export const MediaLibrary: React.FC = () => {
           <span className="font-cinzel text-[11px] font-semibold tracking-[0.2em] text-[#c59b63] uppercase block">
             Visual Assets &amp; Media Repository
           </span>
-          <h1 className="font-cormorant text-3xl sm:text-4xl font-light text-[#f7f4ee] mt-1">
-            Media Library
-          </h1>
+          <div className="flex items-center gap-3 mt-1 flex-wrap">
+            <h1 className="font-cormorant text-3xl sm:text-4xl font-light text-[#f7f4ee]">
+              Media Library
+            </h1>
+            {isSupabaseConfigured ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-mono bg-emerald-950/60 border border-emerald-500/40 text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Supabase Storage Synced
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-mono bg-amber-950/60 border border-amber-500/40 text-[#c59b63]">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                Local Fallback Mode
+              </span>
+            )}
+          </div>
         </div>
 
-        <Button variant="primary" size="sm" onClick={() => setIsAddOpen(true)}>
-          <Plus className="w-3.5 h-3.5" />
-          <span>Add Media Asset</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          {isSupabaseConfigured && (
+            <Button variant="ghost" size="sm" onClick={handleManualSync} isLoading={isSyncing}>
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Sync Cloud</span>
+            </Button>
+          )}
+          <Button variant="primary" size="sm" onClick={() => setIsAddOpen(true)}>
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Media Asset</span>
+          </Button>
+        </div>
       </div>
 
       {/* Filter and Search */}

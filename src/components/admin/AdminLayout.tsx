@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../services/db';
 import type { User, UserRole } from '../../types';
 import { Logo, LalusisLogoMark } from '../brand/Logo';
+import { SupabaseSetupBanner } from './SupabaseSetupBanner';
 import {
   LayoutDashboard,
   FileText,
@@ -274,6 +275,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
           }`}
         >
           <div className={currentTab === 'pages' ? 'h-full w-full min-w-0 flex-1 flex flex-col overflow-hidden' : 'max-w-7xl mx-auto min-w-0'}>
+            {currentTab !== 'pages' && <SupabaseSetupBanner />}
             {children}
           </div>
         </main>

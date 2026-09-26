@@ -4,6 +4,7 @@ import { SiteSettings, NavItem } from '../../types';
 import { Button } from '../ui/Buttons';
 import { Badge } from '../ui/Badge';
 import { useToast } from '../ui/Toast';
+import { SupabaseSetupBanner } from './SupabaseSetupBanner';
 import {
   Settings,
   Save,
@@ -503,7 +504,9 @@ export const SettingsManager: React.FC = () => {
 
       {/* TAB 4: DATABASE BACKUP & RESTORE */}
       {activeTab === 'backup' && (
-        <div className="space-y-6 max-w-3xl bg-[#121217] border border-[#22222d] p-6 sm:p-8">
+        <div className="space-y-6 max-w-3xl">
+          <SupabaseSetupBanner />
+          <div className="bg-[#121217] border border-[#22222d] p-6 sm:p-8 space-y-6">
           <div>
             <h3 className="font-cinzel text-xs uppercase tracking-wider text-[#c59b63]">
               Persistence Engine &amp; Backup
@@ -565,6 +568,7 @@ export const SettingsManager: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
       )}
     </div>
   );

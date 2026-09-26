@@ -33,6 +33,8 @@ import {
   initialActivityLogs,
   initialPages,
 } from './seedData';
+import { supabaseService } from './supabaseService';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 const DB_KEYS = {
   SETTINGS: 'lp_cms_settings_v1',
@@ -57,6 +59,145 @@ type Listener = () => void;
 
 class DatabaseService {
   private listeners: Set<Listener> = new Set();
+
+  constructor() {
+    this.initSupabaseSync();
+  }
+
+  private async initSupabaseSync() {
+    if (!isSupabaseConfigured) return;
+    try {
+      const isReady = await supabaseService.checkSchemaReady();
+      if (!isReady) {
+        // Suppress errors and operate safely in fallback mode
+        return;
+      }
+
+      // 1. Check and auto-migrate if Supabase is newly provisioned/empty
+      await supabaseService.migrateInitialData({
+        settings: this.getSettings(),
+        pages: this.getPages(),
+        attorneys: this.getAttorneys(true),
+        practiceAreas: this.getPracticeAreas(true),
+        articles: this.getArticles(true),
+        news: this.getNews(true),
+        media: this.getMedia(),
+        navigation: this.getNavigation(),
+        consultations: this.getConsultationRequests(),
+        messages: this.getContactMessages(),
+      });
+
+      // 2. Fetch fresh cloud data
+      await this.refreshFromSupabase();
+
+      // 3. Setup real-time cloud subscription
+      supabaseService.subscribeToRealtimeChanges(() => {
+        this.refreshFromSupabase();
+      });
+    } catch (e) {
+      console.warn('Supabase sync initialization warning:', e);
+    }
+  }
+
+  public async triggerSupabaseSetupCheck(): Promise<{ ready: boolean; message: string }> {
+    if (!isSupabaseConfigured) {
+      return { ready: false, message: 'Supabase credentials are not configured.' };
+    }
+    const isReady = await supabaseService.checkSchemaReady();
+    if (!isReady) {
+      return {
+        ready: false,
+        message: 'PostgreSQL tables not found. Please run the SQL schema migration in Supabase SQL Editor.',
+      };
+    }
+
+    const migrationRes = await supabaseService.migrateInitialData({
+      settings: this.getSettings(),
+      pages: this.getPages(),
+      attorneys: this.getAttorneys(true),
+      practiceAreas: this.getPracticeAreas(true),
+      articles: this.getArticles(true),
+      news: this.getNews(true),
+      media: this.getMedia(),
+      navigation: this.getNavigation(),
+      consultations: this.getConsultationRequests(),
+      messages: this.getContactMessages(),
+    });
+
+    await this.refreshFromSupabase();
+    this.notify();
+    return { ready: true, message: migrationRes.message || 'Supabase connected and synchronized!' };
+  }
+
+  public async refreshFromSupabase(): Promise<void> {
+    if (!isSupabaseConfigured) return;
+    const isReady = await supabaseService.checkSchemaReady();
+    if (!isReady) return;
+
+    try {
+      const [settings, pages, attorneys, practiceAreas, articles, news, media, navigation, consultations, messages] =
+        await Promise.all([
+          supabaseService.getSettings(),
+          supabaseService.getPages(),
+          supabaseService.getAttorneys(),
+          supabaseService.getPracticeAreas(),
+          supabaseService.getArticles(),
+          supabaseService.getNews(),
+          supabaseService.getMedia(),
+          supabaseService.getNavigation(),
+          supabaseService.getConsultations(),
+          supabaseService.getContactMessages(),
+        ]);
+
+      let hasChanges = false;
+      if (settings) {
+        this.save(DB_KEYS.SETTINGS, settings);
+        hasChanges = true;
+      }
+      if (pages && pages.length > 0) {
+        this.save(DB_KEYS.PAGES, pages);
+        hasChanges = true;
+      }
+      if (attorneys && attorneys.length > 0) {
+        this.save(DB_KEYS.ATTORNEYS, attorneys);
+        hasChanges = true;
+      }
+      if (practiceAreas && practiceAreas.length > 0) {
+        this.save(DB_KEYS.PRACTICE_AREAS, practiceAreas);
+        hasChanges = true;
+      }
+      if (articles && articles.length > 0) {
+        this.save(DB_KEYS.ARTICLES, articles);
+        hasChanges = true;
+      }
+      if (news && news.length > 0) {
+        this.save(DB_KEYS.NEWS, news);
+        hasChanges = true;
+      }
+      if (media && media.length > 0) {
+        this.save(DB_KEYS.MEDIA, media);
+        hasChanges = true;
+      }
+      if (navigation && navigation.length > 0) {
+        this.save(DB_KEYS.NAVIGATION, navigation);
+        hasChanges = true;
+      }
+      if (consultations && consultations.length > 0) {
+        this.save(DB_KEYS.CONSULTATIONS, consultations);
+        hasChanges = true;
+      }
+      if (messages && messages.length > 0) {
+        this.save(DB_KEYS.MESSAGES, messages);
+        hasChanges = true;
+      }
+
+      if (hasChanges) {
+        this.notify();
+      }
+    } catch (err) {
+      console.warn('Error refreshing from Supabase:', err);
+    }
+  }
 
   private load<T>(key: string, defaultValue: T): T {
     try {
@@ -229,6 +370,7 @@ class DatabaseService {
 
   public saveSettings(settings: any): void {
     this.save(DB_KEYS.SETTINGS, settings);
+    supabaseService.saveSettings(settings).catch((e) => console.warn('Supabase saveSettings:', e));
     this.logActivity('Updated Website Settings', 'Website Settings', 'settings', 'Saved full settings payload');
   }
 
@@ -539,6 +681,7 @@ class DatabaseService {
     }
 
     this.save(DB_KEYS.PAGES, updated);
+    supabaseService.savePage(updatedPage).catch((e) => console.warn('Supabase savePage:', e));
     this.logActivity(idx >= 0 ? 'Updated Page' : 'Created Page', 'Pages', page.id, `Page: ${page.title} (/${page.slug})`);
   }
 
@@ -745,6 +888,7 @@ class DatabaseService {
       updated = [...list, attorney];
     }
     this.save(DB_KEYS.ATTORNEYS, updated);
+    supabaseService.saveAttorney(attorney).catch((e) => console.warn('Supabase saveAttorney:', e));
     this.logActivity(idx >= 0 ? 'Updated Attorney' : 'Created Attorney', 'Attorneys', attorney.id, `Attorney: ${attorney.fullName}`);
   }
 
@@ -752,6 +896,7 @@ class DatabaseService {
     const list = this.getAttorneys(true);
     const filtered = list.filter((a) => a.id !== id);
     this.save(DB_KEYS.ATTORNEYS, filtered);
+    supabaseService.deleteAttorney(id).catch((e) => console.warn('Supabase deleteAttorney:', e));
     this.logActivity('Deleted Attorney', 'Attorneys', id, `Deleted attorney with ID: ${id}`);
     return true;
   }
@@ -787,6 +932,7 @@ class DatabaseService {
       updated = [...list, area];
     }
     this.save(DB_KEYS.PRACTICE_AREAS, updated);
+    supabaseService.savePracticeArea(area).catch((e) => console.warn('Supabase savePracticeArea:', e));
     this.logActivity(idx >= 0 ? 'Updated Practice Area' : 'Created Practice Area', 'Practice Areas', area.id, `Practice Area: ${area.title}`);
   }
 
@@ -794,6 +940,7 @@ class DatabaseService {
     const list = this.getPracticeAreas(true);
     const filtered = list.filter((pa) => pa.id !== id);
     this.save(DB_KEYS.PRACTICE_AREAS, filtered);
+    supabaseService.deletePracticeArea(id).catch((e) => console.warn('Supabase deletePracticeArea:', e));
     this.logActivity('Deleted Practice Area', 'Practice Areas', id, `Deleted practice area: ${id}`);
     return true;
   }
@@ -842,6 +989,7 @@ class DatabaseService {
       updated = [updatedArticle, ...list];
     }
     this.save(DB_KEYS.ARTICLES, updated);
+    supabaseService.saveArticle(updatedArticle).catch((e) => console.warn('Supabase saveArticle:', e));
     this.logActivity(idx >= 0 ? 'Updated Article' : 'Created Article', 'Legal Insights', article.id, `Title: "${article.title}" (${article.status})`);
   }
 
@@ -860,6 +1008,7 @@ class DatabaseService {
     const list = this.getArticles(true);
     const filtered = list.filter((a) => a.id !== id);
     this.save(DB_KEYS.ARTICLES, filtered);
+    supabaseService.deleteArticle(id).catch((e) => console.warn('Supabase deleteArticle:', e));
     this.logActivity('Deleted Article', 'Legal Insights', id, `Deleted article with ID: ${id}`);
     return true;
   }
@@ -890,6 +1039,7 @@ class DatabaseService {
       updated = [news, ...list];
     }
     this.save(DB_KEYS.NEWS, updated);
+    supabaseService.saveNews(news).catch((e) => console.warn('Supabase saveNews:', e));
     this.logActivity(idx >= 0 ? 'Updated News' : 'Created News', 'News', news.id, `News: ${news.title}`);
   }
 
@@ -897,6 +1047,7 @@ class DatabaseService {
     const list = this.getNews(true);
     const filtered = list.filter((n) => n.id !== id);
     this.save(DB_KEYS.NEWS, filtered);
+    supabaseService.deleteNews(id).catch((e) => console.warn('Supabase deleteNews:', e));
     this.logActivity('Deleted News', 'News', id, `Deleted news item: ${id}`);
     return true;
   }
@@ -1100,6 +1251,7 @@ class DatabaseService {
     const list = this.getMedia();
     const filtered = list.filter((m) => m.id !== id);
     this.save(DB_KEYS.MEDIA, filtered);
+    supabaseService.deleteMedia(id).catch((e) => console.warn('Supabase deleteMedia:', e));
     this.logActivity('Deleted Media Item', 'Media', id, `Deleted media item: ${id}`);
     return true;
   }
@@ -1142,6 +1294,7 @@ class DatabaseService {
 
   public saveNavigation(nav: MenuItem[]): void {
     this.save(DB_KEYS.NAVIGATION, nav);
+    supabaseService.saveNavigation(nav).catch((e) => console.warn('Supabase saveNavigation:', e));
     this.logActivity('Updated Navigation Menu', 'Website', 'navigation', 'Modified website header navigation hierarchy');
   }
 

@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { Upload, Image as ImageIcon, X, RefreshCw, Check, Link as LinkIcon, FolderOpen, AlertCircle } from 'lucide-react';
 import { db } from '../../services/db';
 import { MediaAsset } from '../../types';
+import { supabaseService } from '../../services/supabaseService';
+import { isSupabaseConfigured } from '../../lib/supabase';
 
 export interface ImageUploadFieldProps {
   label?: string;
@@ -117,9 +119,17 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
     setError(null);
 
     try {
-      const processed = await processImageFile(file);
-      onChange(processed.dataUrl, processed.name);
+      if (isSupabaseConfigured) {
+        const result = await supabaseService.uploadMediaFile(file, {
+          customName: label || file.name.replace(/\.[^/.]+$/, ''),
+        });
+        onChange(result.url, file.name);
+      } else {
+        const processed = await processImageFile(file);
+        onChange(processed.dataUrl, processed.name);
+      }
     } catch (err: any) {
+      console.error('File upload error:', err);
       setError(err?.message || 'Error uploading file.');
     } finally {
       setIsLoading(false);
