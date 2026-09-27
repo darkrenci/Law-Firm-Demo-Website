@@ -1,3 +1,4 @@
+import { submitInquiry } from '../../services/inquiryService';
 import { supabaseService } from '../../services/supabaseService';
 import React, { useState, useEffect, useRef } from 'react';
 import { PageSection, BlockTypography, PracticeArea, Attorney, Article, NewsItem, FAQItem } from '../../types';
@@ -3198,7 +3199,7 @@ const RenderSectionItem: React.FC<{
 
               {/* Consultation Intake Form */}
               <div className="lg:col-span-7">
-                <EmbeddedConsultationForm />
+                <EmbeddedConsultationForm kind="contact" />
               </div>
             </div>
           </div>
@@ -3254,7 +3255,7 @@ const FaqAccordionList: React.FC<{ faqs: FAQItem[] }> = ({ faqs }) => {
   );
 };
 
-const EmbeddedConsultationForm: React.FC = () => {
+const EmbeddedConsultationForm: React.FC<{ kind?: 'consultation' | 'contact' }> = ({ kind = 'consultation' }: { kind?: 'consultation' | 'contact' }) => {
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -3275,7 +3276,7 @@ const EmbeddedConsultationForm: React.FC = () => {
 
   const practiceAreas = db.getPracticeAreas(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.fullName || !formData.email || !formData.caseSummary) {
       toast.error('Required Fields', 'Please complete all required fields.');
@@ -3283,25 +3284,24 @@ const EmbeddedConsultationForm: React.FC = () => {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      const created = db.createConsultationRequest({
-        fullName: formData.fullName,
-        emailAddress: formData.email,
-        contactNumber: formData.phone,
-        company: formData.company,
-        practiceAreaId: formData.practiceArea,
-        urgencyLevel: formData.urgencyLevel,
-        preferredDate: formData.preferredDate || new Date().toISOString().split('T')[0],
-        preferredTime: formData.preferredTimeSlot,
-        briefConcern: formData.caseSummary,
-        privacyConsent: formData.conflictCheckConsent,
-      });
+    try {
+      if (!formData.conflictCheckConsent) throw new Error('Please acknowledge the consultation notice.');
+      const created = await submitInquiry({ kind, fullName: formData.fullName,
+        email: formData.email, phone: formData.phone, company: formData.company,
+        practiceArea: formData.practiceArea, urgency: formData.urgencyLevel,
+        preferredDate: formData.preferredDate, preferredTime: formData.preferredTimeSlot,
+        message: formData.caseSummary, consent: formData.conflictCheckConsent });
+      void db.refreshFromSupabase();
 
       setIsSubmitting(false);
       setIsSuccess(true);
       setRefNumber(created.referenceNumber);
       toast.success('Inquiry Logged', `Your case reference is ${created.referenceNumber}`);
-    }, 600);
+    } catch (error) {
+      toast.error('Submission Failed', (error as Error).message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSuccess) {

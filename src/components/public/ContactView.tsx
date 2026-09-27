@@ -23,7 +23,7 @@ export const ContactView: React.FC<ContactViewProps> = ({ onNavigate }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.fullName || !form.email || !form.message) {
       toast.error('Required Fields', 'Please complete all required fields.');
@@ -31,8 +31,8 @@ export const ContactView: React.FC<ContactViewProps> = ({ onNavigate }) => {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      db.createContactMessage({
+    try {
+      await db.createContactMessage({
         fullName: form.fullName,
         email: form.email,
         phone: form.phone,
@@ -43,7 +43,11 @@ export const ContactView: React.FC<ContactViewProps> = ({ onNavigate }) => {
       setIsSubmitting(false);
       setIsSuccess(true);
       toast.success('Message Transmitted', 'Our secretarial team has received your communication.');
-    }, 600);
+    } catch (error) {
+      toast.error('Submission Failed', (error as Error).message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

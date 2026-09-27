@@ -1,3 +1,4 @@
+import { submitInquiry } from './inquiryService';
 import {
   FirmSettings,
   Attorney,
@@ -794,15 +795,21 @@ class DatabaseService {
     return this.load<ConsultationRequest[]>(DB_KEYS.CONSULTATIONS, initialConsultations);
   }
 
-  public createConsultationRequest(
+  public async createConsultationRequest(
     data: Omit<ConsultationRequest, 'id' | 'referenceNumber' | 'status' | 'internalNotes' | 'createdAt' | 'updatedAt'>
-  ): ConsultationRequest {
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  ): Promise<ConsultationRequest> {
+    const result = await submitInquiry({ kind: 'consultation', fullName: data.fullName,
+      email: data.emailAddress || data.email || '', phone: data.contactNumber || data.phone,
+      company: data.company, practiceArea: data.practiceArea || data.practiceAreaId,
+      urgency: data.urgencyLevel, preferredDate: data.preferredDate,
+      preferredTime: data.preferredTime || data.preferredTimeSlot,
+      message: data.briefConcern || data.caseSummary || '',
+      consent: data.privacyConsent ?? data.conflictCheckConsent ?? false });
     const now = new Date().toISOString();
     const req: ConsultationRequest = {
       ...data,
-      id: `cr-${Date.now()}`,
-      referenceNumber: `LP-${new Date().getFullYear()}-${randomSuffix}`,
+      id: result.id,
+      referenceNumber: result.referenceNumber,
       status: 'new',
       internalNotes: 'Client submitted online request. Pending conflict review.',
       createdAt: now,
@@ -839,12 +846,15 @@ class DatabaseService {
     return this.load<ContactMessage[]>(DB_KEYS.MESSAGES, initialContactMessages);
   }
 
-  public createContactMessage(
+  public async createContactMessage(
     data: Omit<ContactMessage, 'id' | 'status' | 'createdAt'>
-  ): ContactMessage {
+  ): Promise<ContactMessage> {
+    const result = await submitInquiry({ kind: 'contact', fullName: data.fullName,
+      email: data.email || data.emailAddress || '', phone: data.phone || data.contactNumber,
+      subject: data.subject, message: data.message });
     const msg: ContactMessage = {
       ...data,
-      id: `msg-${Date.now()}`,
+      id: result.id,
       status: 'unread',
       createdAt: new Date().toISOString(),
     };

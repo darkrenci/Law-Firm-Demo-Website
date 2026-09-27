@@ -28,7 +28,7 @@ export const ConsultationView: React.FC<ConsultationViewProps> = ({ onNavigate }
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedRef, setSubmittedRef] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.fullName || !formData.email || !formData.caseSummary) {
       toast.error('Required Fields Missing', 'Please fill in all mandatory fields.');
@@ -36,15 +36,15 @@ export const ConsultationView: React.FC<ConsultationViewProps> = ({ onNavigate }
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      const created = db.createConsultationRequest({
+    try {
+      const created = await db.createConsultationRequest({
         fullName: formData.fullName,
         email: formData.email,
         phone: formData.phone,
         company: formData.company,
         practiceArea: formData.practiceArea,
         urgencyLevel: formData.urgencyLevel,
-        preferredDate: formData.preferredDate || new Date().toISOString().split('T')[0],
+        preferredDate: formData.preferredDate,
         preferredTimeSlot: formData.preferredTimeSlot,
         caseSummary: formData.caseSummary,
         conflictCheckConsent: formData.conflictCheckConsent,
@@ -53,7 +53,11 @@ export const ConsultationView: React.FC<ConsultationViewProps> = ({ onNavigate }
       setIsSubmitting(false);
       setSubmittedRef(created.referenceNumber);
       toast.success('Inquiry Filed', `Case reference code: ${created.referenceNumber}`);
-    }, 700);
+    } catch (error) {
+      toast.error('Submission Failed', (error as Error).message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
