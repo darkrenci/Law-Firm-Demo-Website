@@ -149,9 +149,9 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
         name: cleaned,
         url: targetUrl,
         fileType: 'image',
-        format: file.name.split('.').pop()?.toUpperCase() || 'JPG',
-        sizeBytes: file.size,
-        size: `${(file.size / 1024).toFixed(0)} KB`,
+        format: result.mediaItem.format,
+        sizeBytes: result.mediaItem.sizeBytes,
+        size: result.mediaItem.size,
         category: label?.toLowerCase().includes('partner') || label?.toLowerCase().includes('card') ? 'portrait' : 'branding',
         altText: cleaned,
       });

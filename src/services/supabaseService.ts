@@ -1,3 +1,4 @@
+import { optimizePhotoUpload } from '../lib/imagePerformance';
 import { supabase, isSupabaseConfigured, STORAGE_BUCKET } from '../lib/supabase';
 import {
   FirmSettings,
@@ -115,6 +116,8 @@ export class SupabaseService {
       throw new Error(`File is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed is 25MB.`);
     }
 
+    file = await optimizePhotoUpload(file);
+
     // 2. Generate Collision-Proof Unique Storage Path
     const sanitizedName = file.name
       .toLowerCase()
@@ -131,7 +134,7 @@ export class SupabaseService {
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from(STORAGE_BUCKET)
       .upload(storagePath, file, {
-        cacheControl: '3600',
+        cacheControl: '31536000',
         upsert: false,
         contentType: file.type,
       });

@@ -5,7 +5,7 @@ import { db } from '../../services/db';
 import { Button } from '../ui/Buttons';
 import { Modal } from '../ui/Modal';
 import { Logo, LalusisLogoMark } from '../brand/Logo';
-import { processImageFile } from '../ui/ImageUploadField';
+import { preloadPhoto } from '../../lib/imagePerformance';
 import {
   ShieldCheck,
   Scale,
@@ -2144,7 +2144,7 @@ const RenderSectionItem: React.FC<{
               onSelectPart={onSelectPart}
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-                {attorneys.map((atty) => {
+                {attorneys.map((atty, index) => {
                   const roleBadge = atty.professionalTitle.includes('Senior')
                     ? 'Senior Partner'
                     : 'Founding Partner';
@@ -2155,6 +2155,8 @@ const RenderSectionItem: React.FC<{
                       role="button"
                       tabIndex={0}
                       aria-label={`View credentials and certificates of ${atty.fullName}`}
+                      onPointerEnter={() => preloadPhoto(atty.homeModalImageUrl || atty.portraitUrl)}
+                      onFocus={() => preloadPhoto(atty.homeModalImageUrl || atty.portraitUrl)}
                       onClick={() => {
                         if (editMode) {
                           onSelectPart?.('cards');
@@ -2185,7 +2187,8 @@ const RenderSectionItem: React.FC<{
                           }}
                           className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 filter brightness-95 group-hover:brightness-100"
                           referrerPolicy="no-referrer"
-                          loading="lazy"
+                          loading={index < 3 ? "eager" : "lazy"}
+                          decoding="async"
                         />
                         {/* Gradient Scrim */}
                         <div className="absolute inset-0 bg-gradient-to-t from-[#101015] via-black/25 to-transparent opacity-90" />
