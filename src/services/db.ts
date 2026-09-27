@@ -62,6 +62,10 @@ class DatabaseService {
 
   constructor() {
     this.initSupabaseSync();
+    if (typeof window !== 'undefined') {
+      window.addEventListener('focus', () => { void this.refreshFromSupabase(); });
+      window.addEventListener('online', () => { void this.refreshFromSupabase(); });
+    }
   }
 
   private async initSupabaseSync() {
@@ -72,20 +76,6 @@ class DatabaseService {
         // Suppress errors and operate safely in fallback mode
         return;
       }
-
-      // 1. Check and auto-migrate if Supabase is newly provisioned/empty
-      await supabaseService.migrateInitialData({
-        settings: this.getSettings(),
-        pages: this.getPages(),
-        attorneys: this.getAttorneys(true),
-        practiceAreas: this.getPracticeAreas(true),
-        articles: this.getArticles(true),
-        news: this.getNews(true),
-        media: this.getMedia(),
-        navigation: this.getNavigation(),
-        consultations: this.getConsultationRequests(),
-        messages: this.getContactMessages(),
-      });
 
       // 2. Fetch fresh cloud data
       await this.refreshFromSupabase();
@@ -154,95 +144,39 @@ class DatabaseService {
         this.save(DB_KEYS.SETTINGS, settings);
         hasChanges = true;
       }
-      if (pages && pages.length > 0) {
+      if (pages !== null) {
         this.save(DB_KEYS.PAGES, pages);
         hasChanges = true;
       }
-      if (attorneys && attorneys.length > 0) {
+      if (attorneys !== null) {
         this.save(DB_KEYS.ATTORNEYS, attorneys);
         hasChanges = true;
       }
-      if (practiceAreas && practiceAreas.length > 0) {
+      if (practiceAreas !== null) {
         this.save(DB_KEYS.PRACTICE_AREAS, practiceAreas);
         hasChanges = true;
       }
-      if (articles && articles.length > 0) {
+      if (articles !== null) {
         this.save(DB_KEYS.ARTICLES, articles);
         hasChanges = true;
       }
-      if (news && news.length > 0) {
+      if (news !== null) {
         this.save(DB_KEYS.NEWS, news);
         hasChanges = true;
       }
-      if (media && media.length > 0) {
-        const attorneys = this.getAttorneys(true);
-        const localMedia = this.load<MediaItem[]>(DB_KEYS.MEDIA, []);
-        const localMap = new Map(localMedia.map((m) => [m.id, m]));
-        const localUrlMap = new Map(localMedia.map((m) => [m.url, m]));
-
-        let mediaChanged = false;
-        const processedMedia: MediaItem[] = media.map((cloudItem) => {
-          const localItem = localMap.get(cloudItem.id) || localUrlMap.get(cloudItem.url);
-
-          const isCloudGeneric =
-            !cloudItem.name ||
-            cloudItem.name.toLowerCase().includes('picture file') ||
-            cloudItem.name.endsWith('*') ||
-            cloudItem.name.toLowerCase() === 'image' ||
-            cloudItem.name.toLowerCase() === 'photo';
-
-          let resolvedItem = { ...cloudItem };
-
-          // If local has a real, specific name (set by the user on another device), adopt it
-          if (localItem && isCloudGeneric) {
-            const isLocalGeneric =
-              !localItem.name ||
-              localItem.name.toLowerCase().includes('picture file') ||
-              localItem.name.endsWith('*') ||
-              localItem.name.toLowerCase() === 'image';
-
-            if (!isLocalGeneric) {
-              resolvedItem.name = localItem.name;
-              resolvedItem.category = localItem.category;
-              resolvedItem.altText = localItem.altText || localItem.name;
-              supabaseService.saveMedia(resolvedItem).catch(() => {});
-              mediaChanged = true;
-            }
-          }
-
-          // Auto-adapt generic names
-          const { item: adapted, wasUpdated } = this.autoAdaptMediaItem(resolvedItem, attorneys);
-          if (wasUpdated) {
-            supabaseService.saveMedia(adapted).catch(() => {});
-            mediaChanged = true;
-            return adapted;
-          }
-
-          return resolvedItem;
-        });
-
-        // Ensure any local assets not yet in cloud are retained and saved to cloud
-        for (const localItem of localMedia) {
-          if (!processedMedia.some((m) => m.id === localItem.id || m.url === localItem.url)) {
-            const { item: adapted } = this.autoAdaptMediaItem(localItem, attorneys);
-            processedMedia.push(adapted);
-            supabaseService.saveMedia(adapted).catch(() => {});
-            mediaChanged = true;
-          }
-        }
-
-        this.save(DB_KEYS.MEDIA, processedMedia);
+      if (media !== null) {
+        this.save(DB_KEYS.MEDIA, media);
         hasChanges = true;
       }
-      if (navigation && navigation.length > 0) {
+      if (navigation !== null) {
         this.save(DB_KEYS.NAVIGATION, navigation);
         hasChanges = true;
       }
-      if (consultations && consultations.length > 0) {
+      if (consultations !== null) {
         this.save(DB_KEYS.CONSULTATIONS, consultations);
         hasChanges = true;
       }
-      if (messages && messages.length > 0) {
+      if (messages !== null) {
         this.save(DB_KEYS.MESSAGES, messages);
         hasChanges = true;
       }
@@ -252,6 +186,15 @@ class DatabaseService {
       }
     } catch (err) {
       console.warn('Error refreshing from Supabase:', err);
+    }
+  }
+
+  private async requireCloudWrite(write: () => Promise<boolean>): Promise<void> {
+    if (!isSupabaseConfigured) {
+      throw new Error('Configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your hosting environment and redeploy before publishing changes.');
+    }
+    if (!await supabaseService.checkSchemaReady() || !await write()) {
+      throw new Error('Supabase could not save this change. Check the database schema, connection, and write permissions, then try again.');
     }
   }
 
@@ -432,280 +375,7 @@ class DatabaseService {
 
   // --- PAGES & PAGE BUILDER ---
   public getPages(): Page[] {
-    let pages = this.load<Page[]>(DB_KEYS.PAGES, initialPages);
-    let changed = false;
-
-    // Filter out removed pages: insights, news, faqs
-    const removedPageSlugs = ['insights', 'news', 'faqs'];
-    const removedPageIds = ['page-insights', 'page-news', 'page-faqs'];
-    const originalLen = pages.length;
-    pages = pages.filter((p) => !removedPageSlugs.includes(p.slug) && !removedPageIds.includes(p.id));
-    if (pages.length !== originalLen) {
-      changed = true;
-    }
-
-    // Ensure all defined pages exist in storage for live editing
-    for (const defPage of initialPages) {
-      const exists = pages.some((p) => p.id === defPage.id || p.slug === defPage.slug);
-      if (!exists) {
-        pages.push(defPage);
-        changed = true;
-      }
-    }
-
-    // Clean up home page sections: remove news, articles, and faq blocks
-    const homePage = pages.find((p) => p.id === 'page-home' || p.slug === '');
-    if (homePage && homePage.sections) {
-      const sectionsBefore = homePage.sections.length;
-      homePage.sections = homePage.sections.filter(
-        (s) => !['news', 'articles', 'faq', 'faqs'].includes(s.type) && !['sec-news', 'sec-articles', 'sec-faqs'].includes(s.id)
-      );
-      if (homePage.sections.length !== sectionsBefore) {
-        changed = true;
-      }
-
-      // Update partners section on home page to be positioned before Practice Areas
-      let partnersSec = homePage.sections.find((s) => s.id === 'sec-partners' || s.id === 'sec-attorneys' || s.type === 'attorneys');
-      const practicesSec = homePage.sections.find((s) => s.id === 'sec-practices' || s.type === 'practiceAreas');
-      const whyUsSec = homePage.sections.find((s) => s.id === 'sec-why-us' || s.type === 'imageText');
-
-      if (!partnersSec) {
-        partnersSec = {
-          id: 'sec-partners',
-          type: 'attorneys',
-          title: 'Featured Partners',
-          subtitle: 'Leadership & Senior Counsel',
-          isVisible: true,
-          order: 3,
-          content: {
-            eyebrow: 'Partners',
-            heading: 'Distinguished Partners',
-            description: 'Under the guidance of senior leadership, our founding and senior partners direct high-stakes litigation, supreme court appeals, and complex corporate transactions with precision and discretion.',
-            limit: 3,
-          },
-        };
-        homePage.sections.push(partnersSec);
-        changed = true;
-      } else {
-        partnersSec.id = 'sec-partners';
-        partnersSec.order = 3;
-        if (partnersSec.title !== 'Featured Partners') {
-          partnersSec.title = 'Featured Partners';
-          changed = true;
-        }
-        if (partnersSec.content) {
-          if (partnersSec.content.limit !== 3) {
-            partnersSec.content.limit = 3;
-            changed = true;
-          }
-          if (partnersSec.content.heading !== 'Distinguished Partners') {
-            partnersSec.content.heading = 'Distinguished Partners';
-            changed = true;
-          }
-          if (partnersSec.content.eyebrow !== 'Partners') {
-            partnersSec.content.eyebrow = 'Partners';
-            changed = true;
-          }
-          if (!partnersSec.content.description || partnersSec.content.description.includes('Harvard')) {
-            partnersSec.content.description = 'Under the guidance of senior leadership, our founding and senior partners direct high-stakes litigation, supreme court appeals, and complex corporate transactions with precision and discretion.';
-            changed = true;
-          }
-        }
-      }
-
-      if (practicesSec && practicesSec.order !== 4) {
-        practicesSec.order = 4;
-        changed = true;
-      }
-      if (whyUsSec && whyUsSec.order !== 5) {
-        whyUsSec.order = 5;
-        changed = true;
-      }
-
-      // Ensure no duplicate attorney sections remain on home page
-      const attorneySecs = homePage.sections.filter(s => s.type === 'attorneys');
-      if (attorneySecs.length > 1) {
-        homePage.sections = homePage.sections.filter(s => s.type !== 'attorneys' || s.id === 'sec-partners');
-        changed = true;
-      }
-      homePage.sections.sort((a, b) => (a.order || 0) - (b.order || 0));
-
-      // Update hero section headline to Legal Precision and replace badges with 3 embedded clickable videos
-      const homeHeroSec = homePage.sections.find((s) => s.id === 'sec-hero' || s.type === 'hero');
-      if (homeHeroSec && homeHeroSec.content) {
-        if (!homeHeroSec.content.headline || homeHeroSec.content.headline.includes('Strategic Counsel')) {
-          homeHeroSec.content.headline = 'Legal Precision.';
-          changed = true;
-        }
-        // Remove old badges if present
-        if (homeHeroSec.content.badge1Value || homeHeroSec.content.badge2Value) {
-          delete homeHeroSec.content.badge1Value;
-          delete homeHeroSec.content.badge1Label;
-          delete homeHeroSec.content.badge2Value;
-          delete homeHeroSec.content.badge2Label;
-          delete homeHeroSec.content.badge3Value;
-          delete homeHeroSec.content.badge3Label;
-          delete homeHeroSec.content.badge4Value;
-          delete homeHeroSec.content.badge4Label;
-          changed = true;
-        }
-        // Add or ensure 3 embedded videos
-        if (!homeHeroSec.content.videos || homeHeroSec.content.videos.length === 0) {
-          homeHeroSec.content.videos = [
-            {
-              id: 'vid-1',
-              title: 'Decisive Trial Advocacy & Bureau Leadership',
-              subtitle: 'Atty. Leo Lalusis · Managing Partner',
-              description: 'Decades of seasoned trial litigation, landmark prosecution commendations, and high-profile public defense.',
-              duration: '03:45',
-              tag: 'Trial Eminence',
-              videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-              thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
-            },
-            {
-              id: 'vid-2',
-              title: '150+ Supreme Court Rulings & Appellate Advocacy',
-              subtitle: 'Senior Partner Atty. Diosdado Anselmo Lalusis',
-              description: 'Over 150 superior appellate rulings, landmark constitutional advocacy, and unmatched jurisprudential depth.',
-              duration: '04:12',
-              tag: 'Supreme Court Practice',
-              videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-              thumbnailUrl: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80',
-            },
-            {
-              id: 'vid-3',
-              title: '₱180B+ Transactions Advised & Tier 1 Practice',
-              subtitle: 'Atty. Levy John Lalusis · Partner & Tax Specialist',
-              description: 'Cross-border mergers and acquisitions, sovereign regulatory compliance, and premier corporate counsel.',
-              duration: '03:18',
-              tag: 'Corporate & M&A',
-              videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-              thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
-            },
-          ];
-          changed = true;
-        }
-      }
-
-      // Update institutional overview section: remove Institutional Heritage and Advocacy Defined per user brief, keep group picture and formatted paragraphs
-      const introSec = homePage.sections.find((s) => s.id === 'sec-intro' || s.title?.includes('Introduction') || s.subtitle?.includes('Institutional Overview'));
-      if (introSec && introSec.content) {
-        if (introSec.content.eyebrow === 'Institutional Heritage' || introSec.content.eyebrow?.includes('Heritage')) {
-          introSec.content.eyebrow = '';
-          changed = true;
-        }
-        if (introSec.content.heading?.includes('Advocacy Defined') || introSec.content.heading?.includes('Advocacy')) {
-          introSec.content.heading = '';
-          changed = true;
-        }
-        if (introSec.content.stat1Number === '28+' || introSec.content.stat1Number) {
-          delete introSec.content.stat1Number;
-          delete introSec.content.stat1Label;
-          delete introSec.content.stat2Number;
-          delete introSec.content.stat2Label;
-          delete introSec.content.stat3Number;
-          delete introSec.content.stat3Label;
-          changed = true;
-        }
-        if (!introSec.content.imageUrl || introSec.content.imageUrl === '/Group Picture.jpeg' || introSec.content.imageUrl === '/Group%20Picture.jpeg') {
-          introSec.content.imageUrl = '/assets/group-picture.svg';
-          changed = true;
-        }
-        if (
-          !introSec.content.imageCaption ||
-          introSec.content.imageCaption.includes('Left:') ||
-          introSec.content.imageCaption.includes('Center:') ||
-          introSec.content.imageCaption.includes('Right:') ||
-          !introSec.content.imageCaption.includes('L.V.')
-        ) {
-          introSec.content.imageCaption = 'Founding Partners · Atty. Levy John L.V. Lalusis · Atty. Diosdado Anselmo Q. Lalusis · Atty. Leo Anselmo L.V. Lalusis';
-          changed = true;
-        }
-        if (introSec.content.body && !introSec.content.body.includes('\n\n')) {
-          introSec.content.body = "The FIRM is founded by Atty. Leo Lalusis and Atty. Levy John Lalusis, under the guidance of their senior partner, Atty. Diosdado Anselmo Lalusis. Brothers Lalusis, is the son of the late NBI Chief Danielito Q. Lalusis, who served the NBI for almost 30 years prior to his untimely passing.\n\nAtty. Leo Lalusis passed the Bar in 2019 (the last handwritten Bar Examination) in his only attempt. Upon passing, he entered the NBI as Legal Officer assigned in the Legal Division, specifically in Prosecution and High Profile Cases, where he received several commendations, including for the PNP-PDEA incident. During his stay with the NBI, he was also tasked to represent the bureau in various Senate and House of Representatives hearings and attended several specialized investigative courses. Atty. Leo is also a certified Data Protection Officer (UP Open University, 2023) and has handled high-profile cases before the DOJ and Sandiganbayan. He has represented prominent clients in congressional hearings, including the landmark Senate Blue Ribbon Committee hearings in flood control cases, as well as leading public figures and influencers. To further broaden his jurisprudential acumen, he is one of the youngest Master of Laws candidates in the Graduate School of San Beda University.\n\nMeanwhile, Atty. Levy John Lalusis passed the 2024 Bar Examination. Prior to his admission to the bar, he served with distinguished government bodies, specifically within the Presidential Anti-Corruption Commission (PACC) as a graft investigator and the Department of Transportation (DOTr). Atty. Levy is a certified Tax Specialist with multiple accreditations. Alongside his brother Atty. Leo, he has appeared before the Sandiganbayan representing high-profile institutional and private clients in contentious matters.\n\nOn the other hand, Atty. Diosdado Anselmo Lalusis is a seasoned and veteran lawyer who headed the Professional Regulation Commission (PRC) Legal Division for more than a decade. Atty. Diosdado brings seasoned appellate advocacy, exemplary institutional integrity, and foundational legal mentorship to the firm's sovereign and corporate clientele.";
-          changed = true;
-        }
-      }
-    }
-
-    // Update any page seo title or hero headline with Strategic Counsel to Legal Precision
-    for (const p of pages) {
-      if (p.seoTitle && p.seoTitle.includes('Strategic Counsel')) {
-        p.seoTitle = p.seoTitle.replace('Strategic Counsel', 'Legal Precision');
-        changed = true;
-      }
-      if (p.sections) {
-        for (const s of p.sections) {
-          if (s.type === 'hero' && s.content && s.content.headline && s.content.headline.includes('Strategic Counsel')) {
-            s.content.headline = 'Legal Precision.';
-            changed = true;
-          }
-          if (s.content && typeof s.content === 'object') {
-            for (const key of Object.keys(s.content)) {
-              const val = (s.content as any)[key];
-              if (typeof val === 'string' && (/Left:\s*/i.test(val) || /Center:\s*/i.test(val) || /Right:\s*/i.test(val))) {
-                (s.content as any)[key] = val
-                  .replace(/Left:\s*/gi, '')
-                  .replace(/Center:\s*/gi, '')
-                  .replace(/Right:\s*/gi, '');
-                changed = true;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Update page-attorneys title to Partners
-    const attorneysPage = pages.find((p) => p.id === 'page-attorneys' || p.slug === 'attorneys');
-    if (attorneysPage) {
-      if (attorneysPage.title !== 'Partners') {
-        attorneysPage.title = 'Partners';
-        changed = true;
-      }
-      if (attorneysPage.seoTitle !== 'Distinguished Partners | Lalusis & Partners') {
-        attorneysPage.seoTitle = 'Distinguished Partners | Lalusis & Partners';
-        changed = true;
-      }
-      if (attorneysPage.sections) {
-        const heroSec = attorneysPage.sections.find((s) => s.id === 'sec-attorneys-hero' || s.type === 'heading');
-        if (heroSec && heroSec.content && heroSec.content.heading !== 'Partners') {
-          heroSec.content.heading = 'Partners';
-          changed = true;
-        }
-        const gridSec = attorneysPage.sections.find((s) => s.id === 'sec-attorneys-grid' || s.type === 'attorneys');
-        if (gridSec) {
-          if (gridSec.title !== 'Partners Directory') {
-            gridSec.title = 'Partners Directory';
-            changed = true;
-          }
-          if (gridSec.content && gridSec.content.heading !== 'Partners') {
-            gridSec.content.heading = 'Partners';
-            changed = true;
-          }
-        }
-      }
-    }
-
-    // Ensure home page sec-practices has limit 14
-    if (homePage) {
-      const practiceSec = homePage.sections?.find((s) => s.id === 'sec-practices' || s.type === 'practiceAreas');
-      if (practiceSec && practiceSec.content) {
-        if (!practiceSec.content.limit || practiceSec.content.limit < 14) {
-          practiceSec.content.limit = 14;
-          changed = true;
-        }
-        if (!practiceSec.content.heading || practiceSec.content.heading === 'Practice Areas') {
-          practiceSec.content.heading = 'Comprehensive Capabilities across Disciplines';
-          changed = true;
-        }
-      }
-    }
-
-    if (changed) {
-      this.save(DB_KEYS.PAGES, pages);
-    }
-    return pages;
+    return this.load<Page[]>(DB_KEYS.PAGES, initialPages);
   }
 
   public getPageBySlug(slug: string): Page | undefined {
@@ -717,7 +387,8 @@ class DatabaseService {
     return this.getPages().find((p) => p.id === id);
   }
 
-  public savePage(page: Page, summary: string = 'Updated page content'): void {
+  public async savePage(page: Page, summary: string = 'Updated page content'): Promise<void> {
+    await this.requireCloudWrite(() => supabaseService.savePage(page));
     const pages = this.getPages();
     const idx = pages.findIndex((p) => p.id === page.id);
     const now = new Date().toISOString();
@@ -737,11 +408,10 @@ class DatabaseService {
     }
 
     this.save(DB_KEYS.PAGES, updated);
-    supabaseService.savePage(updatedPage).catch((e) => console.warn('Supabase savePage:', e));
     this.logActivity(idx >= 0 ? 'Updated Page' : 'Created Page', 'Pages', page.id, `Page: ${page.title} (/${page.slug})`);
   }
 
-  public duplicatePage(id: string): Page | null {
+  public async duplicatePage(id: string): Promise<Page | null> {
     const page = this.getPageById(id);
     if (!page) return null;
     const newPage: Page = {
@@ -757,7 +427,7 @@ class DatabaseService {
         id: `sec-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       })),
     };
-    this.savePage(newPage, 'Duplicated from existing page');
+    await this.savePage(newPage, 'Duplicated from existing page');
     return newPage;
   }
 
@@ -771,7 +441,7 @@ class DatabaseService {
   }
 
   // --- PAGE BUILDER SECTION ACTIONS ---
-  public addSection(pageId: string, section: Omit<PageSection, 'id' | 'order'>): PageSection | null {
+  public async addSection(pageId: string, section: Omit<PageSection, 'id' | 'order'>): Promise<PageSection | null> {
     const page = this.getPageById(pageId);
     if (!page) return null;
     const newOrder = page.sections.length > 0 ? Math.max(...page.sections.map((s) => s.order)) + 1 : 1;
@@ -781,11 +451,11 @@ class DatabaseService {
       order: newOrder,
     };
     page.sections.push(newSection);
-    this.savePage(page, `Added ${section.type} section`);
+    await this.savePage(page, `Added ${section.type} section`);
     return newSection;
   }
 
-  public updateSection(pageId: string, sectionId: string, updates: Partial<PageSection>): boolean {
+  public async updateSection(pageId: string, sectionId: string, updates: Partial<PageSection>): Promise<boolean> {
     const page = this.getPageById(pageId);
     if (!page) return false;
     const idx = page.sections.findIndex((s) => s.id === sectionId);
@@ -795,19 +465,19 @@ class DatabaseService {
       ...updates,
       content: { ...page.sections[idx].content, ...(updates.content || {}) },
     };
-    this.savePage(page, `Edited section: ${page.sections[idx].title || page.sections[idx].type}`);
+    await this.savePage(page, `Edited section: ${page.sections[idx].title || page.sections[idx].type}`);
     return true;
   }
 
-  public deleteSection(pageId: string, sectionId: string): boolean {
+  public async deleteSection(pageId: string, sectionId: string): Promise<boolean> {
     const page = this.getPageById(pageId);
     if (!page) return false;
     page.sections = page.sections.filter((s) => s.id !== sectionId);
-    this.savePage(page, 'Deleted section');
+    await this.savePage(page, 'Deleted section');
     return true;
   }
 
-  public reorderSections(pageId: string, newOrderedIds: string[]): boolean {
+  public async reorderSections(pageId: string, newOrderedIds: string[]): Promise<boolean> {
     const page = this.getPageById(pageId);
     if (!page) return false;
     const sectionMap = new Map(page.sections.map((s) => [s.id, s]));
@@ -819,11 +489,11 @@ class DatabaseService {
       }
     });
     page.sections = reordered;
-    this.savePage(page, 'Reordered sections');
+    await this.savePage(page, 'Reordered sections');
     return true;
   }
 
-  public duplicateSection(pageId: string, sectionId: string): PageSection | null {
+  public async duplicateSection(pageId: string, sectionId: string): Promise<PageSection | null> {
     const page = this.getPageById(pageId);
     if (!page) return null;
     const original = page.sections.find((s) => s.id === sectionId);
@@ -839,7 +509,7 @@ class DatabaseService {
     page.sections.forEach((s, idx) => {
       s.order = idx + 1;
     });
-    this.savePage(page, `Duplicated section: ${original.title || original.type}`);
+    await this.savePage(page, `Duplicated section: ${original.title || original.type}`);
     return cloned;
   }
 
@@ -866,69 +536,22 @@ class DatabaseService {
     this.save(DB_KEYS.PAGE_VERSIONS, [newVersion, ...allVersions.slice(0, 150)]);
   }
 
-  public restorePageVersion(pageId: string, versionId: string): boolean {
+  public async restorePageVersion(pageId: string, versionId: string): Promise<boolean> {
     const page = this.getPageById(pageId);
     if (!page) return false;
     const allVersions = this.load<PageVersion[]>(DB_KEYS.PAGE_VERSIONS, []);
     const target = allVersions.find((v) => v.id === versionId && v.pageId === pageId);
     if (!target) return false;
     page.sections = JSON.parse(JSON.stringify(target.sectionsSnapshot));
-    this.savePage(page, `Restored to Version ${target.versionNumber}`);
+    await this.savePage(page, `Restored to Version ${target.versionNumber}`);
     this.logActivity('Restored Page Version', 'Page Builder', pageId, `Restored to Version ${target.versionNumber}`);
     return true;
   }
 
   // --- ATTORNEYS ---
   public getAttorneys(includeUnpublished: boolean = true): Attorney[] {
-    let list = this.load<Attorney[]>(DB_KEYS.ATTORNEYS, initialAttorneys);
-
-    // Keep the authentic 3 Lalusis partners synchronized with the latest credentials, biographies, and contact details
-    const initMap = new Map(initialAttorneys.map((a) => [a.id, a]));
-    const synchronized: Attorney[] = initialAttorneys.map((initAtty) => {
-      const existing = list.find((a) => a.id === initAtty.id);
-      if (!existing) return initAtty;
-
-      // Migrate outdated template unsplash portraits to official vector portraits
-      const portraitUrl =
-        !existing.portraitUrl ||
-        existing.portraitUrl.includes('unsplash.com') ||
-        existing.portraitUrl.includes('placeholder')
-          ? initAtty.portraitUrl
-          : existing.portraitUrl;
-
-      return {
-        ...initAtty,
-        ...existing,
-        portraitUrl,
-        homeCardImageUrl: existing.homeCardImageUrl ?? initAtty.homeCardImageUrl,
-        homeModalImageUrl: existing.homeModalImageUrl ?? initAtty.homeModalImageUrl,
-        partnerPageImageUrl: existing.partnerPageImageUrl ?? initAtty.partnerPageImageUrl,
-        isPartner: true,
-        isFeatured: true,
-      };
-    });
-
-    const isDifferent =
-      list.length !== synchronized.length ||
-      list.some(
-        (a, i) =>
-          a.id !== synchronized[i]?.id ||
-          a.fullName !== synchronized[i]?.fullName ||
-          a.biography !== synchronized[i]?.biography ||
-          a.email !== synchronized[i]?.email ||
-          a.portraitUrl !== synchronized[i]?.portraitUrl ||
-          a.homeCardImageUrl !== synchronized[i]?.homeCardImageUrl ||
-          a.homeModalImageUrl !== synchronized[i]?.homeModalImageUrl ||
-          a.partnerPageImageUrl !== synchronized[i]?.partnerPageImageUrl
-      );
-
-    if (isDifferent) {
-      list = synchronized;
-      this.save(DB_KEYS.ATTORNEYS, list);
-    }
-
-    if (includeUnpublished) return list;
-    return list.filter((a) => a.isPublished);
+    const list = this.load<Attorney[]>(DB_KEYS.ATTORNEYS, initialAttorneys);
+    return includeUnpublished ? list : list.filter((a) => a.isPublished);
   }
 
   public getAttorneyBySlug(slug: string): Attorney | undefined {
@@ -939,7 +562,8 @@ class DatabaseService {
     );
   }
 
-  public saveAttorney(attorney: Attorney): void {
+  public async saveAttorney(attorney: Attorney): Promise<void> {
+    await this.requireCloudWrite(() => supabaseService.saveAttorney(attorney));
     const list = this.getAttorneys(true);
     const idx = list.findIndex((a) => a.id === attorney.id);
     let updated: Attorney[];
@@ -950,7 +574,6 @@ class DatabaseService {
       updated = [...list, attorney];
     }
     this.save(DB_KEYS.ATTORNEYS, updated);
-    supabaseService.saveAttorney(attorney).catch((e) => console.warn('Supabase saveAttorney:', e));
     this.logActivity(idx >= 0 ? 'Updated Attorney' : 'Created Attorney', 'Attorneys', attorney.id, `Attorney: ${attorney.fullName}`);
   }
 
@@ -1380,41 +1003,7 @@ class DatabaseService {
   }
 
   public getMedia(): MediaItem[] {
-    const list = this.load<MediaItem[]>(DB_KEYS.MEDIA, initialMedia);
-    let changed = false;
-    const existingIds = new Set(list.map((m) => m.id));
-    let merged = [...list];
-
-    // Ensure all standard initial firm media assets are present
-    for (const init of initialMedia) {
-      if (!existingIds.has(init.id)) {
-        merged.unshift(init);
-        changed = true;
-      } else {
-        const idx = merged.findIndex((m) => m.id === init.id);
-        if (idx >= 0 && (merged[idx].url !== init.url || merged[idx].name !== init.name)) {
-          merged[idx] = { ...merged[idx], ...init };
-          changed = true;
-        }
-      }
-    }
-
-    // Automatically adapt all items and self-heal any generic titles
-    const attorneys = this.getAttorneys(true);
-    merged = merged.map((item) => {
-      const { item: adapted, wasUpdated } = this.autoAdaptMediaItem(item, attorneys);
-      if (wasUpdated) {
-        changed = true;
-        supabaseService.saveMedia(adapted).catch(() => {});
-        return adapted;
-      }
-      return item;
-    });
-
-    if (changed) {
-      this.save(DB_KEYS.MEDIA, merged);
-    }
-    return merged;
+    return this.load<MediaItem[]>(DB_KEYS.MEDIA, []);
   }
 
   public addMedia(item: Omit<MediaItem, 'id' | 'createdAt'> & { id?: string }): MediaItem {
@@ -1468,11 +1057,11 @@ class DatabaseService {
     this.logActivity(idx >= 0 ? 'Updated Media Item' : 'Uploaded Media Item', 'Media', item.id, `Media: ${item.name}`);
   }
 
-  public deleteMedia(id: string): boolean {
+  public async deleteMedia(id: string): Promise<boolean> {
+    await this.requireCloudWrite(() => supabaseService.deleteMedia(id));
     const list = this.getMedia();
     const filtered = list.filter((m) => m.id !== id);
     this.save(DB_KEYS.MEDIA, filtered);
-    supabaseService.deleteMedia(id).catch((e) => console.warn('Supabase deleteMedia:', e));
     this.logActivity('Deleted Media Item', 'Media', id, `Deleted media item: ${id}`);
     return true;
   }

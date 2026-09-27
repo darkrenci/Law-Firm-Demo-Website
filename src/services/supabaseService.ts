@@ -212,28 +212,18 @@ export class SupabaseService {
   public async deleteMedia(id: string, storagePath?: string): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
 
-    try {
-      if (storagePath) {
-        await supabase.storage.from(STORAGE_BUCKET).remove([storagePath]);
-      } else {
-        const { data } = await supabase.from('media').select('storage_path').eq('id', id).maybeSingle();
-        if (data?.storage_path) {
-          await supabase.storage.from(STORAGE_BUCKET).remove([data.storage_path]);
-        }
-      }
-
-      const { error } = await supabase.from('media').delete().eq('id', id);
-      if (error) {
-        if (error.code !== 'PGRST205') {
-          console.warn('Failed to delete media from database:', error.message);
-        }
-        return false;
-      }
-      return true;
-    } catch (e) {
-      console.warn('Error during media deletion:', e);
-      return false;
+    const { data: existing, error: lookupError } = await supabase.from('media').select('storage_path').eq('id', id).maybeSingle();
+    if (lookupError) throw new Error(lookupError.message);
+    if (!existing) return true;
+    const path = storagePath || existing.storage_path;
+    if (path) {
+      const { error } = await supabase.storage.from(STORAGE_BUCKET).remove([path]);
+      if (error) throw new Error(error.message);
     }
+    const { data, error } = await supabase.from('media').delete().eq('id', id).select('id');
+    if (error) throw new Error(error.message);
+    if (!data?.length) throw new Error('Supabase did not allow this media deletion. Check delete permissions.');
+    return true;
   }
 
   // --- STORAGE: SAVE / UPDATE MEDIA ITEM METADATA ---
@@ -450,12 +440,9 @@ export class SupabaseService {
       partner_page_image_url: attorney.partnerPageImageUrl || null,
     };
 
-    let { error } = await supabase.from('attorneys').upsert(fullPayload);
-
-    // If columns do not exist yet in older schema, retry with base payload
-    if (error && (error.message?.includes('column') || (error as any).code === '42703')) {
-      const retryResult = await supabase.from('attorneys').upsert(basePayload);
-      error = retryResult.error;
+    const { error } = await supabase.from('attorneys').upsert(fullPayload);
+    if (error && (error.code === 'PGRST204' || error.code === '42703')) {
+      throw new Error('Partner image columns are missing in Supabase. Run supabase/migrations/20260927_partner_image_placements.sql, then save again.');
     }
 
     if (error) {

@@ -59,9 +59,11 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
     }
   };
 
-  const handleTogglePublish = (atty: Attorney) => {
-    db.saveAttorney({ ...atty, isPublished: !atty.isPublished });
+  const handleTogglePublish = async (atty: Attorney) => {
+    try {
+    await db.saveAttorney({ ...atty, isPublished: !atty.isPublished });
     toast.info('Status Updated', `${atty.fullName} is now ${!atty.isPublished ? 'Published' : 'Hidden'}`);
+    } catch (error) { toast.error('Save Failed', (error as Error).message); }
   };
 
   const filtered = attorneys.filter(
@@ -283,10 +285,12 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
           attorney={editingAttorney}
           isNew={isNew}
           onClose={() => setEditingAttorney(null)}
-          onSave={(saved) => {
-            db.saveAttorney(saved);
+          onSave={async (saved) => {
+            try {
+            await db.saveAttorney(saved);
             toast.success('Roster Updated', `Saved partner ${saved.fullName}`);
             setEditingAttorney(null);
+            } catch (error) { toast.error('Save Failed', (error as Error).message); }
           }}
         />
       )}

@@ -136,43 +136,18 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
         .trim()
         .replace(/\b\w/g, (c) => c.toUpperCase());
 
-      // 1. Process to high-quality base64 Data URL so local preview ALWAYS succeeds
-      const processed = await processImageFile(file);
-      let targetUrl = processed.dataUrl;
-      let mediaId = `med-${Date.now()}`;
-
-      // 2. If Supabase is configured, upload to cloud storage
-      if (isSupabaseConfigured) {
-        try {
-          const result = await supabaseService.uploadMediaFile(file, {
-            customName: cleaned,
-          });
-
-          // Test if public URL loads cleanly in browser
-          await new Promise<void>((resolve) => {
-            const testImg = new Image();
-            testImg.onload = () => {
-              targetUrl = result.url;
-              mediaId = result.mediaItem.id;
-              resolve();
-            };
-            testImg.onerror = () => {
-              console.warn('Supabase public URL failed browser check, using safe local Data URL');
-              resolve(); // fallback remains processed.dataUrl
-            };
-            testImg.src = result.url;
-          });
-        } catch (supErr: any) {
-          console.warn('Supabase upload warning, using local file:', supErr);
-        }
+      if (!isSupabaseConfigured) {
+        throw new Error('Configure Supabase in your hosting environment before uploading images.');
       }
+      const result = await supabaseService.uploadMediaFile(file, { customName: cleaned });
+      const targetUrl = result.url;
+      const mediaId = result.mediaItem.id;
 
       // 3. Register in Media Library
       db.addMedia({
         id: mediaId,
         name: cleaned,
         url: targetUrl,
-        dataUrl: processed.dataUrl,
         fileType: 'image',
         format: file.name.split('.').pop()?.toUpperCase() || 'JPG',
         sizeBytes: file.size,

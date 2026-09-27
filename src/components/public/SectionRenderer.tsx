@@ -1,3 +1,4 @@
+import { supabaseService } from '../../services/supabaseService';
 import React, { useState, useEffect, useRef } from 'react';
 import { PageSection, BlockTypography, PracticeArea, Attorney, Article, NewsItem, FAQItem } from '../../types';
 import { db } from '../../services/db';
@@ -398,14 +399,14 @@ const InstitutionalImageFrame: React.FC<{
     if (!isEffectiveAdmin) return;
     setIsUploading(true);
     try {
-      const processed = await processImageFile(file, 1800, 0.88);
-      setLocalSrc(processed.dataUrl);
-      setHasError(false);
+      const uploaded = await supabaseService.uploadMediaFile(file);
       if (sectionId) {
-        db.updateSection('page-home', sectionId, {
-          content: { imageUrl: processed.dataUrl },
+        await db.updateSection('page-home', sectionId, {
+          content: { imageUrl: uploaded.url },
         });
       }
+      setLocalSrc(uploaded.url);
+      setHasError(false);
       toast.success('Partner Group Portrait Updated', 'Image loaded and stored in firm records.');
     } catch (e: any) {
       toast.error('Upload Failed', e?.message || 'Failed to process image file.');

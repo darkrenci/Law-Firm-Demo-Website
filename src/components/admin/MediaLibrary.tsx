@@ -46,10 +46,12 @@ export const MediaLibrary: React.FC = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (confirm(`Remove media asset "${name}"?`)) {
-      db.deleteMedia(id);
+      try {
+      await db.deleteMedia(id);
       toast.success('Media Asset Removed');
+      } catch (error) { toast.error('Delete Failed', (error as Error).message); }
     }
   };
 

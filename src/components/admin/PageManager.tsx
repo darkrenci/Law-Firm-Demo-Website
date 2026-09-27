@@ -356,16 +356,16 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
   };
 
   // Save & Publish changes to DB
-  const handleSaveAndPublish = () => {
+  const handleSaveAndPublish = async () => {
     setIsSaving(true);
     try {
-      db.savePage(workingPage, `Updated via Live Visual Builder (${workingPage.sections?.length || 0} sections)`);
+      await db.savePage(workingPage, `Updated via Live Visual Builder (${workingPage.sections?.length || 0} sections)`);
       setIsDirty(false);
       setIsSaving(false);
       toast.success('Page Saved & Published', 'All changes are now live on the public website.');
     } catch (err) {
       setIsSaving(false);
-      toast.error('Failed to Save Page', 'An unexpected error occurred while persisting page data.');
+      toast.error('Failed to Save Page', (err as Error).message);
     }
   };
 
@@ -1032,11 +1032,13 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
           isOpen={isPageSettingsOpen}
           page={workingPage}
           onClose={() => setIsPageSettingsOpen(false)}
-          onSave={(updates) => {
+          onSave={async (updates) => {
+            try {
             setWorkingPage((prev) => ({ ...prev, ...updates }));
-            db.savePage({ ...workingPage, ...updates });
+            await db.savePage({ ...workingPage, ...updates });
             toast.success('Page Settings Saved');
             setIsPageSettingsOpen(false);
+            } catch (error) { toast.error('Save Failed', (error as Error).message); }
           }}
         />
       )}
@@ -1047,8 +1049,9 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
           isOpen={isVersionHistoryOpen}
           pageId={workingPage.id}
           onClose={() => setIsVersionHistoryOpen(false)}
-          onRestore={(verId) => {
-            db.restorePageVersion(workingPage.id, verId);
+          onRestore={async (verId) => {
+            try {
+            await db.restorePageVersion(workingPage.id, verId);
             const restored = db.getPageById(workingPage.id);
             if (restored) {
               setWorkingPage(JSON.parse(JSON.stringify(restored)));
@@ -1056,6 +1059,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
             setIsDirty(false);
             toast.success('Version Restored', 'Reverted page sections to prior snapshot.');
             setIsVersionHistoryOpen(false);
+            } catch (error) { toast.error('Restore Failed', (error as Error).message); }
           }}
         />
       )}
