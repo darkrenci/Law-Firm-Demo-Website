@@ -16,7 +16,7 @@ const service = new Proxy({
   savePage: async () => { writes++; return succeeds; },
   deleteMedia: async () => { writes++; return succeeds; },
 }, { get: (target, key) => target[key] || (async () => null) });
-const context = vm.createContext({ console, supabaseService: service, isSupabaseConfigured: true,
+const context = vm.createContext({ console, structuredClone, supabaseService: service, isSupabaseConfigured: true,
   localStorage: { getItem: k => cache.get(k), setItem: (k,v) => cache.set(k,v) },
   ...Object.fromEntries(seedNames.map(n => [n, n === 'initialUsers' ? [{id:'u',name:'Admin',role:'admin'}] : []])),
 });
@@ -44,3 +44,18 @@ succeeds = true;
 await db.saveAttorney({id:'a',homeCardImageUrl:'card.jpg',homeModalImageUrl:'popup.jpg',partnerPageImageUrl:'partner.jpg'});
 assert.equal(db.getAttorneys()[0].homeModalImageUrl, 'popup.jpg');
 console.log('PASS: cloud authority, empty library, no resurrection, and confirmed writes');
+
+context.initialPages.push(...['', 'about', 'attorneys', 'practice-areas', 'contact'].map((slug) => ({id: 'page-' + slug, slug, sections: [{id:'original'}]})));
+context.initialNavigation.push(...['/', '/about', '/attorneys', '/practice-areas', '/contact'].map((path, i) => ({id:'nav-' + i, path, label:path, isVisible:true, order:i+1})));
+cache.set('lp_cms_pages_v1', '[]');
+cache.set('lp_cms_nav_v1', '[]');
+assert.equal(db.getPages().length, 5, 'empty cloud pages retain the five core routes');
+assert.equal(db.getNavigation().length, 5, 'empty cloud navigation retains the five core links');
+cache.set('lp_cms_pages_v1', JSON.stringify([{id:'custom-about',slug:'about',sections:[{id:'user-edit'}]}]));
+assert.equal(db.getPages().find(p => p.slug === 'about').sections[0].id, 'user-edit', 'saved page sections are preserved');
+cache.set('lp_cms_nav_v1', JSON.stringify([{id:'custom-partners',path:'/partners',label:'Our Partners',isVisible:true,order:3}]));
+assert.equal(db.getNavigation().length, 5, 'partners alias must not produce duplicate links');
+const writesBeforeReads = writes;
+db.getPages(); db.getNavigation(); db.getMedia();
+assert.equal(writes, writesBeforeReads, 'restoring the core layout does not write media or defaults to the cloud');
+console.log('PASS: core routes and navigation restored without replacing saved content');

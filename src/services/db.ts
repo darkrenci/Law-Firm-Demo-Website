@@ -375,7 +375,13 @@ class DatabaseService {
 
   // --- PAGES & PAGE BUILDER ---
   public getPages(): Page[] {
-    return this.load<Page[]>(DB_KEYS.PAGES, initialPages);
+    const pages = this.load<Page[]>(DB_KEYS.PAGES, initialPages);
+    const coreSlugs = new Set(['', 'home', 'about', 'attorneys', 'practice-areas', 'contact']);
+    const normalize = (slug: string) => slug === 'home' ? '' : slug === 'partners' ? 'attorneys' : slug;
+    const missing = initialPages.filter((page) => coreSlugs.has(page.slug) &&
+      !pages.some((saved) => saved.id === page.id || normalize(saved.slug) === normalize(page.slug)));
+    // Restore missing core routes only; never replace saved content or sections.
+    return [...pages, ...structuredClone(missing)];
   }
 
   public getPageBySlug(slug: string): Page | undefined {
@@ -1068,7 +1074,11 @@ class DatabaseService {
 
   // --- NAVIGATION ---
   public getNavigation(): MenuItem[] {
-    const nav = this.load<MenuItem[]>(DB_KEYS.NAVIGATION, initialNavigation);
+    const stored = this.load<MenuItem[]>(DB_KEYS.NAVIGATION, initialNavigation);
+    const normalize = (path: string) => path === '/partners' ? '/attorneys' : path;
+    const missing = initialNavigation.filter((item) =>
+      !stored.some((saved) => saved.id === item.id || normalize(saved.path) === normalize(item.path)));
+    const nav = [...stored, ...structuredClone(missing)].sort((a, b) => a.order - b.order);
     const removedPaths = ['/insights', '/news', '/faqs'];
     const removedIds = ['nav-insights', 'nav-news', 'nav-faqs'];
     let changed = false;
