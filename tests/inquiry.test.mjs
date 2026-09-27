@@ -1,18 +1,27 @@
+import nodemailer from 'nodemailer';
 import assert from 'node:assert/strict';
 import handler from '../api/inquiry.ts';
-process.env.RESEND_API_KEY = 'test-key';
-process.env.INQUIRY_EMAIL_FROM = 'Test <intake@example.com>';
+process.env.GMAIL_SMTP_USER = 'lalusispartners@gmail.com';
+process.env.GMAIL_SMTP_APP_PASSWORD = 'test-app-password';
 process.env.INQUIRY_EMAIL_TO = 'lalusispartners@gmail.com';
 process.env.VITE_SUPABASE_URL = 'https://test.supabase.co';
 process.env.VITE_SUPABASE_ANON_KEY = 'test-anon';
 let calls = [];
 let dbStatus = 201;
 let mailStatus = 200;
+let connections = [];
+let closes = 0;
+nodemailer.createTransport = options => {
+  connections.push(options);
+  return { sendMail: async payload => {
+    calls.push({payload});
+    if (mailStatus !== 200) throw new Error('SMTP rejected');
+    return {accepted:['lalusispartners@gmail.com'],rejected:[]};
+  }, close: () => closes++ };
+};
 globalThis.fetch = async (url, options) => {
   calls.push({url, ...options, payload: JSON.parse(options.body)});
-  return url.includes('supabase')
-    ? new Response(dbStatus === 409 ? JSON.stringify({code:'23505'}) : '{}', {status:dbStatus})
-    : new Response(JSON.stringify(mailStatus === 200 ? {id:'email-test'} : {message:'denied'}), {status:mailStatus});
+  return new Response(dbStatus === 409 ? JSON.stringify({code:'23505'}) : '{}', {status:dbStatus});
 };
 let ip=0;
 async function send(body, extra = {}) {
@@ -29,17 +38,17 @@ assert.equal(calls.length,2);
 assert.ok(calls[0].url.endsWith('/consultation_requests'));
 assert.equal(calls[0].payload.company_name, 'Test Company');
 assert.match(calls[0].payload.brief_concern,/Corporate/);
-assert.deepEqual(calls[1].payload.to,['lalusispartners@gmail.com']);
-assert.equal(calls[1].payload.reply_to,'visitor@example.com');
+assert.deepEqual(calls[1].payload.to,'lalusispartners@gmail.com');
+assert.equal(calls[1].payload.replyTo,'visitor@example.com');
 assert.match(calls[1].payload.text,/2026-10-01/);
-const emailKey = calls[1].headers['Idempotency-Key'];
+const emailKey = calls[1].payload.messageId;
 calls=[];dbStatus=409;
 assert.equal((await send(data)).status,200);
-assert.equal(calls[1].headers['Idempotency-Key'], emailKey, 'unchanged retries deduplicate email');
+assert.equal(calls[1].payload.messageId, emailKey, 'unchanged retries retain the same message identifier');
 calls=[];dbStatus=201;
 assert.equal((await send({...data,kind:'contact',to:'attacker@example.com'})).status,200);
 assert.ok(calls[0].url.endsWith('/contact_messages'));
-assert.deepEqual(calls[1].payload.to,['lalusispartners@gmail.com'],'client cannot select recipient');
+assert.deepEqual(calls[1].payload.to,'lalusispartners@gmail.com','client cannot select recipient');
 calls=[];
 assert.equal((await send({...data,email:'bad\r\nBcc: attacker@example.com'})).status,400);
 assert.equal((await send({...data,consent:false})).status,400);
@@ -52,7 +61,14 @@ assert.equal((await send(data)).status,502);
 assert.equal(calls.length,1,'no email if database persistence failed');
 calls=[];dbStatus=201;mailStatus=422;
 assert.equal((await send(data)).status,502,'no success when email is rejected');
-delete process.env.RESEND_API_KEY;calls=[];
+delete process.env.GMAIL_SMTP_APP_PASSWORD;calls=[];
 assert.equal((await send(data)).status,503);
 assert.equal(calls.length,0,'missing config must not falsely accept inquiry');
-console.log('PASS: both inbox routes, email fields, retry deduplication, validation, and failure handling');
+console.log('PASS: both inbox routes, email fields, stable retry IDs, validation, and failure handling');
+
+assert.equal(connections[0].host, 'smtp.gmail.com');
+assert.equal(connections[0].secure, true);
+assert.equal(connections[0].port, 465);
+assert.equal(closes, connections.length, 'SMTP connections closed on success and failure');
+
+assert.equal(connections[0].auth.user, 'lalusispartners@gmail.com');

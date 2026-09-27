@@ -1,3 +1,4 @@
+import nodemailer from 'nodemailer';
 import { createHash } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
@@ -52,12 +53,12 @@ export default async function handler(req: Request, res: ServerResponse) {
     if (data.preferredDate && !/^\d{4}-\d{2}-\d{2}$/.test(data.preferredDate)) throw new Error('Invalid preferred date.');
   } catch (error) { return reply(400, { error: (error as Error).message }); }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.INQUIRY_EMAIL_FROM;
+  const smtpUser = process.env.GMAIL_SMTP_USER?.trim();
+  const smtpPassword = process.env.GMAIL_SMTP_APP_PASSWORD?.replace(/\s/g, '');
   const to = process.env.INQUIRY_EMAIL_TO || 'lalusispartners@gmail.com';
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
-  if (!apiKey || !from || !supabaseUrl || !supabaseKey) {
+  if (!smtpUser || !smtpPassword || !supabaseUrl || !supabaseKey) {
     console.error('Inquiry endpoint configuration is incomplete.');
     return reply(503, { error: unavailable });
   }
@@ -104,16 +105,26 @@ export default async function handler(req: Request, res: ServerResponse) {
         return reply(502, { error: unavailable });
       }
     }
-    const sent = await fetch('https://api.resend.com/emails', {
-      method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json', 'Idempotency-Key': id },
-      body: JSON.stringify({ from, to: [to], reply_to: data.email,
-        subject: `${consultation ? 'Consultation request' : 'Chambers contact'} — ${referenceNumber}`, text: details }),
-      signal: AbortSignal.timeout(10000),
+    const transport = nodemailer.createTransport({
+      host: 'smtp.gmail.com', port: 465, secure: true,
+      auth: { user: smtpUser, pass: smtpPassword },
+      connectionTimeout: 5000, greetingTimeout: 5000, socketTimeout: 10000,
+      disableFileAccess: true, disableUrlAccess: true,
     });
-    const receipt = await sent.json().catch(() => ({}));
-    if (!sent.ok || !receipt.id) {
-      console.error('Inquiry email failed:', sent.status);
+    try {
+      const receipt = await transport.sendMail({
+        from: { name: 'Lalusis & Partners Website', address: smtpUser },
+        to, replyTo: data.email,
+        messageId: '<' + id + '@' + smtpUser.split('@')[1] + '>',
+        subject: (consultation ? 'Consultation request' : 'Chambers contact') + ' - ' + referenceNumber,
+        text: details,
+      });
+      if (!receipt.accepted?.length || receipt.rejected?.length) throw new Error('Recipient not accepted');
+    } catch {
+      console.error('Gmail SMTP notification failed.');
       return reply(502, { error: 'Your inquiry was recorded, but the email notification failed. Please retry or contact lalusispartners@gmail.com directly.' });
+    } finally {
+      transport.close();
     }
     return reply(200, { id, referenceNumber });
   } catch {

@@ -1,30 +1,28 @@
-# Consultation and Chambers Contact email
+# Gmail SMTP inquiry notifications
 
-The forms submit to `/api/inquiry`, a Vercel Node function. It saves to Supabase first, then sends a notification to the firm through Resend. The visitor's email is Reply-To; the recipient is controlled by server environment variables, not form input. A success message means Supabase saved the inquiry and Resend accepted the email, not guaranteed inbox delivery.
+Both Consultation and Chambers Contact save the inquiry to Supabase and send a notification to `lalusispartners@gmail.com`. The sender is your authenticated Gmail account; Reply-To is the customer's email. Open the notification in Gmail and click Reply to respond manually. No automatic reply is sent to the customer, and no custom sending domain is needed.
 
-## Production configuration
+## Activate in production
 
-In Vercel Project Settings > Environment Variables, add these for Production:
+1. Sign in to the Gmail account that will send notifications, normally lalusispartners@gmail.com.
+2. Enable 2-Step Verification in Google Account Security.
+3. Open https://myaccount.google.com/apppasswords and create an App Password named Law Firm Website. If the option is unavailable, check Google's account restrictions: https://support.google.com/accounts/answer/185833 .
+4. Add these in Vercel > Project Settings > Environment Variables, scoped to Production:
+   - `GMAIL_SMTP_USER`: `lalusispartners@gmail.com`
+   - `GMAIL_SMTP_APP_PASSWORD`: the generated Google App Password, not your normal Gmail password.
+   - `INQUIRY_EMAIL_TO`: `lalusispartners@gmail.com`
+5. Keep the existing `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` configured. Redeploy after saving the new variables.
 
-- `RESEND_API_KEY`: a sending API key from your Resend account.
-- `INQUIRY_EMAIL_FROM`: a sender address permitted by Resend, such as `Lalusis & Partners <inquiries@your-verified-domain.com>`.
-- `INQUIRY_EMAIL_TO`: `lalusispartners@gmail.com`.
+Never prefix the Gmail credentials with VITE_, paste them into chat, or commit them. The old RESEND_API_KEY and INQUIRY_EMAIL_FROM are no longer used and can be removed from Vercel.
 
-Keep the existing `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` configured for the same environment. Never put the email key in a `VITE_` variable or commit it. Redeploy after adding the variables.
+SMTP uses smtp.gmail.com port 465 with TLS and certificate verification. Gmail sending limits and account restrictions still apply. A successful form means the database saved the record and Gmail's SMTP server accepted the message; it does not guarantee inbox placement.
 
-Resend requires a verified sending domain for production. Its test sender can only send to the Resend account's own email address; if testing with that sender, the account address must match the recipient. You cannot verify gmail.com as your sending domain.
+## Verify
 
-The existing Supabase public INSERT policies on `consultation_requests` and `contact_messages` must be present. The endpoint uses the public anon key and does not need a service-role key or changes to unrelated tables.
+Submit a clearly labelled test from each form, confirm the corresponding Supabase record and Gmail notification (including Spam), and click Reply to verify the customer's address. Automated tests use mocks and do not send real messages.
 
-## Verification
+If SMTP fails, the database record remains, the form stays filled, and the visitor sees an error. Retrying unchanged data in the same page session reuses the database ID and email Message-ID. SMTP has no guaranteed idempotency: a timeout after Gmail accepts a message can result in a duplicate email on retry. Reloading starts a new submission.
 
-1. Submit a clearly labelled test from Consultation and from Chambers Contact.
-2. Confirm each success screen, the record in the corresponding Supabase table, and receipt in lalusispartners@gmail.com (including Spam).
-3. Confirm Reply addresses the visitor, and the message includes company, practice area, urgency, and the requested schedule when supplied.
-4. If email fails after the database save, retry the unchanged form. The same payload uses the same database ID and Resend idempotency key during that page session. Resend's deduplication window is 24 hours. Reloading the page starts a new request.
+The endpoint uses the public INSERT policies on consultation_requests and contact_messages. It validates fields, rejects cross-origin browser submissions, and uses a best-effort per-instance throttle. For shared rate limits across Vercel instances, configure a Firewall rule for /api/inquiry.
 
-The API validates fields and size, rejects cross-origin browser submissions, and limits attempts per running server instance. For global bot/rate protection, configure a Vercel Firewall rate-limit rule for `/api/inquiry`; the in-memory limit is not shared across instances.
-
-Run locally through `vercel dev` to exercise the API. Vite alone serves the frontend, not Vercel functions. Automated endpoint tests use mocks and do not send real email.
-
-References: https://resend.com/docs/api-reference/emails/send-email and https://vercel.com/docs/functions/runtimes/node-js
+Run through `vercel dev` to exercise the API locally. Vite alone serves only the frontend.
