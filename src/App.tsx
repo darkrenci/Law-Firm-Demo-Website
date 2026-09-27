@@ -232,6 +232,7 @@ export default function App() {
       return (
         <SectionRenderer
           sections={matchedPage.sections}
+          pageSlug={matchedPage.slug}
           onNavigate={handleNavigate}
           isAdmin={false}
         />

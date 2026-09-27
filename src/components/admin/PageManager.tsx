@@ -856,6 +856,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
                     >
                       <SectionRenderer
                         section={sec}
+                        pageSlug={workingPage.slug}
                         onNavigate={() => {}}
                         isAdmin={true}
                         editMode={selectedSectionId === sec.id}

@@ -59,6 +59,7 @@ const getEmbedVideoUrl = (url: string) => {
 };
 
 interface SectionRendererProps {
+  pageSlug?: string;
   sections?: PageSection[];
   section?: PageSection;
   onNavigate: (path: string) => void;
@@ -71,6 +72,7 @@ interface SectionRendererProps {
 
 export const SectionRenderer: React.FC<SectionRendererProps> = ({
   sections,
+  pageSlug = '',
   section,
   onNavigate,
   editMode = false,
@@ -103,6 +105,7 @@ export const SectionRenderer: React.FC<SectionRendererProps> = ({
         <RenderSectionItem
           key={sec.id}
           section={sec}
+          pageSlug={pageSlug}
           onNavigate={onNavigate}
           editMode={editMode}
           isAdmin={isEffectiveAdmin}
@@ -570,13 +573,14 @@ const InstitutionalImageFrame: React.FC<{
 };
 
 const RenderSectionItem: React.FC<{
+  pageSlug?: string;
   section: PageSection;
   onNavigate: (path: string) => void;
   editMode?: boolean;
   isAdmin?: boolean;
   activeElementPart?: string | null;
   onSelectPart?: (part: string) => void;
-}> = ({ section, onNavigate, editMode, isAdmin, activeElementPart, onSelectPart }) => {
+}> = ({ section, pageSlug, onNavigate, editMode, isAdmin, activeElementPart, onSelectPart }) => {
   const { type, content, background, paddingY, typography } = section;
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   const [activeVideoModal, setActiveVideoModal] = useState<any | null>(null);
@@ -2168,7 +2172,7 @@ const RenderSectionItem: React.FC<{
                       {/* Portrait Frame with Executive Brass Accent */}
                       <div className="aspect-[4/5] sm:h-80 overflow-hidden relative bg-[#0a0a0e]">
                         <img
-                          src={atty.homeCardImageUrl || atty.portraitUrl || getPartnerOfficialPortrait(atty.fullName, atty.slug, atty.id)}
+                          src={(pageSlug === 'attorneys' || pageSlug === 'partners' ? atty.partnerPageImageUrl : atty.homeCardImageUrl) || atty.portraitUrl || getPartnerOfficialPortrait(atty.fullName, atty.slug, atty.id)}
                           alt={atty.fullName}
                           onError={(e) => {
                             const target = e.currentTarget;
