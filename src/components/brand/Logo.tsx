@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface LogoProps {
-  variant?: 'full' | 'horizontal' | 'mark' | 'hero' | 'compact';
+  variant?: 'full' | 'horizontal' | 'mark' | 'hero' | 'compact' | 'footer';
   className?: string;
   markClassName?: string;
   textClassName?: string;
@@ -296,6 +296,22 @@ export const Logo: React.FC<LogoProps> = ({
             Attorneys at Law
           </span>
           <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-[#c59b63]/80 to-[#c59b63]"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === 'footer') {
+    return (
+      <div className={'flex w-full min-w-0 items-center gap-3 select-none ' + className}>
+        <LalusisLogoMark className={'w-12 h-12 shrink-0 ' + markClassName} />
+        <div className={'min-w-0 flex-1 ' + textClassName}>
+          <span className="block font-cinzel text-lg font-bold tracking-[0.06em] text-[#f4e6d0] uppercase leading-snug break-words">
+            Lalusis &amp; Partners
+          </span>
+          <span className="block mt-1 font-cinzel text-[10px] tracking-[0.18em] text-[#c59b63] uppercase leading-relaxed break-words">
+            Attorneys at Law
+          </span>
         </div>
       </div>
     );

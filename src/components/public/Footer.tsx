@@ -31,9 +31,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenAdmin }) => {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-16 sm:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
           {/* Col 1: Brand & Identity (4 cols) */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="min-w-0 lg:col-span-4 space-y-6">
             <div onClick={() => onNavigate('/')} className="cursor-pointer">
-              <Logo variant="horizontal" />
+              <Logo variant="footer" />
             </div>
             <p className="text-xs sm:text-sm text-[#8e877e] leading-relaxed font-sans pr-4">
               Lalusis &amp; Partners is an institutional Philippine law firm dedicated to high-consequence corporate counseling, complex commercial dispute resolution, and supreme appellate advocacy.
