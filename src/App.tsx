@@ -5,6 +5,7 @@ import { ToastProvider } from './components/ui/Toast';
 import { SearchModal } from './components/ui/SearchModal';
 import { DemoSwitcher } from './components/ui/DemoSwitcher';
 import { Button } from './components/ui/Buttons';
+import { OpeningLoadingScreen } from './components/ui/OpeningLoadingScreen';
 
 // Public Components
 import { Header } from './components/public/Header';
@@ -44,6 +45,13 @@ export default function App() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [pages, setPages] = useState<Page[]>(db.getPages());
+  const [showOpeningScreen, setShowOpeningScreen] = useState<boolean>(() => {
+    // If directly loading admin dashboard, don't show the public site opening screen
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) {
+      return false;
+    }
+    return true;
+  });
 
   // Listen to popstate for browser back / forward navigation
   useEffect(() => {
@@ -160,6 +168,16 @@ export default function App() {
           onNavigate={handleNavigate}
           adminTab={adminTab}
           onSelectAdminTab={setAdminTab}
+          onReplayOpeningScreen={() => {
+            handleNavigate('/');
+            setShowOpeningScreen(true);
+          }}
+        />
+
+        {/* Global Opening Loading Screen */}
+        <OpeningLoadingScreen
+          isOpen={showOpeningScreen}
+          onComplete={() => setShowOpeningScreen(false)}
         />
       </ToastProvider>
     );
@@ -305,7 +323,11 @@ export default function App() {
         <main className="flex-1">{renderPublicView()}</main>
 
         {/* Public Footer */}
-        <Footer onNavigate={handleNavigate} />
+        <Footer
+          onNavigate={handleNavigate}
+          onOpenAdmin={() => handleNavigate('/admin')}
+          onReplayOpeningScreen={() => setShowOpeningScreen(true)}
+        />
 
         {/* Global Search Modal */}
         <SearchModal
@@ -320,6 +342,13 @@ export default function App() {
           onNavigate={handleNavigate}
           adminTab={adminTab}
           onSelectAdminTab={setAdminTab}
+          onReplayOpeningScreen={() => setShowOpeningScreen(true)}
+        />
+
+        {/* Global Opening Loading Screen */}
+        <OpeningLoadingScreen
+          isOpen={showOpeningScreen}
+          onComplete={() => setShowOpeningScreen(false)}
         />
       </div>
     </ToastProvider>

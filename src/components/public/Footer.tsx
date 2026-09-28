@@ -7,9 +7,14 @@ import { MapPin, Phone, Mail, Clock, Shield, ExternalLink } from 'lucide-react';
 interface FooterProps {
   onNavigate: (path: string) => void;
   onOpenAdmin: () => void;
+  onReplayOpeningScreen?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenAdmin }) => {
+export const Footer: React.FC<FooterProps> = ({
+  onNavigate,
+  onOpenAdmin,
+  onReplayOpeningScreen,
+}) => {
   const [settings, setSettings] = useState<FirmSettings>(db.getSettings());
   const [practiceAreas, setPracticeAreas] = useState<PracticeArea[]>(
     db.getPracticeAreas(false).slice(0, 6)
@@ -193,16 +198,28 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenAdmin }) => {
           </div>
 
           <div className="flex items-center gap-6">
+            {onReplayOpeningScreen && (
+              <>
+                <button
+                  onClick={onReplayOpeningScreen}
+                  className="hover:text-[#c59b63] transition-colors cursor-pointer text-[11px]"
+                  title="Replay Firm Opening Screen"
+                >
+                  Chambers Opening Screen
+                </button>
+                <div className="h-3 w-[1px] bg-[#22222c]" />
+              </>
+            )}
             <button
               onClick={() => onNavigate('/about')}
-              className="hover:text-[#c59b63] transition-colors"
+              className="hover:text-[#c59b63] transition-colors cursor-pointer"
             >
               Privacy &amp; Privilege
             </button>
             <div className="h-3 w-[1px] bg-[#22222c]" />
             <button
               onClick={onOpenAdmin}
-              className="flex items-center gap-1.5 text-[#c59b63] hover:text-[#f4e6d0] transition-colors font-cinzel uppercase tracking-wider text-[11px]"
+              className="flex items-center gap-1.5 text-[#c59b63] hover:text-[#f4e6d0] transition-colors font-cinzel uppercase tracking-wider text-[11px] cursor-pointer"
             >
               <Shield className="w-3.5 h-3.5" />
               <span>CMS Administration</span>

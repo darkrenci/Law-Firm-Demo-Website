@@ -23,6 +23,7 @@ interface DemoSwitcherProps {
   onNavigate: (path: string) => void;
   adminTab?: AdminTab;
   onSelectAdminTab?: (tab: AdminTab) => void;
+  onReplayOpeningScreen?: () => void;
 }
 
 export const DemoSwitcher: React.FC<DemoSwitcherProps> = ({
@@ -30,6 +31,7 @@ export const DemoSwitcher: React.FC<DemoSwitcherProps> = ({
   onNavigate,
   adminTab = 'dashboard',
   onSelectAdminTab,
+  onReplayOpeningScreen,
 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [currentUser, setCurrentUser] = useState<User>(db.getCurrentUser());
@@ -170,6 +172,22 @@ export const DemoSwitcher: React.FC<DemoSwitcherProps> = ({
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* Replay Opening Loading Screen */}
+          {onReplayOpeningScreen && (
+            <div className="pt-2 border-t border-[#1f1f2c]">
+              <button
+                onClick={() => {
+                  if (isAdmin) onNavigate('/');
+                  onReplayOpeningScreen();
+                }}
+                className="w-full flex items-center justify-center gap-2 py-1.5 px-3 bg-[#13131c] hover:bg-[#1a1a26] border border-[#c59b63]/40 hover:border-[#c59b63] text-[#c59b63] hover:text-[#f4e6d0] text-[11px] font-cinzel font-semibold tracking-wider uppercase transition-all cursor-pointer shadow-sm"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#c59b63]" />
+                <span>Replay Opening Screen</span>
+              </button>
             </div>
           )}
 
