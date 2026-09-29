@@ -53,7 +53,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   children,
 }) => {
   const [currentUser, setCurrentUser] = useState<User>(db.getCurrentUser());
-  const [users, setUsers] = useState<User[]>(db.getUsers());
   const [consultationsCount, setConsultationsCount] = useState<number>(0);
   const [messagesCount, setMessagesCount] = useState<number>(0);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -61,7 +60,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
   useEffect(() => {
     const update = () => {
       setCurrentUser(db.getCurrentUser());
-      setUsers(db.getUsers());
       setConsultationsCount(
         db.getConsultationRequests().filter((c) => c.status === 'new').length
       );
@@ -73,10 +71,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
     const unsub = db.subscribe(update);
     return unsub;
   }, []);
-
-  const handleRoleSwitch = (userId: string) => {
-    db.setCurrentUser(userId);
-  };
 
   const navItems = [
     {
@@ -160,17 +154,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
             <span className="text-[10px] font-cinzel uppercase text-[#8e877e] tracking-wider">
               Active Context:
             </span>
-            <select
-              value={currentUser.id}
-              onChange={(e) => handleRoleSwitch(e.target.value)}
-              className="bg-transparent text-xs text-[#d4af7a] font-medium focus:outline-none cursor-pointer"
-            >
-              {users.map((u) => (
-                <option key={u.id} value={u.id} className="bg-[#15151c] text-[#f7f4ee]">
-                  {u.name} ({u.role.replace('_', ' ')})
-                </option>
-              ))}
-            </select>
+            <span className="text-xs text-[#d4af7a]">{currentUser.email}</span>
           </div>
 
           {/* Return to Public Website */}

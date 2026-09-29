@@ -3,7 +3,7 @@ import { db } from './services/db';
 import { Page } from './types';
 import { ToastProvider } from './components/ui/Toast';
 import { SearchModal } from './components/ui/SearchModal';
-import { DemoSwitcher } from './components/ui/DemoSwitcher';
+import { getApprovedAdmin } from './lib/adminAuth';
 import { Button } from './components/ui/Buttons';
 import { OpeningLoadingScreen } from './components/ui/OpeningLoadingScreen';
 
@@ -42,7 +42,9 @@ export default function App() {
     typeof window !== 'undefined' ? window.location.pathname || '/' : '/'
   );
   const [adminTab, setAdminTab] = useState<AdminTab>('dashboard');
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(true);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
+  const [authRefresh, setAuthRefresh] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [pages, setPages] = useState<Page[]>(db.getPages());
   const [showOpeningScreen, setShowOpeningScreen] = useState<boolean>(() => {
@@ -62,24 +64,33 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Check and listen to Supabase Auth session
+  // A session is not an administrator permission. Fail closed on every check.
   useEffect(() => {
-    if (isSupabaseConfigured) {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-          setIsAdminAuthenticated(true);
-        }
-      });
-
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
-        setIsAdminAuthenticated(Boolean(session));
-      });
-
-      return () => subscription.unsubscribe();
-    }
-  }, []);
+    let stopped = false;
+    let generation = 0;
+    const check = async () => {
+      const ticket = ++generation;
+      const admin = await getApprovedAdmin();
+      if (stopped || ticket !== generation) return;
+      db.setVerifiedAdmin(admin);
+      setIsAdminAuthenticated(Boolean(admin));
+      setIsCheckingAdmin(false);
+      if (admin) void db.refreshFromSupabase();
+    };
+    void check();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      generation++;
+      db.setVerifiedAdmin(null);
+      setIsAdminAuthenticated(false);
+      setIsCheckingAdmin(true);
+      // Supabase auth calls must run outside the auth-change callback.
+      setTimeout(() => { if (!stopped) void check(); }, 0);
+    });
+    const onFocus = () => { void check(); };
+    window.addEventListener('focus', onFocus);
+    const interval = window.setInterval(() => { void check(); }, 60000);
+    return () => { stopped = true; generation++; subscription.unsubscribe(); window.removeEventListener('focus', onFocus); clearInterval(interval); };
+  }, [authRefresh]);
 
   // Subscribe to db changes to keep pages up to date
   useEffect(() => {
@@ -98,6 +109,8 @@ export default function App() {
   };
 
   const handleExitAdmin = async () => {
+    db.setVerifiedAdmin(null);
+    setIsAdminAuthenticated(false);
     if (isSupabaseConfigured) {
       try {
         await supabase.auth.signOut();
@@ -126,11 +139,12 @@ export default function App() {
 
   // Render Admin View
   if (isAdminRoute) {
+    if (isCheckingAdmin) return <div role="status" className="min-h-screen bg-[#0a0a0d] text-[#f7f4ee] flex items-center justify-center">Checking administrator access...</div>;
     if (!isAdminAuthenticated) {
       return (
         <ToastProvider>
           <AdminLogin
-            onSuccess={() => setIsAdminAuthenticated(true)}
+            onSuccess={() => setAuthRefresh(value => value + 1)}
             onCancel={() => handleNavigate('/')}
           />
         </ToastProvider>
@@ -162,17 +176,6 @@ export default function App() {
           {adminTab === 'logs' && <AuditLogs />}
         </AdminLayout>
 
-        {/* Global Demo Switcher */}
-        <DemoSwitcher
-          currentPath={currentPath}
-          onNavigate={handleNavigate}
-          adminTab={adminTab}
-          onSelectAdminTab={setAdminTab}
-          onReplayOpeningScreen={() => {
-            handleNavigate('/');
-            setShowOpeningScreen(true);
-          }}
-        />
 
         {/* Global Opening Loading Screen */}
         <OpeningLoadingScreen
@@ -336,14 +339,6 @@ export default function App() {
           onNavigate={handleNavigate}
         />
 
-        {/* Global Demo Switcher */}
-        <DemoSwitcher
-          currentPath={currentPath}
-          onNavigate={handleNavigate}
-          adminTab={adminTab}
-          onSelectAdminTab={setAdminTab}
-          onReplayOpeningScreen={() => setShowOpeningScreen(true)}
-        />
 
         {/* Global Opening Loading Screen */}
         <OpeningLoadingScreen

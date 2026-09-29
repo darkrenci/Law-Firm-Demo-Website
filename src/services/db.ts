@@ -26,12 +26,8 @@ import {
   initialNews,
   initialFAQCategories,
   initialFAQs,
-  initialConsultations,
-  initialContactMessages,
   initialMedia,
   initialNavigation,
-  initialUsers,
-  initialActivityLogs,
   initialPages,
 } from './seedData';
 import { supabaseService } from './supabaseService';
@@ -60,8 +56,23 @@ type Listener = () => void;
 
 class DatabaseService {
   private listeners: Set<Listener> = new Set();
+  private verifiedAdmin: User | null = null;
+  private privateGeneration = 0;
+  private privateCache = new Map<string, unknown>();
+  private privateKeys = new Set<string>([DB_KEYS.CONSULTATIONS, DB_KEYS.MESSAGES, DB_KEYS.USERS, DB_KEYS.CURRENT_USER_ID, DB_KEYS.ACTIVITY_LOGS, DB_KEYS.PAGE_VERSIONS]);
+
+  public setVerifiedAdmin(user: User | null): void {
+    if (user?.id !== this.verifiedAdmin?.id || !user) {
+      this.privateGeneration++;
+      this.privateCache.clear();
+    }
+    this.verifiedAdmin = user;
+    for (const key of this.privateKeys) { try { localStorage.removeItem(key); } catch {} }
+    this.notify();
+  }
 
   constructor() {
+    this.setVerifiedAdmin(null);
     this.initSupabaseSync();
     if (typeof window !== 'undefined') {
       window.addEventListener('focus', () => { void this.refreshFromSupabase(); });
@@ -126,6 +137,7 @@ class DatabaseService {
     if (!isReady) return;
 
     try {
+      const privateGeneration = this.privateGeneration;
       const [settings, pages, attorneys, practiceAreas, articles, news, media, navigation, consultations, messages] =
         await Promise.all([
           supabaseService.getSettings(),
@@ -136,8 +148,8 @@ class DatabaseService {
           supabaseService.getNews(),
           supabaseService.getMedia(),
           supabaseService.getNavigation(),
-          supabaseService.getConsultations(),
-          supabaseService.getContactMessages(),
+          this.verifiedAdmin ? supabaseService.getConsultations() : Promise.resolve(null),
+          this.verifiedAdmin ? supabaseService.getContactMessages() : Promise.resolve(null),
         ]);
 
       let hasChanges = false;
@@ -173,11 +185,11 @@ class DatabaseService {
         this.save(DB_KEYS.NAVIGATION, navigation);
         hasChanges = true;
       }
-      if (consultations !== null) {
+      if (consultations !== null && this.verifiedAdmin && privateGeneration === this.privateGeneration) {
         this.save(DB_KEYS.CONSULTATIONS, consultations);
         hasChanges = true;
       }
-      if (messages !== null) {
+      if (messages !== null && this.verifiedAdmin && privateGeneration === this.privateGeneration) {
         this.save(DB_KEYS.MESSAGES, messages);
         hasChanges = true;
       }
@@ -200,6 +212,7 @@ class DatabaseService {
   }
 
   private load<T>(key: string, defaultValue: T): T {
+    if (this.privateKeys.has(key)) return (this.verifiedAdmin ? this.privateCache.get(key) as T : undefined) ?? defaultValue;
     try {
       const stored = localStorage.getItem(key);
       if (stored) {
@@ -212,6 +225,11 @@ class DatabaseService {
   }
 
   private save<T>(key: string, value: T): void {
+    if (this.privateKeys.has(key)) {
+      if (this.verifiedAdmin) this.privateCache.set(key, value);
+      this.notify();
+      return;
+    }
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
@@ -238,59 +256,27 @@ class DatabaseService {
   }
 
   // --- CURRENT USER & AUTH ---
-  public getUsers(): User[] {
-    const users = this.load<User[]>(DB_KEYS.USERS, initialUsers);
-    let changed = false;
-    const updated = users.map((u) => {
-      if (u.id === 'usr-1' && (u.name.includes('Gabriel') || u.avatarUrl?.includes('unsplash.com'))) {
-        changed = true;
-        return {
-          ...u,
-          name: 'Atty. Levy John L.V. Lalusis',
-          title: 'Founding Partner',
-          avatarUrl: '/assets/atty-levy-lalusis.svg',
-        };
-      }
-      return u;
-    });
-    if (changed) {
-      this.save(DB_KEYS.USERS, updated);
-    }
-    return updated;
-  }
+  public getUsers(): User[] { return this.verifiedAdmin ? [this.verifiedAdmin] : []; }
 
   public getCurrentUser(): User {
-    const users = this.getUsers();
-    const curId = this.load<string>(DB_KEYS.CURRENT_USER_ID, users[0]?.id || 'usr-1');
-    const user = users.find((u) => u.id === curId);
-    return user || users[0];
+    return this.verifiedAdmin || { id: 'visitor', name: 'Visitor', email: '', role: 'VIEWER', isActive: false, createdAt: '' };
   }
 
   public setCurrentUser(userId: string): void {
-    this.save(DB_KEYS.CURRENT_USER_ID, userId);
-    this.logActivity('Switched Active User Role', 'Administration', userId, `User active context changed to ${userId}`);
+    if (userId !== this.verifiedAdmin?.id) throw new Error('Administrator identity is managed by Supabase authentication.');
   }
 
-  public saveUser(user: User): void {
-    const users = this.getUsers();
-    const idx = users.findIndex((u) => u.id === user.id);
-    let updated: User[];
-    if (idx >= 0) {
-      updated = [...users];
-      updated[idx] = user;
-    } else {
-      updated = [user, ...users];
-    }
-    this.save(DB_KEYS.USERS, updated);
-    this.logActivity(idx >= 0 ? 'Updated User' : 'Created User', 'Users', user.id, `User: ${user.name} (${user.role})`);
+  public saveUser(_user: User): void {
+    throw new Error('Manage administrator accounts in Supabase, not local browser storage.');
   }
 
   // --- ACTIVITY LOGS ---
   public getActivityLogs(): ActivityLog[] {
-    return this.load<ActivityLog[]>(DB_KEYS.ACTIVITY_LOGS, initialActivityLogs);
+    return this.load<ActivityLog[]>(DB_KEYS.ACTIVITY_LOGS, []);
   }
 
   public logActivity(action: string, module: string, recordId?: string, details?: string): void {
+    if (!this.verifiedAdmin) return;
     const currentUser = this.getCurrentUser();
     const log: ActivityLog = {
       id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -792,7 +778,7 @@ class DatabaseService {
 
   // --- CONSULTATION REQUESTS ---
   public getConsultationRequests(): ConsultationRequest[] {
-    return this.load<ConsultationRequest[]>(DB_KEYS.CONSULTATIONS, initialConsultations);
+    return this.load<ConsultationRequest[]>(DB_KEYS.CONSULTATIONS, []);
   }
 
   public async createConsultationRequest(
@@ -843,7 +829,7 @@ class DatabaseService {
 
   // --- CONTACT MESSAGES ---
   public getContactMessages(): ContactMessage[] {
-    return this.load<ContactMessage[]>(DB_KEYS.MESSAGES, initialContactMessages);
+    return this.load<ContactMessage[]>(DB_KEYS.MESSAGES, []);
   }
 
   public async createContactMessage(
@@ -1155,7 +1141,7 @@ class DatabaseService {
     try {
       const parsed = JSON.parse(jsonStr);
       Object.entries(DB_KEYS).forEach(([name, key]) => {
-        if (parsed[name] !== undefined) {
+        if (!this.privateKeys.has(key) && parsed[name] !== undefined) {
           localStorage.setItem(key, JSON.stringify(parsed[name]));
         }
       });

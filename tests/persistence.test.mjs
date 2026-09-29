@@ -8,16 +8,20 @@ const cache = new Map();
 let writes = 0;
 let cloudMedia = [];
 let succeeds = true;
+let privateReads = 0;
+let resolvePrivateRead;
 const service = new Proxy({
   checkSchemaReady: async () => true,
   getMedia: async () => cloudMedia,
+  getConsultations: async () => { privateReads++; return [{id:'private-client'}]; },
+  getContactMessages: async () => [],
   subscribeToRealtimeChanges: () => () => {},
   saveAttorney: async () => { writes++; return succeeds; },
   savePage: async () => { writes++; return succeeds; },
   deleteMedia: async () => { writes++; return succeeds; },
 }, { get: (target, key) => target[key] || (async () => null) });
 const context = vm.createContext({ console, structuredClone, supabaseService: service, isSupabaseConfigured: true,
-  localStorage: { getItem: k => cache.get(k), setItem: (k,v) => cache.set(k,v) },
+  localStorage: { getItem: k => cache.get(k), setItem: (k,v) => cache.set(k,v), removeItem: k => cache.delete(k) },
   ...Object.fromEntries(seedNames.map(n => [n, n === 'initialUsers' ? [{id:'u',name:'Admin',role:'admin'}] : []])),
 });
 const executable = stripTypeScriptTypes(source.replace(/import[\s\S]*?from ['"][^'"]+['"];\s*/g, '').replace('export const db =', 'globalThis.db ='));
@@ -59,3 +63,20 @@ const writesBeforeReads = writes;
 db.getPages(); db.getNavigation(); db.getMedia();
 assert.equal(writes, writesBeforeReads, 'restoring the core layout does not write media or defaults to the cloud');
 console.log('PASS: core routes and navigation restored without replacing saved content');
+
+assert.equal(privateReads,0,'public browsing does not request private inquiries');
+cache.set('lp_cms_consultations_v1', JSON.stringify([{id:'old-private-client'}]));
+db.setVerifiedAdmin({id:'approved',email:'owner@example.test',role:'ADMINISTRATOR'});
+assert.equal(cache.has('lp_cms_consultations_v1'),false,'old private localStorage is removed');
+await db.refreshFromSupabase();
+assert.equal(db.getConsultationRequests()[0].id,'private-client');
+assert.equal(cache.has('lp_cms_consultations_v1'),false,'private inquiries never persist in localStorage');
+service.getConsultations = () => new Promise(resolve => {resolvePrivateRead=resolve;});
+const pending = db.refreshFromSupabase();
+await new Promise(resolve=>setTimeout(resolve,0));
+db.setVerifiedAdmin(null);
+assert.equal(db.getConsultationRequests().length,0,'logout removes private inquiries');
+resolvePrivateRead([{id:'late-private-client'}]);
+await pending;
+assert.equal(db.getConsultationRequests().length,0,'in-flight queries cannot restore data after logout');
+console.log('PASS: private cache purge, public isolation and logout race protection');
