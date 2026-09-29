@@ -1831,16 +1831,16 @@ const RenderSectionItem: React.FC<{
                       content.imageUrl ||
                       'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80'
                     }
-                    alt={content.headline || content.heading || section.title || 'Lalusis Law Office'}
+                    alt={content.imageAlt ?? content.headline ?? section.title ?? 'Lalusis Law Office'}
                     className="w-full h-80 sm:h-[420px] object-cover filter brightness-90 contrast-105"
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute -bottom-4 -right-4 bg-[#0a0a0d] border border-[#c59b63] p-4 text-left shadow-2xl hidden sm:block">
                     <span className="font-cinzel text-[10px] text-[#c59b63] uppercase tracking-widest block">
-                      Institutional Standard
+                      {content.imageEyebrow ?? "Institutional Standard"}
                     </span>
                     <p className="font-cormorant text-lg text-[#f4e6d0] mt-0.5">
-                      Quezon City Legal Chambers
+                      {content.imageCaption ?? "Quezon City Legal Chambers"}
                     </p>
                   </div>
                 </div>
@@ -2067,23 +2067,9 @@ const RenderSectionItem: React.FC<{
     case 'attorneys': {
       const allAttorneys = db.getAttorneys(false);
       
-      // Explicit 3 Solo Card Partners Layout requested by user:
-      // Left Side: Atty. Levy John Lalusis
-      // Center: Atty. Diosdado Anselmo Lalusis
-      // Right Side: Atty. Leo Lalusis
-      const levy = allAttorneys.find((a) => a.id === 'atty-2' || a.fullName.toLowerCase().includes('levy'));
-      const diosdado = allAttorneys.find((a) => a.id === 'atty-3' || a.fullName.toLowerCase().includes('diosdado'));
-      const leo = allAttorneys.find((a) => a.id === 'atty-1' || a.fullName.toLowerCase().includes('leo'));
-
-      let attorneys: Attorney[] = [];
-      if (levy && diosdado && leo) {
-        attorneys = [levy, diosdado, leo];
-      } else {
-        const partnerAttorneys = allAttorneys.filter((a) => a.isPartner);
-        attorneys = (partnerAttorneys.length >= 3 ? partnerAttorneys : allAttorneys)
-          .sort((a, b) => (a.order || 0) - (b.order || 0))
-          .slice(0, content.limit || 3);
-      }
+      const attorneys = [...allAttorneys]
+        .sort((a, b) => (a.order ?? a.displayOrder ?? 0) - (b.order ?? b.displayOrder ?? 0))
+        .slice(0, content.limit || 3);
 
       return (
         <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
@@ -2140,15 +2126,13 @@ const RenderSectionItem: React.FC<{
             <EditablePartWrapper
               editMode={editMode}
               partId="cards"
-              partLabel="Partners Solo Cards Panel (Click to View Full Credentials)"
+              partLabel="Partner cards and popup content"
               activeElementPart={activeElementPart}
               onSelectPart={onSelectPart}
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
                 {attorneys.map((atty, index) => {
-                  const roleBadge = atty.professionalTitle.includes('Senior')
-                    ? 'Senior Partner'
-                    : 'Founding Partner';
+                  const roleBadge = atty.professionalTitle;
 
                   return (
                     <div
@@ -2161,12 +2145,14 @@ const RenderSectionItem: React.FC<{
                       onClick={() => {
                         if (editMode) {
                           onSelectPart?.('cards');
+                          return;
                         }
                         setSelectedPartnerModal(atty);
                       }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
+                          if (editMode) { onSelectPart?.('cards'); return; }
                           setSelectedPartnerModal(atty);
                         }
                       }}
@@ -2204,7 +2190,7 @@ const RenderSectionItem: React.FC<{
                         {/* Hover Overlay Hint */}
                         <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <span className="px-2.5 py-1 text-[9px] font-cinzel tracking-wider uppercase bg-[#c59b63] text-[#09090c] font-bold shadow-md flex items-center gap-1">
-                            <span>View Full Credentials</span>
+                            <span>{content.cardHover ?? 'View Full Credentials'}</span>
                             <ArrowRight className="w-3 h-3" />
                           </span>
                         </div>
@@ -2232,11 +2218,7 @@ const RenderSectionItem: React.FC<{
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-mono bg-[#181822] text-[#c59b63] border border-[#2b2b3b]">
                                 <Scale className="w-2.5 h-2.5 text-[#c59b63]" />
                                 <span className="truncate max-w-[180px]">
-                                  {atty.barAdmissions[0].includes('2019')
-                                    ? 'Bar 2019 (1st Attempt)'
-                                    : atty.barAdmissions[0].includes('2024')
-                                    ? 'Bar 2024 (PACC/NPC/DOTr)'
-                                    : 'Bar 1986 (40 Yrs Exp)'}
+                                  {atty.barAdmissions[0]}
                                 </span>
                               </span>
                             )}
@@ -2244,13 +2226,7 @@ const RenderSectionItem: React.FC<{
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-mono bg-[#181822] text-[#ded6c9] border border-[#2b2b3b]">
                                 <GraduationCap className="w-2.5 h-2.5 text-[#a8a199]" />
                                 <span className="truncate max-w-[180px]">
-                                  {atty.education[0].includes('Master of Laws')
-                                    ? 'LL.M. Candidate'
-                                    : atty.education[0].includes('Tax Compliance')
-                                    ? 'Tax Compliance Specialist'
-                                    : atty.education[0].includes('Teacher')
-                                    ? 'Licensed Prof. Teacher'
-                                    : 'Juris Doctor'}
+                                  {atty.education[0]}
                                 </span>
                               </span>
                             )}
@@ -2258,11 +2234,7 @@ const RenderSectionItem: React.FC<{
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-mono bg-[#181822] text-[#ded6c9] border border-[#2b2b3b]">
                                 <Award className="w-2.5 h-2.5 text-[#c59b63]" />
                                 <span className="truncate max-w-[180px]">
-                                  {atty.awards[0].includes('NBI')
-                                    ? 'NBI Commended'
-                                    : atty.awards[0].includes('PRC')
-                                    ? 'PRC Legal Head (10+ Yrs)'
-                                    : 'Certified TCS & DPO'}
+                                  {atty.awards[0]}
                                 </span>
                               </span>
                             )}
@@ -2272,11 +2244,11 @@ const RenderSectionItem: React.FC<{
                         {/* Interactive Bottom Action Button */}
                         <div className="pt-3 border-t border-[#1e1e28] flex items-center justify-between">
                           <span className="font-cinzel text-[11px] text-[#c59b63] group-hover:text-[#f7f4ee] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-colors">
-                            <span>Full Credentials &amp; Certifications</span>
+                            <span>{content.cardAction ?? "Full Credentials & Certifications"}</span>
                             <ArrowRight className="w-3.5 h-3.5 text-[#c59b63] group-hover:translate-x-1 transition-transform" />
                           </span>
                           <span className="text-[10px] font-mono text-[#8e877e]">
-                            [Clickable Popup]
+                            {content.cardHint ?? "[Clickable Popup]"}
                           </span>
                         </div>
                       </div>
@@ -2307,7 +2279,7 @@ const RenderSectionItem: React.FC<{
                   <div className="flex items-center gap-3">
                     <div className="w-2.5 h-2.5 rounded-full bg-[#c59b63]" />
                     <span className="font-cinzel text-[11px] tracking-[0.25em] text-[#c59b63] uppercase font-bold">
-                      Official Partner Dossier &amp; Certified Credentials
+                      {content.popupTitle ?? "Official Partner Dossier & Certified Credentials"}
                     </span>
                   </div>
                   <button
@@ -2368,7 +2340,7 @@ const RenderSectionItem: React.FC<{
                               onNavigate('/consultation');
                             }}
                           >
-                            Request Consultation
+                            {content.requestLabel ?? "Request Consultation"}
                           </Button>
                         </div>
                       </div>
@@ -2384,14 +2356,14 @@ const RenderSectionItem: React.FC<{
                           {selectedPartnerModal.fullName}
                         </h2>
                         <p className="text-xs sm:text-sm font-cinzel text-[#ded6c9] tracking-wider mt-1.5 uppercase">
-                          Practice Focus: {selectedPartnerModal.primarySpecialization}
+                          {content.focusLabel ?? "Practice Focus:"} {selectedPartnerModal.primarySpecialization}
                         </p>
                       </div>
 
                       {/* Professional Narrative */}
                       <div className="space-y-3 pt-2">
                         <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#c59b63] uppercase">
-                          Executive Biography &amp; Practice Narrative
+                          {content.biographyTitle ?? "Executive Biography & Practice Narrative"}
                         </h4>
                         <p className="text-xs sm:text-sm text-[#c8c0b4] leading-relaxed font-sans text-justify">
                           {selectedPartnerModal.biography}
@@ -2408,20 +2380,20 @@ const RenderSectionItem: React.FC<{
                       </div>
                       <div>
                         <span className="font-cinzel text-[11px] font-bold tracking-[0.2em] text-[#f4e6d0] uppercase block">
-                          Official Credentials &amp; Verified Licensures
+                          {content.credentialsTitle ?? "Official Credentials & Verified Licensures"}
                         </span>
                         <span className="text-[11px] font-sans text-[#a8a199]">
-                          Supreme Court of the Philippines · Active Bar Roll &amp; Accreditations
+                          {content.credentialsSubtitle ?? "Supreme Court of the Philippines · Active Bar Roll & Accreditations"}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="px-2.5 py-1 text-[10px] font-mono tracking-wider bg-[#0a0a0e] text-[#c59b63] border border-[#c59b63]/40 uppercase flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#c59b63] animate-pulse" />
-                        <span>Good Standing</span>
+                        <span>{content.standingLabel ?? "Good Standing"}</span>
                       </span>
                       <span className="px-2.5 py-1 text-[10px] font-mono tracking-wider bg-[#0a0a0e] text-[#ded6c9] border border-[#2b2b3b] uppercase">
-                        Certified Dossier
+                        {content.dossierLabel ?? "Certified Dossier"}
                       </span>
                     </div>
                   </div>
@@ -2433,7 +2405,7 @@ const RenderSectionItem: React.FC<{
                       <div className="bg-[#121218] border border-[#21212d] p-5 space-y-3">
                         <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase flex items-center gap-2 border-b border-[#232332] pb-2.5">
                           <Scale className="w-4 h-4 text-[#c59b63]" />
-                          <span>Bar Admissions &amp; Supreme Court Licensure</span>
+                          <span>{content.barTitle ?? "Bar Admissions & Supreme Court Licensure"}</span>
                         </h4>
                         <ul className="space-y-2 text-xs text-[#a8a199] list-disc pl-5 leading-relaxed">
                           {selectedPartnerModal.barAdmissions.map((adm, i) => (
@@ -2450,7 +2422,7 @@ const RenderSectionItem: React.FC<{
                       <div className="bg-[#121218] border border-[#21212d] p-5 space-y-3">
                         <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase flex items-center gap-2 border-b border-[#232332] pb-2.5">
                           <GraduationCap className="w-4 h-4 text-[#c59b63]" />
-                          <span>Academic Degrees &amp; Certifications</span>
+                          <span>{content.educationTitle ?? "Academic Degrees & Certifications"}</span>
                         </h4>
                         <ul className="space-y-2 text-xs text-[#a8a199] list-disc pl-5 leading-relaxed">
                           {selectedPartnerModal.education.map((edu, i) => (
@@ -2467,7 +2439,7 @@ const RenderSectionItem: React.FC<{
                       <div className="bg-[#121218] border border-[#21212d] p-5 space-y-3">
                         <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase flex items-center gap-2 border-b border-[#232332] pb-2.5">
                           <Building2 className="w-4 h-4 text-[#c59b63]" />
-                          <span>Government &amp; Institutional Service Record</span>
+                          <span>{content.experienceTitle ?? "Government & Institutional Service Record"}</span>
                         </h4>
                         <ul className="space-y-2 text-xs text-[#a8a199] list-disc pl-5 leading-relaxed">
                           {selectedPartnerModal.professionalExperience.map((exp, i) => (
@@ -2484,7 +2456,7 @@ const RenderSectionItem: React.FC<{
                       <div className="bg-[#121218] border border-[#21212d] p-5 space-y-3">
                         <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase flex items-center gap-2 border-b border-[#232332] pb-2.5">
                           <Award className="w-4 h-4 text-[#c59b63]" />
-                          <span>Distinctions, Commendations &amp; Awards</span>
+                          <span>{content.awardsTitle ?? "Distinctions, Commendations & Awards"}</span>
                         </h4>
                         <ul className="space-y-2 text-xs text-[#a8a199] list-disc pl-5 leading-relaxed">
                           {selectedPartnerModal.awards.map((award, i) => (
@@ -2501,7 +2473,7 @@ const RenderSectionItem: React.FC<{
                       <div className="bg-[#121218] border border-[#21212d] p-5 space-y-3">
                         <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase flex items-center gap-2 border-b border-[#232332] pb-2.5">
                           <ShieldCheck className="w-4 h-4 text-[#c59b63]" />
-                          <span>Professional Guilds &amp; Memberships</span>
+                          <span>{content.membershipsTitle ?? "Professional Guilds & Memberships"}</span>
                         </h4>
                         <ul className="space-y-2 text-xs text-[#a8a199] list-disc pl-5 leading-relaxed">
                           {selectedPartnerModal.memberships.map((mem, i) => (
@@ -2518,7 +2490,7 @@ const RenderSectionItem: React.FC<{
                       <div className="bg-[#121218] border border-[#21212d] p-5 space-y-3">
                         <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase flex items-center gap-2 border-b border-[#232332] pb-2.5">
                           <BookOpen className="w-4 h-4 text-[#c59b63]" />
-                          <span>Selected Legal Publications &amp; Treatises</span>
+                          <span>{content.publicationsTitle ?? "Selected Legal Publications & Treatises"}</span>
                         </h4>
                         <ul className="space-y-2 text-xs text-[#a8a199] list-disc pl-5 leading-relaxed">
                           {selectedPartnerModal.selectedPublications.map((pub, i) => (
@@ -2535,7 +2507,7 @@ const RenderSectionItem: React.FC<{
                 {/* Modal Footer */}
                 <div className="p-4 sm:p-5 bg-[#121218] border-t border-[#242432] flex items-center justify-between shrink-0">
                   <span className="text-[11px] font-mono text-[#8e877e] hidden sm:inline">
-                    Lalusis &amp; Partners · Verified Partner Registry
+                    {content.registryLabel ?? "Lalusis & Partners · Verified Partner Registry"}
                   </span>
                   <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
                     <Button
@@ -2547,7 +2519,7 @@ const RenderSectionItem: React.FC<{
                       }}
                       className="font-cinzel text-xs"
                     >
-                      Schedule Consultation
+                      {content.scheduleLabel ?? "Schedule Consultation"}
                     </Button>
                     <Button
                       variant="ghost"
@@ -3122,13 +3094,13 @@ const RenderSectionItem: React.FC<{
                         </div>
                         <div className="space-y-1">
                           <h4 className="font-cinzel text-xs font-semibold text-[#f4e6d0] uppercase tracking-wider">
-                            {content.addressTitle || 'Principal Legal Chambers'}
+                            {content.addressTitle ?? 'Principal Legal Chambers'}
                           </h4>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            {content.address || '110, Unit 20, Suite J, Future Point Plaza Suites, Panay Avenue, South Triangle, 1103, Quezon City, NCR, Second District, Philippines'}
+                            {content.address ?? '110, Unit 20, Suite J, Future Point Plaza Suites, Panay Avenue, South Triangle, 1103, Quezon City, NCR, Second District, Philippines'}
                           </p>
                           <span className="text-[10px] text-[#c59b63] block pt-1 font-mono">
-                            By Appointment &amp; Scheduled Retainers
+                            {content.addressNote ?? "By Appointment & Scheduled Retainers"}
                           </span>
                         </div>
                       </div>
@@ -3141,16 +3113,16 @@ const RenderSectionItem: React.FC<{
                         </div>
                         <div className="space-y-1">
                           <h4 className="font-cinzel text-xs font-semibold text-[#f4e6d0] uppercase tracking-wider">
-                            Direct Telephone Lines
+                            {content.phoneTitle ?? "Direct Telephone Lines"}
                           </h4>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            Primary Mobile / Hotline: <span className="text-[#f7f4ee] font-mono">{content.phone || '+63 917 327 5931'}</span>
+                            {content.phoneLabel ?? "Primary Mobile / Hotline:"} <span className="text-[#f7f4ee] font-mono">{content.phone ?? '+63 917 327 5931'}</span>
                           </p>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            Chambers Contact: <span className="text-[#f7f4ee] font-mono">+63 917 327 5931</span>
+                            {content.secondaryPhoneLabel ?? "Chambers Contact:"} <span className="text-[#f7f4ee] font-mono">{content.secondaryPhone ?? "+63 917 327 5931"}</span>
                           </p>
                           <p className="text-[11px] text-[#8e877e] leading-relaxed pt-1">
-                            Urgent Criminal Defense &amp; Injunction Dispatch: 24/7
+                            {content.phoneNote ?? "Urgent Criminal Defense & Injunction Dispatch: 24/7"}
                           </p>
                         </div>
                       </div>
@@ -3163,13 +3135,13 @@ const RenderSectionItem: React.FC<{
                         </div>
                         <div className="space-y-1">
                           <h4 className="font-cinzel text-xs font-semibold text-[#f4e6d0] uppercase tracking-wider">
-                            Electronic Communications
+                            {content.emailTitle ?? "Electronic Communications"}
                           </h4>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            General: <span className="text-[#c59b63] font-mono">{content.email || 'lalusispartners@gmail.com'}</span>
+                            {content.emailLabel ?? "General:"} <span className="text-[#c59b63] font-mono">{content.email ?? 'lalusispartners@gmail.com'}</span>
                           </p>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            Client Intake &amp; Retainer: <span className="text-[#c59b63] font-mono">lalusispartners@gmail.com</span>
+                            {content.secondaryEmailLabel ?? "Client Intake & Retainer:"} <span className="text-[#c59b63] font-mono">{content.secondaryEmail ?? "lalusispartners@gmail.com"}</span>
                           </p>
                         </div>
                       </div>
@@ -3182,13 +3154,13 @@ const RenderSectionItem: React.FC<{
                         </div>
                         <div className="space-y-1">
                           <h4 className="font-cinzel text-xs font-semibold text-[#f4e6d0] uppercase tracking-wider">
-                            Chambers Hours
+                            {content.hoursTitle ?? "Chambers Hours"}
                           </h4>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            Monday – Friday: 8:30 AM – 6:30 PM PHT
+                            {content.weekdayHours ?? "Monday – Friday: 8:30 AM – 6:30 PM PHT"}
                           </p>
                           <p className="text-[11px] text-[#8e877e] leading-relaxed">
-                            Saturday: By Prior Partner Consultation Only
+                            {content.weekendHours ?? "Saturday: By Prior Partner Consultation Only"}
                           </p>
                         </div>
                       </div>

@@ -298,12 +298,14 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
   );
 };
 
-const AttorneyEditModal: React.FC<{
+export const AttorneyEditModal: React.FC<{
   attorney: Attorney;
   isNew: boolean;
   onClose: () => void;
-  onSave: (atty: Attorney) => void;
+  onSave: (atty: Attorney) => void | Promise<void>;
 }> = ({ attorney, isNew, onClose, onSave }) => {
+  const toast = useToast();
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Attorney>({ ...attorney });
   const [admissionsStr, setAdmissionsStr] = useState(
     (attorney.barAdmissions || []).join('\n')
@@ -315,8 +317,10 @@ const AttorneyEditModal: React.FC<{
     (attorney.representativeMatters || []).join('\n')
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
+    setSaving(true);
     const autoSlug =
       form.slug ||
       form.fullName
@@ -324,13 +328,18 @@ const AttorneyEditModal: React.FC<{
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '');
 
-    onSave({
+    try { await onSave({
       ...form,
       slug: autoSlug,
       barAdmissions: admissionsStr.split('\n').filter((s) => s.trim()),
       education: educationStr.split('\n').filter((s) => s.trim()),
       representativeMatters: mattersStr.split('\n').filter((s) => s.trim()),
-    });
+      professionalExperience: (form.professionalExperience || []).filter(s => s.trim()),
+      awards: (form.awards || []).filter(s => s.trim()),
+      memberships: (form.memberships || []).filter(s => s.trim()),
+      selectedPublications: (form.selectedPublications || []).filter(s => s.trim()),
+    }); } catch (error) { toast.error('Save Failed', (error as Error).message); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -342,6 +351,9 @@ const AttorneyEditModal: React.FC<{
       maxWidth="2xl"
     >
       <form onSubmit={handleSubmit} className="space-y-5 pt-2 text-left">
+        <label className="block text-xs text-[#d4af7a]">Card display order
+          <input type="number" min={0} value={form.order ?? form.displayOrder ?? 0} onChange={e => setForm({...form, order: Number(e.target.value), displayOrder: Number(e.target.value)})} className="ml-3 w-20 bg-[#0d0d11] border border-[#2a2a35] p-2 text-[#f7f4ee]" />
+        </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
@@ -419,8 +431,8 @@ const AttorneyEditModal: React.FC<{
             </label>
             <input
               type="tel"
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              value={form.directPhone ?? form.phone ?? ''}
+              onChange={(e) => setForm({ ...form, phone: e.target.value, directPhone: e.target.value })}
               className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
             />
           </div>
@@ -619,6 +631,15 @@ const AttorneyEditModal: React.FC<{
           </div>
         </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {(['professionalExperience', 'memberships', 'awards', 'selectedPublications'] as const).map(key => (
+            <label key={key} className="block text-xs text-[#d4af7a]">
+              {{professionalExperience: 'Professional experience', memberships: 'Memberships', awards: 'Awards and certifications', selectedPublications: 'Publications'}[key]} (one per line)
+              <textarea rows={4} value={(form[key] || []).join('\n')} onChange={e => setForm({...form, [key]: e.target.value.split('\n')})} className="mt-2 w-full bg-[#0d0d11] border border-[#2a2a35] p-2 text-xs text-[#f7f4ee]" />
+            </label>
+          ))}
+        </div>
+
         <div className="pt-2 flex items-center justify-between border-t border-[#22222d]">
           <label className="flex items-center gap-2 text-xs text-[#f7f4ee] cursor-pointer">
             <input
@@ -634,7 +655,7 @@ const AttorneyEditModal: React.FC<{
             <Button type="button" variant="secondary" size="sm" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" size="sm">
+            <Button type="submit" variant="primary" size="sm" isLoading={saving} disabled={saving}>
               Save Attorney
             </Button>
           </div>

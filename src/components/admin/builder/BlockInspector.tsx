@@ -29,6 +29,8 @@ import {
   LayoutGrid,
 } from 'lucide-react';
 import { ImageUploadField } from '../../ui/ImageUploadField';
+import { PartnerContentEditor } from './PartnerContentEditor';
+import { chamberFields, partnerLabelFields } from './editableContentFields';
 
 interface BlockInspectorProps {
   section: PageSection;
@@ -530,7 +532,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
     if (['image', 'imageText'].includes(secType) || content.imageUrl) {
       parts.push({ id: 'image', label: 'Imagery', icon: ImageIcon });
     }
-    if (['practiceAreas', 'attorneys', 'faq', 'testimonials', 'articles', 'news'].includes(secType)) {
+    if (['practiceAreas', 'attorneys', 'faq', 'testimonials', 'articles', 'news', 'contact', 'contactInfo'].includes(secType)) {
       parts.push({ id: 'cards', label: 'Cards Grid', icon: LayoutGrid });
     }
     if (['stats', 'richText'].includes(secType) || content.stats || content.items || content.stat1Number) {
@@ -896,6 +898,11 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
             />
 
             {/* Preset Gallery */}
+            {section.type === 'imageText' && [['imageEyebrow', 'Photo badge heading', 'Institutional Standard'], ['imageCaption', 'Place / photo caption', 'Quezon City Legal Chambers'], ['imageAlt', 'Image description', content.headline || section.title || 'Lalusis Law Office']].map(([key, label, fallback]) => (
+              <label key={key} className="block text-xs text-[#d4af7a]">{label}
+                <input value={content[key] ?? fallback} onChange={e => handleContentChange(key, e.target.value)} className="mt-1 w-full bg-[#09090d] border border-[#242430] p-2 text-xs text-[#f7f4ee]" />
+              </label>
+            ))}
             <div>
               <label className="block text-[10px] text-[#8e877e] uppercase mb-1.5">
                 Quick Select Preset Chamber Photography
@@ -1026,6 +1033,13 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
 
       case 'cards':
         const cardsTypo = getPartTypography('cards');
+        if (['contact', 'contactInfo'].includes(section.type)) return <div id="part-card-cards" className="space-y-3 p-3 border border-[#c59b63]/60">
+          <h3 className="text-sm text-[#d4af7a]">Executive Chambers details</h3>
+          {chamberFields.map(([key, label, fallback]) => <label key={key} className="block text-xs text-[#d4af7a]">{label}
+            <textarea rows={2} value={content[key] ?? fallback} onChange={e => handleContentChange(key, e.target.value)} className="mt-1 w-full bg-[#09090d] border border-[#242430] p-2 text-xs text-[#f7f4ee]" />
+          </label>)}
+          <p className="text-xs text-[#a8a199]">These are displayed contact details. The inquiry form and its delivery address stay unchanged.</p>
+        </div>;
         return (
           <div id="part-card-cards" className="p-3.5 bg-[#121218] border border-[#c59b63]/60 space-y-4">
             <div className="flex items-center justify-between border-b border-[#222230] pb-2">
@@ -1063,6 +1077,15 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                 </div>
               </div>
 
+              {section.type === 'attorneys' && <>
+                <PartnerContentEditor />
+                <details className="space-y-3 text-xs text-[#d4af7a]">
+                  <summary className="cursor-pointer">Edit card and popup labels</summary>
+                  {partnerLabelFields.map(([key, label, fallback]) => <label key={key} className="block mt-3">{label}
+                    <input value={content[key] ?? fallback} onChange={e => handleContentChange(key, e.target.value)} className="mt-1 w-full bg-[#09090d] border border-[#242430] p-2 text-xs text-[#f7f4ee]" />
+                  </label>)}
+                </details>
+              </>}
               <div className="p-3 bg-[#0a0a0e] border border-[#22222f] space-y-1.5">
                 <span className="font-cinzel text-[10px] text-[#c59b63] uppercase block font-bold">
                   Dynamic Firm Records
