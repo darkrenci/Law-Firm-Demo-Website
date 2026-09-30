@@ -794,9 +794,9 @@ const RenderSectionItem: React.FC<{
                             title: 'Decisive Trial Advocacy & Bureau Leadership',
                             subtitle: 'Atty. Leo Lalusis · Managing Partner',
                             description: 'Decades of seasoned trial litigation, landmark prosecution commendations, and high-profile public defense.',
-                            duration: '03:45',
+                            duration: '00:16',
                             tag: 'Trial Eminence',
-                            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                            videoUrl: '/videos/news-1.mp4',
                             thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
                           },
                           {
@@ -804,9 +804,9 @@ const RenderSectionItem: React.FC<{
                             title: '150+ Supreme Court Rulings & Appellate Advocacy',
                             subtitle: 'Senior Partner Atty. Diosdado Anselmo Lalusis',
                             description: 'Over 150 superior appellate rulings, landmark constitutional advocacy, and unmatched jurisprudential depth.',
-                            duration: '04:12',
+                            duration: '00:59',
                             tag: 'Supreme Court Practice',
-                            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                            videoUrl: '/videos/news-2.mp4',
                             thumbnailUrl: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80',
                           },
                           {
@@ -814,9 +814,9 @@ const RenderSectionItem: React.FC<{
                             title: '₱180B+ Transactions Advised & Tier 1 Practice',
                             subtitle: 'Atty. Levy John Lalusis · Partner & Tax Specialist',
                             description: 'Cross-border mergers and acquisitions, sovereign regulatory compliance, and premier corporate counsel.',
-                            duration: '03:18',
+                            duration: '00:34',
                             tag: 'Corporate & M&A',
-                            videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+                            videoUrl: '/videos/news-3.mp4',
                             thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
                           },
                         ]
@@ -1297,7 +1297,7 @@ const RenderSectionItem: React.FC<{
         '4:3': 'aspect-[4/3]',
       };
       const aspectClass = aspectClasses[content.aspectRatio || '16:9'] || 'aspect-video';
-      const videoUrl = content.videoUrl || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+      const videoUrl = content.videoUrl || '/videos/news-1.mp4';
       const isEmbed = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be') || videoUrl.includes('vimeo.com');
 
       return (

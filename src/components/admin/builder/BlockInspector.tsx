@@ -72,7 +72,7 @@ const PRESET_IMAGES = [
 const PRESET_VIDEOS = [
   {
     label: 'Institutional Profile (Demo Stream)',
-    url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    url: '/videos/news-1.mp4',
   },
   {
     label: 'Chambers Overview (YouTube Embed)',
@@ -1901,33 +1901,33 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                         id: 'vid-1',
                         title: 'Decisive Trial Advocacy & Bureau Leadership',
                         subtitle: 'Atty. Leo Lalusis · Managing Partner',
-                        duration: '03:45',
+                        duration: '00:16',
                         tag: 'Trial Eminence',
-                        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                        videoUrl: '/videos/news-1.mp4',
                         thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
                       } : idx === 1 ? {
                         id: 'vid-2',
                         title: '150+ Supreme Court Rulings & Appellate Advocacy',
                         subtitle: 'Senior Partner Atty. Diosdado Anselmo Lalusis',
-                        duration: '04:12',
+                        duration: '00:59',
                         tag: 'Supreme Court Practice',
-                        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                        videoUrl: '/videos/news-2.mp4',
                         thumbnailUrl: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80',
                       } : {
                         id: 'vid-3',
                         title: '₱180B+ Transactions Advised & Tier 1 Practice',
                         subtitle: 'Atty. Levy John Lalusis · Partner & Tax Specialist',
-                        duration: '03:18',
+                        duration: '00:34',
                         tag: 'Corporate & M&A',
-                        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+                        videoUrl: '/videos/news-3.mp4',
                         thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
                       });
 
                       const handleUpdateVideo = (field: string, val: string) => {
                         const baseVids = [
-                          vids[0] || { id: 'vid-1', title: 'Decisive Trial Advocacy & Bureau Leadership', subtitle: 'Atty. Leo Lalusis · Managing Partner', duration: '03:45', tag: 'Trial Eminence', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80' },
-                          vids[1] || { id: 'vid-2', title: '150+ Supreme Court Rulings & Appellate Advocacy', subtitle: 'Senior Partner Atty. Diosdado Anselmo Lalusis', duration: '04:12', tag: 'Supreme Court Practice', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80' },
-                          vids[2] || { id: 'vid-3', title: '₱180B+ Transactions Advised & Tier 1 Practice', subtitle: 'Atty. Levy John Lalusis · Partner & Tax Specialist', duration: '03:18', tag: 'Corporate & M&A', videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80' },
+                          vids[0] || { id: 'vid-1', title: 'Decisive Trial Advocacy & Bureau Leadership', subtitle: 'Atty. Leo Lalusis · Managing Partner', duration: '00:16', tag: 'Trial Eminence', videoUrl: '/videos/news-1.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80' },
+                          vids[1] || { id: 'vid-2', title: '150+ Supreme Court Rulings & Appellate Advocacy', subtitle: 'Senior Partner Atty. Diosdado Anselmo Lalusis', duration: '00:59', tag: 'Supreme Court Practice', videoUrl: '/videos/news-2.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80' },
+                          vids[2] || { id: 'vid-3', title: '₱180B+ Transactions Advised & Tier 1 Practice', subtitle: 'Atty. Levy John Lalusis · Partner & Tax Specialist', duration: '00:34', tag: 'Corporate & M&A', videoUrl: '/videos/news-3.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80' },
                         ];
                         baseVids[idx] = { ...baseVids[idx], [field]: val };
                         handleContentChange('videos', baseVids);

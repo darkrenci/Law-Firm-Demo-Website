@@ -80,3 +80,13 @@ resolvePrivateRead([{id:'late-private-client'}]);
 await pending;
 assert.equal(db.getConsultationRequests().length,0,'in-flight queries cannot restore data after logout');
 console.log('PASS: private cache purge, public isolation and logout race protection');
+
+cache.set('lp_cms_pages_v1', JSON.stringify([{id:'home',slug:'home',sections:[{id:'hero',content:{videos:[
+  {videoUrl:'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',duration:'03:45'},
+  {videoUrl:'https://example.test/custom.mp4',duration:'02:00'},
+]}}]}]));
+const videos = db.getPages().find(page=>page.id==='home').sections[0].content.videos;
+assert.equal(videos[0].videoUrl,'/videos/news-1.mp4','existing sample links use the bundled news clip');
+assert.equal(videos[0].duration,'00:16');
+assert.equal(videos[1].videoUrl,'https://example.test/custom.mp4','custom video choices stay intact');
+console.log('PASS: bundled demo clips replace cached samples while custom videos are preserved');

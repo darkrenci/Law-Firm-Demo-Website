@@ -368,7 +368,20 @@ class DatabaseService {
     const missing = initialPages.filter((page) => coreSlugs.has(page.slug) &&
       !pages.some((saved) => saved.id === page.id || normalize(saved.slug) === normalize(page.slug)));
     // Restore missing core routes only; never replace saved content or sections.
-    return [...pages, ...structuredClone(missing)];
+    // Replace the original sample clips in existing cloud/cache records too.
+    // Explicitly selected custom videos remain editable and are preserved.
+    const sampleNames = ['ForBiggerBlazes', 'BigBuckBunny', 'ElephantsDream'];
+    const durations = ['00:16', '00:59', '00:34'];
+    return [...pages, ...structuredClone(missing)].map(page => ({
+      ...page,
+      sections: (page.sections || []).map(section => {
+        if (!Array.isArray(section.content?.videos)) return section;
+        return {...section, content: {...section.content, videos: section.content.videos.map((video: any) => {
+          const index = sampleNames.findIndex(name => video.videoUrl === `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/${name}.mp4`);
+          return index < 0 ? video : {...video, videoUrl: `/videos/news-${index + 1}.mp4`, duration: durations[index]};
+        })}};
+      }),
+    }));
   }
 
   public getPageBySlug(slug: string): Page | undefined {
