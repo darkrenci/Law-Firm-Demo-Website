@@ -37,6 +37,10 @@ cache.set('lp_cms_media_v1',JSON.stringify([
 ]));
 const picker = render(<VideoUploadField value="https://example.test/chambers.webm" onChange={() => {}} />);
 assert.ok(picker.includes('Chambers Video'));
+assert.ok(picker.includes('Upload video from computer'),'desktop upload is prominent');
+assert.ok(picker.includes('maximum 100 MB'),'video upload shows the updated limit');
+assert.ok(picker.includes('type="file"'),'desktop file chooser is present');
+assert.ok(picker.includes('Or paste a video link (optional)'),'URL is an optional alternative');
 assert.ok(!picker.includes('Image Only'),'video picker excludes images');
 assert.ok(picker.includes('preload="none"'),'preview does not download every video eagerly');
 const library = render(<MediaLibrary />);

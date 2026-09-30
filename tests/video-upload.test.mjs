@@ -24,7 +24,10 @@ for(const type of ['video/mp4','video/webm']) {
 }
 assert.equal(optimized,0);
 await assert.rejects(context.service.uploadMediaFile(new File(['bad'],'bad.exe',{type:'application/octet-stream'})),/Invalid file type/);
-await assert.rejects(context.service.uploadMediaFile({type:'video/mp4',size:26*1024*1024}),/too large/);
+await context.service.uploadMediaFile({name:'large.mp4',type:'video/mp4',size:100*1024*1024});
+assert.equal(metadata.size_bytes,100*1024*1024,'100 MB videos pass application validation');
+await assert.rejects(context.service.uploadMediaFile({type:'video/mp4',size:100*1024*1024+1}),/Maximum allowed is 100MB/);
+await assert.rejects(context.service.uploadMediaFile({type:'image/jpeg',size:26*1024*1024}),/Maximum allowed is 25MB/);
 await context.service.uploadMediaFile(new File(['image'],'photo.jpg',{type:'image/jpeg'}));
 assert.equal(optimized,1,'image optimization is preserved');
 failInsert=true;

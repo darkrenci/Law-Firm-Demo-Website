@@ -241,12 +241,12 @@ VALUES (
     'media',
     'media',
     true,
-    26214400, -- 25MB max
+    104857600, -- 100MB; global project limit and plan must also permit this
     ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml', 'application/pdf', 'video/mp4', 'video/webm']
 )
 ON CONFLICT (id) DO UPDATE SET
     public = true,
-    file_size_limit = 26214400,
+    file_size_limit = 104857600,
     allowed_mime_types = EXCLUDED.allowed_mime_types;
 
 -- Law-firm permissions only. Run in Supabase SQL Editor as the project owner.

@@ -296,7 +296,7 @@ const AddMediaModal: React.FC<{
       isOpen={true}
       onClose={onClose}
       title="Add Media Asset"
-      subtitle="Upload images or videos, or link an external asset. Videos support MP4 and WebM up to 25 MB."
+      subtitle="Upload images or videos from your computer, or link an external asset. Videos support MP4 and WebM up to 100 MB."
       maxWidth="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4 pt-2 text-left">

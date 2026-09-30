@@ -113,9 +113,10 @@ export class SupabaseService {
       throw new Error(`Invalid file type: ${file.type}. Allowed: JPG, PNG, WEBP, GIF, SVG, PDF, MP4, WEBM.`);
     }
 
-    const maxSizeBytes = 25 * 1024 * 1024; // 25MB
+    const maxSizeMB = file.type.startsWith('video/') ? 100 : 25;
+    const maxSizeBytes = maxSizeMB * 1024 * 1024;
     if (file.size > maxSizeBytes) {
-      throw new Error(`File is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed is 25MB.`);
+      throw new Error(`File is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed is ${maxSizeMB}MB.`);
     }
 
     if (file.type.startsWith('image/')) file = await optimizePhotoUpload(file);
@@ -143,6 +144,9 @@ export class SupabaseService {
 
     if (uploadError) {
       console.warn('Supabase Storage Upload Warning:', uploadError.message);
+      if (/size|too large|exceed|413/i.test(uploadError.message)) {
+        throw new Error('Storage rejected the file size. Check the media bucket and project file-size limits in Supabase. Videos up to 100 MB require a plan supporting files above 50 MB.');
+      }
       throw new Error(`Failed to upload to Supabase Storage: ${uploadError.message}`);
     }
 
