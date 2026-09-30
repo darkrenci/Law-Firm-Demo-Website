@@ -372,13 +372,16 @@ class DatabaseService {
     // Explicitly selected custom videos remain editable and are preserved.
     const sampleNames = ['ForBiggerBlazes', 'BigBuckBunny', 'ElephantsDream'];
     const durations = ['00:16', '00:59', '00:34'];
+    const legacyTitles = ["Decisive Trial Advocacy & Bureau Leadership","150+ Supreme Court Rulings & Appellate Advocacy","₱180B+ Transactions Advised & Tier 1 Practice"];
     return [...pages, ...structuredClone(missing)].map(page => ({
       ...page,
       sections: (page.sections || []).map(section => {
         if (!Array.isArray(section.content?.videos)) return section;
         return {...section, content: {...section.content, videos: section.content.videos.map((video: any) => {
           const index = sampleNames.findIndex(name => video.videoUrl === `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/${name}.mp4`);
-          return index < 0 ? video : {...video, videoUrl: `/videos/news-${index + 1}.mp4`, duration: durations[index]};
+          const updated = index < 0 ? video : {...video, videoUrl: `/videos/news-${index + 1}.mp4`, duration: durations[index]};
+          const legacyIndex = legacyTitles.indexOf(updated.title);
+          return legacyIndex < 0 ? updated : {...updated, title: `News Highlight ${legacyIndex + 1}`, subtitle: 'News & Public Affairs', tag: 'Highlights', description: 'Selected news and public affairs highlights.'};
         })}};
       }),
     }));
