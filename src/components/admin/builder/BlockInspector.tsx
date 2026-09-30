@@ -1,3 +1,4 @@
+import { VideoUploadField } from '../../ui/VideoUploadField';
 import React, { useState } from 'react';
 import { PageSection, BlockTypography } from '../../../types';
 import { Button } from '../../ui/Buttons';
@@ -1290,13 +1291,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
             </div>
             <div>
               <label className="block text-[10px] text-[#8e877e] uppercase mb-1">Video Stream Embed</label>
-              <input
-                type="text"
-                value={content.videoUrl || ''}
-                onChange={(e) => handleContentChange('videoUrl', e.target.value)}
-                placeholder="https://..."
-                className="w-full bg-[#09090d] border border-[#242430] px-3 py-2 text-xs text-[#f7f4ee] font-mono"
-              />
+              <VideoUploadField value={content.videoUrl || ''} onChange={url => handleContentChange('videoUrl', url)} />
             </div>
           </div>
         );
@@ -1981,13 +1976,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                             </div>
                             <div>
                               <label className="text-[9px] font-mono text-[#8e877e] block">Video Stream URL (MP4, YouTube, Vimeo)</label>
-                              <input
-                                type="text"
-                                value={vid.videoUrl || ''}
-                                onChange={(e) => handleUpdateVideo('videoUrl', e.target.value)}
-                                placeholder="Video Stream URL"
-                                className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1 text-[10px] font-mono text-[#ded6c9]"
-                              />
+                              <VideoUploadField value={vid.videoUrl || ''} onChange={url => handleUpdateVideo('videoUrl', url)} />
                             </div>
                             <div>
                               <label className="text-[9px] font-mono text-[#8e877e] block">Poster Thumbnail URL</label>
@@ -2102,13 +2091,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                     <span className="font-cinzel text-[11px] font-bold tracking-wider text-[#c59b63] uppercase block">
                       Video URL &amp; Stream Embed
                     </span>
-                    <input
-                      type="text"
-                      value={content.videoUrl || ''}
-                      onChange={(e) => handleContentChange('videoUrl', e.target.value)}
-                      placeholder="https://..."
-                      className="w-full bg-[#09090d] border border-[#242430] px-3 py-2 text-xs text-[#f7f4ee] font-mono"
-                    />
+                    <VideoUploadField value={content.videoUrl || ''} onChange={url => handleContentChange('videoUrl', url)} />
                   </div>
                 )}
 

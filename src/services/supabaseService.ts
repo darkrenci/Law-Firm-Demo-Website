@@ -105,10 +105,12 @@ export class SupabaseService {
       'image/gif',
       'image/svg+xml',
       'application/pdf',
+      'video/mp4',
+      'video/webm',
     ];
 
     if (!allowedMimeTypes.includes(file.type)) {
-      throw new Error(`Invalid file type: ${file.type}. Allowed: JPG, PNG, WEBP, GIF, SVG, PDF.`);
+      throw new Error(`Invalid file type: ${file.type}. Allowed: JPG, PNG, WEBP, GIF, SVG, PDF, MP4, WEBM.`);
     }
 
     const maxSizeBytes = 25 * 1024 * 1024; // 25MB
@@ -116,7 +118,7 @@ export class SupabaseService {
       throw new Error(`File is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed is 25MB.`);
     }
 
-    file = await optimizePhotoUpload(file);
+    if (file.type.startsWith('image/')) file = await optimizePhotoUpload(file);
 
     // 2. Generate Collision-Proof Unique Storage Path
     const sanitizedName = file.name
@@ -171,7 +173,7 @@ export class SupabaseService {
       id: `med-${timestamp}`,
       name: resolvedName,
       url: publicUrl,
-      fileType: file.type.startsWith('image/') ? 'image' : 'document',
+      fileType: file.type.startsWith('video/') ? 'video' : file.type.startsWith('image/') ? 'image' : 'document',
       format: file.name.split('.').pop()?.toUpperCase() || 'FILE',
       sizeBytes: file.size,
       size: `${(file.size / 1024).toFixed(0)} KB`,

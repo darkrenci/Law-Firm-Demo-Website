@@ -125,6 +125,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
+    if (!file.type.startsWith('image/')) { setError('Choose an image file for this picture placement.'); return; }
     setIsLoading(true);
     setError(null);
     setLoadFailed(false);
@@ -211,7 +212,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
   const handleImageError = () => {
     if (value) {
       // Check if this image has a fallback in the media library
-      const mediaList = db.getMedia();
+      const mediaList = db.getMedia().filter(item => !item.fileType || item.fileType === 'image');
       const matched = mediaList.find(
         (m) =>
           m.url === value ||

@@ -28,3 +28,18 @@ cache.set('lp_cms_attorneys_v1',JSON.stringify([{id:'edited',slug:'edited',fullN
 const partners = render(<SectionRenderer section={{...section,type:'attorneys',content:{cardAction:'Edited Action',cardHint:'Edited Hint'}}} onNavigate={() => {}} />);
 for (const text of ['Custom Role','Custom Bar','Custom Degree','Custom Award','Edited Action','Edited Hint','/card.jpg']) assert.ok(partners.includes(text),text);
 console.log('PASS: all chamber fields render and are editable, optional clearing, image captions, partner card records, fixed inquiry action');
+
+const { VideoUploadField } = await import('../src/components/ui/VideoUploadField');
+const { MediaLibrary } = await import('../src/components/admin/MediaLibrary');
+cache.set('lp_cms_media_v1',JSON.stringify([
+  {id:'video',name:'Chambers Video',url:'https://example.test/chambers.webm',fileType:'video',category:'general',altText:'Chambers'},
+  {id:'image',name:'Image Only',url:'https://example.test/photo.jpg',fileType:'image',category:'portrait',altText:'Portrait'},
+]));
+const picker = render(<VideoUploadField value="https://example.test/chambers.webm" onChange={() => {}} />);
+assert.ok(picker.includes('Chambers Video'));
+assert.ok(!picker.includes('Image Only'),'video picker excludes images');
+assert.ok(picker.includes('preload="none"'),'preview does not download every video eagerly');
+const library = render(<MediaLibrary />);
+assert.ok(library.includes('<video'),'library displays a video player');
+assert.ok(!library.includes('<img src="https://example.test/chambers.webm"'),'video assets are not rendered as images');
+console.log('PASS: video library preview, video-only selection and deferred loading');

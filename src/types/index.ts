@@ -400,7 +400,7 @@ export interface MediaItem {
   id: string;
   name: string;
   url: string;
-  fileType?: 'image' | 'document';
+  fileType?: 'image' | 'video' | 'document';
   format?: string;
   sizeBytes?: number;
   size?: string;

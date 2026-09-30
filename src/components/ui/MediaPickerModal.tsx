@@ -84,6 +84,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
 
   // Filter media items
   const filtered = mediaList.filter((item) => {
+    if (item.fileType && item.fileType !== 'image') return false;
     const matchesSearch =
       !searchQuery ||
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

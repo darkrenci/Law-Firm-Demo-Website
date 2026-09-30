@@ -24,6 +24,11 @@ const schema = readFileSync(new URL('../supabase/migrations/20260926_initial_cms
 await db.exec(schema.replace('CREATE EXTENSION IF NOT EXISTS "pgcrypto";',''));
 const migration = readFileSync(new URL('../supabase/migrations/20260929_admin_authorization.sql',import.meta.url),'utf8');
 await db.exec(migration); // Re-runs must be safe.
+const videoMigration = readFileSync(new URL('../supabase/migrations/20260930_video_media.sql',import.meta.url),'utf8');
+await db.exec(videoMigration);
+await db.exec(videoMigration);
+const allowedTypes = (await db.query("SELECT allowed_mime_types FROM storage.buckets WHERE id='media'")).rows[0].allowed_mime_types;
+assert.ok(allowedTypes.includes('video/mp4') && allowedTypes.includes('video/webm') && allowedTypes.includes('image/jpeg'));
 await db.exec(`INSERT INTO public.pages(id,slug,title,is_published) VALUES ('public','public','Public',true),('draft','draft','Draft',false);
  INSERT INTO public.contact_messages(id,full_name,email,message) VALUES ('private','Client','client@example.test','Private concern');
  INSERT INTO storage.objects VALUES ('portrait','media');`);
