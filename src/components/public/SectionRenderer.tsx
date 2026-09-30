@@ -844,7 +844,7 @@ const RenderSectionItem: React.FC<{
                       {/* Video Thumbnail / Preview Container */}
                       <div className="aspect-video relative overflow-hidden bg-black/80">
                         {/* Background Thumbnail Image */}
-                        <VideoCardPreview src={vid.videoUrl} title={vid.title} thumbnail={vid.thumbnailUrl} paused={Boolean(activeVideoModal)} />
+                        <VideoCardPreview src={vid.videoUrl} title={vid.title} thumbnail={vid.thumbnailUrl} />
                         {/* Gradient Scrim */}
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0b0b0f] via-black/40 to-black/30" />
 

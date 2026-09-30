@@ -49,7 +49,7 @@ assert.ok(!library.includes('<img src="https://example.test/chambers.webm"'),'vi
 console.log('PASS: video library preview, video-only selection and deferred loading');
 
 const briefingCards = render(<SectionRenderer section={{...section,type:'hero',content:{videos:[1,2,3].map(i=>({id:`vid-${i}`,title:`News ${i}`,videoUrl:`/videos/news-${i}.mp4`,thumbnailUrl:'/old-picture.jpg'}))}}} onNavigate={() => {}} />);
-for (const i of [1,2,3]) assert.ok(briefingCards.includes(`src="/videos/news-${i}.mp4"`),'card preview uses the popup video source');
-assert.equal((briefingCards.match(/<video /g)||[]).length,3);
+for (const i of [1,2,3]) assert.ok(briefingCards.includes(`src="/videos/news-${i}.jpg"`),'card poster matches its popup video');
+assert.equal((briefingCards.match(/<video /g)||[]).length,0,'cards do not load or play video');
 assert.ok(!briefingCards.includes('/old-picture.jpg'),'file video previews replace unrelated thumbnail pictures');
-console.log('PASS: all three briefing cards display their actual video files');
+console.log('PASS: all three cards display matching still posters without video players');
