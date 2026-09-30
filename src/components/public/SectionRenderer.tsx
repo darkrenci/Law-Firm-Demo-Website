@@ -1,6 +1,7 @@
 import { submitInquiry } from '../../services/inquiryService';
 import { supabaseService } from '../../services/supabaseService';
 import React, { useState, useEffect, useRef } from 'react';
+import { VideoCardPreview } from './VideoCardPreview';
 import { PageSection, BlockTypography, PracticeArea, Attorney, Article, NewsItem, FAQItem } from '../../types';
 import { db } from '../../services/db';
 import { Button } from '../ui/Buttons';
@@ -843,12 +844,7 @@ const RenderSectionItem: React.FC<{
                       {/* Video Thumbnail / Preview Container */}
                       <div className="aspect-video relative overflow-hidden bg-black/80">
                         {/* Background Thumbnail Image */}
-                        <img
-                          src={vid.thumbnailUrl || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80'}
-                          alt={vid.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-95"
-                          loading="lazy"
-                        />
+                        <VideoCardPreview src={vid.videoUrl} title={vid.title} thumbnail={vid.thumbnailUrl} paused={Boolean(activeVideoModal)} />
                         {/* Gradient Scrim */}
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0b0b0f] via-black/40 to-black/30" />
 
