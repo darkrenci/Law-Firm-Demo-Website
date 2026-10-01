@@ -586,6 +586,11 @@ const RenderSectionItem: React.FC<{
   const { type, content, background, paddingY, typography } = section;
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   const [activeVideoModal, setActiveVideoModal] = useState<any | null>(null);
+  const [introductionStarted, setIntroductionStarted] = useState(false);
+  const introductionPlayer = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (activeVideoModal) introductionPlayer.current?.pause();
+  }, [activeVideoModal]);
   const [selectedPartnerModal, setSelectedPartnerModal] = useState<Attorney | null>(null);
 
   useEffect(() => {
@@ -765,10 +770,22 @@ const RenderSectionItem: React.FC<{
 
             {(pageSlug === '' || pageSlug === 'home') && (
               <div className="w-full max-w-3xl mx-auto pt-4">
+                {introductionStarted ? (
+                  <video
+                    ref={introductionPlayer}
+                    src="/videos/introduction.mp4"
+                    poster="/videos/introduction.jpg"
+                    autoPlay
+                    controls
+                    playsInline
+                    aria-label="Introduction video"
+                    className="w-full aspect-[64/35] object-contain border border-[#c59b63]/50 bg-black"
+                  />
+                ) : (
                 <button
                   type="button"
                   aria-label="Watch introduction video"
-                  onClick={() => setActiveVideoModal({ title: 'Introduction', videoUrl: '/videos/introduction.mp4' })}
+                  onClick={() => setIntroductionStarted(true)}
                   className="group block w-full relative overflow-hidden border border-[#c59b63]/50 bg-[#0b0b0f] focus:outline-none focus:ring-2 focus:ring-[#c59b63]"
                 >
                   <img src="/videos/introduction.jpg" alt="Introduction video" width={960} height={525} loading="lazy" decoding="async" className="w-full h-auto" />
@@ -779,6 +796,7 @@ const RenderSectionItem: React.FC<{
                   </span>
                   <span className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent pt-10 pb-4 text-[#f4e6d0] font-cinzel text-sm tracking-wider">Watch Introduction</span>
                 </button>
+                )}
               </div>
             )}
 
