@@ -763,6 +763,25 @@ const RenderSectionItem: React.FC<{
               </Button>
             </EditablePartWrapper>
 
+            {(pageSlug === '' || pageSlug === 'home') && (
+              <div className="w-full max-w-3xl mx-auto pt-4">
+                <button
+                  type="button"
+                  aria-label="Watch introduction video"
+                  onClick={() => setActiveVideoModal({ title: 'Introduction', videoUrl: '/videos/introduction.mp4' })}
+                  className="group block w-full relative overflow-hidden border border-[#c59b63]/50 bg-[#0b0b0f] focus:outline-none focus:ring-2 focus:ring-[#c59b63]"
+                >
+                  <img src="/videos/introduction.jpg" alt="Introduction video" width={960} height={525} loading="lazy" decoding="async" className="w-full h-auto" />
+                  <span className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                    <span className="w-16 h-16 rounded-full bg-[#0d0d12]/85 border border-[#c59b63] flex items-center justify-center text-[#c59b63] group-hover:bg-[#c59b63] group-hover:text-[#09090c] transition-colors">
+                      <Play className="w-7 h-7 ml-1 fill-current" />
+                    </span>
+                  </span>
+                  <span className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent pt-10 pb-4 text-[#f4e6d0] font-cinzel text-sm tracking-wider">Watch Introduction</span>
+                </button>
+              </div>
+            )}
+
             {/* Part 6: 3 Embedded Videos (Clickable & Popupable) */}
             <EditablePartWrapper
               editMode={editMode}

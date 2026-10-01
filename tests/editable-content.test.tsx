@@ -53,3 +53,7 @@ for (const i of [1,2,3]) assert.ok(briefingCards.includes(`src="/videos/news-${i
 assert.equal((briefingCards.match(/<video /g)||[]).length,0,'cards do not load or play video');
 assert.ok(!briefingCards.includes('/old-picture.jpg'),'file video previews replace unrelated thumbnail pictures');
 console.log('PASS: all three cards display matching still posters without video players');
+assert.ok(briefingCards.indexOf('Explore Practice Areas') < briefingCards.indexOf('/videos/introduction.jpg'));
+assert.ok(briefingCards.indexOf('/videos/introduction.jpg') < briefingCards.indexOf('/videos/news-1.jpg'));
+assert.ok(briefingCards.includes('Watch introduction video'));
+console.log('PASS: click-to-play introduction appears between hero buttons and highlight cards');
