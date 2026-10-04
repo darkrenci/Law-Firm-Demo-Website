@@ -750,7 +750,7 @@ const RenderSectionItem: React.FC<{
 
             {/* Watch Introduction Video Player */}
             {(pageSlug === '' || pageSlug === 'home') && (
-              <div className="w-full mx-auto pt-2">
+              <div className={editMode ? 'w-full pt-2' : 'relative left-1/2 w-[calc(100vw-3rem)] max-w-[1920px] -translate-x-1/2 pt-2'}>
                 {introductionStarted ? (
                   <video
                     ref={introductionPlayer}
