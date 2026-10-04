@@ -274,12 +274,13 @@ export const Header: React.FC<HeaderProps> = ({
               ref={menuTrigger}
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="w-11 h-11 flex items-center justify-center text-[#f7f4ee] hover:text-[#c59b63] cursor-pointer"
+              className="min-h-11 px-2 flex items-center justify-center gap-1.5 border border-[#c59b63]/50 rounded-sm text-[#f7f4ee] hover:text-[#c59b63] cursor-pointer"
               aria-label="Toggle Navigation Menu"
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-navigation"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <span className="text-xs font-semibold">Menu</span>
             </button>
           </div>
         </div>
