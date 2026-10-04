@@ -404,11 +404,17 @@ export interface MediaItem {
   format?: string;
   sizeBytes?: number;
   size?: string;
-  category: 'branding' | 'attorneys' | 'offices' | 'insights' | 'general' | 'portrait' | 'architectural';
+  category: 'branding' | 'attorneys' | 'offices' | 'insights' | 'general' | 'portrait' | 'architectural' | 'video';
   altText: string;
   dataUrl?: string;
   createdAt?: string;
   uploadedAt?: string;
+  thumbnailUrl?: string;
+  duration?: string;
+  assignedPopupSlot?: number | null;
+  speaker?: string;
+  tag?: string;
+  description?: string;
 }
 
 export type MediaAsset = MediaItem;

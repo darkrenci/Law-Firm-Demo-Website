@@ -8,6 +8,7 @@ import { useToast } from '../ui/Toast';
 import { Users, Plus, Edit3, Trash2, Mail, Phone, Scale, Search, Sparkles, Upload } from 'lucide-react';
 import { ItemTypographyControls, resolveItemTypography } from './ItemTypographyControls';
 import { ImageUploadField } from '../ui/ImageUploadField';
+import { ItemListEditor } from '../ui/ItemListEditor';
 
 interface AttorneyManagerProps {
   onOpenLiveBuilder?: (pageSlug: string) => void;
@@ -306,16 +307,16 @@ export const AttorneyEditModal: React.FC<{
 }> = ({ attorney, isNew, onClose, onSave }) => {
   const toast = useToast();
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState<Attorney>({ ...attorney });
-  const [admissionsStr, setAdmissionsStr] = useState(
-    (attorney.barAdmissions || []).join('\n')
-  );
-  const [educationStr, setEducationStr] = useState(
-    (attorney.education || []).join('\n')
-  );
-  const [mattersStr, setMattersStr] = useState(
-    (attorney.representativeMatters || []).join('\n')
-  );
+  const [form, setForm] = useState<Attorney>({
+    ...attorney,
+    barAdmissions: attorney.barAdmissions || [],
+    education: attorney.education || [],
+    representativeMatters: attorney.representativeMatters || [],
+    professionalExperience: attorney.professionalExperience || [],
+    awards: attorney.awards || [],
+    memberships: attorney.memberships || [],
+    selectedPublications: attorney.selectedPublications || [],
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -328,18 +329,23 @@ export const AttorneyEditModal: React.FC<{
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)+/g, '');
 
-    try { await onSave({
-      ...form,
-      slug: autoSlug,
-      barAdmissions: admissionsStr.split('\n').filter((s) => s.trim()),
-      education: educationStr.split('\n').filter((s) => s.trim()),
-      representativeMatters: mattersStr.split('\n').filter((s) => s.trim()),
-      professionalExperience: (form.professionalExperience || []).filter(s => s.trim()),
-      awards: (form.awards || []).filter(s => s.trim()),
-      memberships: (form.memberships || []).filter(s => s.trim()),
-      selectedPublications: (form.selectedPublications || []).filter(s => s.trim()),
-    }); } catch (error) { toast.error('Save Failed', (error as Error).message); }
-    finally { setSaving(false); }
+    try {
+      await onSave({
+        ...form,
+        slug: autoSlug,
+        barAdmissions: (form.barAdmissions || []).map((s) => s.trim()).filter(Boolean),
+        education: (form.education || []).map((s) => s.trim()).filter(Boolean),
+        representativeMatters: (form.representativeMatters || []).map((s) => s.trim()).filter(Boolean),
+        professionalExperience: (form.professionalExperience || []).map((s) => s.trim()).filter(Boolean),
+        awards: (form.awards || []).map((s) => s.trim()).filter(Boolean),
+        memberships: (form.memberships || []).map((s) => s.trim()).filter(Boolean),
+        selectedPublications: (form.selectedPublications || []).map((s) => s.trim()).filter(Boolean),
+      });
+    } catch (error) {
+      toast.error('Save Failed', (error as Error).message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -593,51 +599,65 @@ export const AttorneyEditModal: React.FC<{
           previewDesc={form.biography || `${form.professionalTitle || 'Senior Partner'} · ${form.primarySpecialization || 'Corporate Practice'}`}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label className="block font-cinzel text-[10px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
-              Bar Admissions (1 per line)
-            </label>
-            <textarea
-              rows={3}
-              value={admissionsStr}
-              onChange={(e) => setAdmissionsStr(e.target.value)}
-              className="w-full bg-[#0d0d11] border border-[#2a2a35] p-2 text-xs text-[#f7f4ee] focus:outline-none"
-            />
-          </div>
+        {/* Credentials & Distinctions (Add, Update, Delete) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <ItemListEditor
+            label="Bar Admissions"
+            items={form.barAdmissions || []}
+            onChange={(items) => setForm({ ...form, barAdmissions: items })}
+            placeholder="e.g. Supreme Court of the Philippines (2024)"
+            helperText="Add, delete, or update bar examination entries"
+          />
 
-          <div>
-            <label className="block font-cinzel text-[10px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
-              Education &amp; Degrees (1 per line)
-            </label>
-            <textarea
-              rows={3}
-              value={educationStr}
-              onChange={(e) => setEducationStr(e.target.value)}
-              className="w-full bg-[#0d0d11] border border-[#2a2a35] p-2 text-xs text-[#f7f4ee] focus:outline-none"
-            />
-          </div>
+          <ItemListEditor
+            label="Education & Degrees"
+            items={form.education || []}
+            onChange={(items) => setForm({ ...form, education: items })}
+            placeholder="e.g. Master of Laws (LL.M.), UP"
+            helperText="Add, delete, or update academic degrees"
+          />
 
-          <div>
-            <label className="block font-cinzel text-[10px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
-              Key Matters Advised (1 per line)
-            </label>
-            <textarea
-              rows={3}
-              value={mattersStr}
-              onChange={(e) => setMattersStr(e.target.value)}
-              className="w-full bg-[#0d0d11] border border-[#2a2a35] p-2 text-xs text-[#f7f4ee] focus:outline-none"
-            />
-          </div>
+          <ItemListEditor
+            label="Key Matters Advised"
+            items={form.representativeMatters || []}
+            onChange={(items) => setForm({ ...form, representativeMatters: items })}
+            placeholder="e.g. Lead Counsel for Injunction"
+            helperText="Add, delete, or update casework distinctions"
+          />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {(['professionalExperience', 'memberships', 'awards', 'selectedPublications'] as const).map(key => (
-            <label key={key} className="block text-xs text-[#d4af7a]">
-              {{professionalExperience: 'Professional experience', memberships: 'Memberships', awards: 'Awards and certifications', selectedPublications: 'Publications'}[key]} (one per line)
-              <textarea rows={4} value={(form[key] || []).join('\n')} onChange={e => setForm({...form, [key]: e.target.value.split('\n')})} className="mt-2 w-full bg-[#0d0d11] border border-[#2a2a35] p-2 text-xs text-[#f7f4ee]" />
-            </label>
-          ))}
+          <ItemListEditor
+            label="Professional Experience"
+            items={form.professionalExperience || []}
+            onChange={(items) => setForm({ ...form, professionalExperience: items })}
+            placeholder="e.g. Founding Partner, Lalusis & Partners"
+            helperText="Add, delete, or update career appointments"
+          />
+
+          <ItemListEditor
+            label="Memberships"
+            items={form.memberships || []}
+            onChange={(items) => setForm({ ...form, memberships: items })}
+            placeholder="e.g. Integrated Bar of the Philippines (IBP)"
+            helperText="Add, delete, or update professional guilds"
+          />
+
+          <ItemListEditor
+            label="Awards and Certifications"
+            items={form.awards || []}
+            onChange={(items) => setForm({ ...form, awards: items })}
+            placeholder="e.g. Certified Data Privacy Officer (DPO)"
+            helperText="Add, delete, or update honors & certifications"
+          />
+
+          <ItemListEditor
+            label="Publications"
+            items={form.selectedPublications || []}
+            onChange={(items) => setForm({ ...form, selectedPublications: items })}
+            placeholder="e.g. Corporate Regulatory Housekeeping (2024)"
+            helperText="Add, delete, or update treatises & articles"
+          />
         </div>
 
         <div className="pt-2 flex items-center justify-between border-t border-[#22222d]">

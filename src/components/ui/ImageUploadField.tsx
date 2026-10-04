@@ -31,7 +31,11 @@ export const processImageFile = (
 ): Promise<{ dataUrl: string; name: string; size: number; dimensions?: { width: number; height: number } }> => {
   return new Promise((resolve, reject) => {
     if (!file.type.startsWith('image/')) {
-      reject(new Error('Please choose a valid image file (JPG, PNG, WEBP, GIF, SVG).'));
+      if (file.type.startsWith('video/') || /\.(mp4|webm|mov|ogg)$/i.test(file.name)) {
+        reject(new Error('This input is for pictures only. To upload video files, please use the Video uploader or Video tab.'));
+      } else {
+        reject(new Error('Please choose a valid image file (JPG, PNG, WEBP, GIF, SVG).'));
+      }
       return;
     }
 

@@ -362,7 +362,58 @@ class DatabaseService {
 
   // --- PAGES & PAGE BUILDER ---
   public getPages(): Page[] {
-    const pages = this.load<Page[]>(DB_KEYS.PAGES, initialPages);
+    const rawPages = this.load<Page[]>(DB_KEYS.PAGES, initialPages);
+    let cleaned = false;
+    const pages = rawPages.map((page) => {
+      let mod = page;
+      if (mod.id === 'page-home' || mod.slug === '') {
+        const hero = mod.sections.find(s => s.id === 'sec-hero' || s.type === 'hero');
+        const hasDuplicateIntro = mod.sections.some(s => s.id === 'sec-intro');
+        if (hero && (!hero.content?.body || hero.content?.subheadline || hasDuplicateIntro)) {
+          cleaned = true;
+          const introSec = mod.sections.find(s => s.id === 'sec-intro');
+          const bodyText = hero.content?.body || introSec?.content?.body || "The FIRM is founded by Atty. Leo Lalusis and Atty. Levy John Lalusis, under the guidance of their senior partner, Atty. Diosdado Anselmo Lalusis. Brothers Lalusis, is the son of the late NBI Chief Danielito Q. Lalusis, who served the NBI for almost 30 years prior to his untimely passing.\n\nAtty. Leo Lalusis passed the Bar in 2019 (the last handwritten Bar Examination) in his only attempt. Upon passing, he entered the NBI as Legal Officer assigned in the Legal Division, specifically in Prosecution and High Profile Cases, where he received several commendations, including for the PNP-PDEA incident. During his stay with the NBI, he was also tasked to represent the bureau in various Senate and House of Representatives hearings and attended several specialized investigative courses. Atty. Leo is also a certified Data Protection Officer (UP Open University, 2023) and has handled high-profile cases before the DOJ and Sandiganbayan. He has represented prominent clients in congressional hearings, including the landmark Senate Blue Ribbon Committee hearings in flood control cases, as well as leading public figures and influencers. To further broaden his jurisprudential acumen, he is one of the youngest Master of Laws candidates in the Graduate School of San Beda University.\n\nMeanwhile, Atty. Levy John Lalusis passed the 2024 Bar Examination. Prior to his admission to the bar, he served with distinguished government bodies, specifically within the Presidential Anti-Corruption Commission (PACC) as a graft investigator and the Department of Transportation (DOTr). Atty. Levy is a certified Tax Specialist with multiple accreditations. Alongside his brother Atty. Leo, he has appeared before the Sandiganbayan representing high-profile institutional and private clients in contentious matters.\n\nOn the other hand, Atty. Diosdado Anselmo Lalusis is a seasoned and veteran lawyer who headed the Professional Regulation Commission (PRC) Legal Division for more than a decade. Atty. Diosdado brings seasoned appellate advocacy, exemplary institutional integrity, and foundational legal mentorship to the firm's sovereign and corporate clientele.";
+          mod = {
+            ...mod,
+            sections: mod.sections
+              .filter(s => s.id !== 'sec-intro')
+              .map(s => {
+                if (s.id === 'sec-hero' || s.type === 'hero') {
+                  const { subheadline, ctaPrimaryText, ctaPrimaryLink, ctaSecondaryText, ctaSecondaryLink, ...restContent } = s.content || {};
+                  return {
+                    ...s,
+                    content: {
+                      ...restContent,
+                      imageUrl: restContent.imageUrl || '/assets/group-picture.svg',
+                      imageAlt: restContent.imageAlt || 'Lalusis & Partners Founding Partners',
+                      imageCaption: restContent.imageCaption || 'Partners of Lalusis & Partners · Atty. Levy John L.V. Lalusis · Senior Partner Atty. Diosdado Anselmo Q. Lalusis · Atty. Leo Anselmo L.V. Lalusis',
+                      body: bodyText,
+                      introVideoUrl: restContent.introVideoUrl || '/videos/introduction.mp4',
+                      introPosterUrl: restContent.introPosterUrl || '/videos/introduction.jpg',
+                    },
+                  };
+                }
+                return s;
+              }),
+          };
+        }
+      }
+      if (mod.sections.some((s) => s.id === 'sec-stats' || (s.type === 'stats' && s.title === 'Firm Milestones'))) {
+        cleaned = true;
+        return {
+          ...mod,
+          sections: mod.sections.filter(
+            (s) => s.id !== 'sec-stats' && !(s.type === 'stats' && s.title === 'Firm Milestones')
+          ),
+        };
+      }
+      return mod;
+    });
+    if (cleaned && typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(DB_KEYS.PAGES, JSON.stringify(pages));
+      } catch {}
+    }
     const coreSlugs = new Set(['', 'home', 'about', 'attorneys', 'practice-areas', 'contact']);
     const normalize = (slug: string) => slug === 'home' ? '' : slug === 'partners' ? 'attorneys' : slug;
     const missing = initialPages.filter((page) => coreSlugs.has(page.slug) &&
@@ -907,6 +958,25 @@ class DatabaseService {
       rawName.toLowerCase() === 'general media' ||
       /^med-\d+$/.test(rawName);
 
+    // If it's a video asset, preserve video classification
+    if (
+      item.category === 'video' ||
+      item.fileType === 'video' ||
+      /\.(mp4|webm|mov|ogg)($|\?)/i.test(item.url || '') ||
+      (item.url || '').includes('youtube.com') ||
+      (item.url || '').includes('youtu.be') ||
+      (item.url || '').includes('vimeo.com')
+    ) {
+      return {
+        item: {
+          ...item,
+          fileType: 'video',
+          category: 'video',
+        },
+        wasUpdated: item.fileType !== 'video' || item.category !== 'video',
+      };
+    }
+
     // If it already has an authentic title and valid non-general category, keep it
     if (!isGeneric && item.category && item.category !== 'general') {
       return { item, wasUpdated: false };
@@ -1021,7 +1091,150 @@ class DatabaseService {
   }
 
   public getMedia(): MediaItem[] {
-    return this.load<MediaItem[]>(DB_KEYS.MEDIA, []);
+    const list = this.load<MediaItem[]>(DB_KEYS.MEDIA, initialMedia);
+    if (list.length > 0 && initialMedia.length > 0) {
+      const hasAnyVideo = list.some((m) => m.category === 'video' || m.fileType === 'video');
+      if (!hasAnyVideo) {
+        const initialVideos = initialMedia.filter((m) => m.category === 'video' || m.fileType === 'video');
+        if (initialVideos.length > 0) {
+          const merged = [...initialVideos, ...list];
+          this.save(DB_KEYS.MEDIA, merged);
+          return merged;
+        }
+      }
+    }
+    return list;
+  }
+
+  public getPopupVideos(): Array<{
+    id: string;
+    title: string;
+    subtitle: string;
+    description?: string;
+    duration: string;
+    tag: string;
+    videoUrl: string;
+    thumbnailUrl: string;
+  }> {
+    const defaultVideos = [
+      {
+        id: 'vid-1',
+        title: 'Decisive Trial Advocacy & Bureau Leadership',
+        subtitle: 'Atty. Leo Lalusis · Managing Partner',
+        description:
+          'Decades of seasoned trial litigation, landmark prosecution commendations, and high-profile public defense.',
+        duration: '03:45',
+        tag: 'Trial Eminence',
+        videoUrl:
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        thumbnailUrl:
+          'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
+      },
+      {
+        id: 'vid-2',
+        title: '150+ Supreme Court Rulings & Appellate Advocacy',
+        subtitle: 'Senior Partner Atty. Diosdado Anselmo Lalusis',
+        description:
+          'Over 150 superior appellate rulings, landmark constitutional advocacy, and unmatched jurisprudential depth.',
+        duration: '04:12',
+        tag: 'Supreme Court Practice',
+        videoUrl:
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        thumbnailUrl:
+          'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80',
+      },
+      {
+        id: 'vid-3',
+        title: '₱180B+ Transactions Advised & Tier 1 Practice',
+        subtitle: 'Atty. Levy John Lalusis · Partner & Tax Specialist',
+        description:
+          'Cross-border mergers and acquisitions, sovereign regulatory compliance, and premier corporate counsel.',
+        duration: '03:18',
+        tag: 'Corporate & M&A',
+        videoUrl:
+          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+        thumbnailUrl:
+          'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+      },
+    ];
+
+    const homePage = this.getPageBySlug('/') || this.getPageBySlug('home') || this.getPageById('page-home');
+    if (!homePage) return defaultVideos;
+
+    const heroSection = homePage.sections.find((s) => s.type === 'hero');
+    if (!heroSection || !Array.isArray(heroSection.content?.videos) || heroSection.content.videos.length < 3) {
+      return defaultVideos;
+    }
+
+    return heroSection.content.videos;
+  }
+
+  public async assignPopupVideo(
+    slotIndex: 0 | 1 | 2,
+    videoData: {
+      title?: string;
+      subtitle?: string;
+      videoUrl: string;
+      thumbnailUrl?: string;
+      tag?: string;
+      duration?: string;
+      description?: string;
+    }
+  ): Promise<boolean> {
+    const homePage = this.getPageBySlug('/') || this.getPageBySlug('home') || this.getPageById('page-home');
+    if (!homePage) return false;
+
+    const heroSection = homePage.sections.find((s) => s.type === 'hero');
+    if (!heroSection) return false;
+
+    const currentVideos =
+      Array.isArray(heroSection.content.videos) && heroSection.content.videos.length >= 3
+        ? [...heroSection.content.videos]
+        : this.getPopupVideos();
+
+    currentVideos[slotIndex] = {
+      ...currentVideos[slotIndex],
+      ...videoData,
+      videoUrl: videoData.videoUrl,
+      thumbnailUrl: videoData.thumbnailUrl || currentVideos[slotIndex].thumbnailUrl,
+    };
+
+    const updatedSections = homePage.sections.map((s) =>
+      s.id === heroSection.id
+        ? {
+            ...s,
+            content: {
+              ...s.content,
+              videos: currentVideos,
+            },
+          }
+        : s
+    );
+
+    await this.savePage({ ...homePage, sections: updatedSections }, `Updated Popup Video ${slotIndex + 1}`);
+
+    // Synchronize media list tags so assigned slot is clear
+    const mediaList = this.getMedia();
+    let hasMediaUpdates = false;
+    const targetSlotNum = slotIndex + 1;
+    const updatedMediaList = mediaList.map((m) => {
+      if (m.url === videoData.videoUrl) {
+        hasMediaUpdates = true;
+        return { ...m, assignedPopupSlot: targetSlotNum, speaker: videoData.subtitle || m.speaker, tag: videoData.tag || m.tag };
+      }
+      if (m.assignedPopupSlot === targetSlotNum) {
+        hasMediaUpdates = true;
+        return { ...m, assignedPopupSlot: undefined };
+      }
+      return m;
+    });
+
+    if (hasMediaUpdates) {
+      this.save(DB_KEYS.MEDIA, updatedMediaList);
+    }
+
+    this.notify();
+    return true;
   }
 
   public addMedia(item: Omit<MediaItem, 'id' | 'createdAt'> & { id?: string }): MediaItem {
@@ -1037,9 +1250,26 @@ class DatabaseService {
         name: item.name,
         category: item.category as any,
         altText: item.altText || item.name,
+        thumbnailUrl: item.thumbnailUrl || existing.thumbnailUrl,
+        duration: item.duration || existing.duration,
+        assignedPopupSlot: item.assignedPopupSlot ?? existing.assignedPopupSlot,
+        speaker: item.speaker || existing.speaker,
+        tag: item.tag || existing.tag,
+        description: item.description || existing.description,
         uploadedAt: new Date().toISOString(),
       };
       this.saveMedia(updatedItem);
+      if (typeof item.assignedPopupSlot === 'number' && item.assignedPopupSlot >= 1 && item.assignedPopupSlot <= 3) {
+        void this.assignPopupVideo((item.assignedPopupSlot - 1) as 0 | 1 | 2, {
+          title: item.name,
+          subtitle: item.speaker,
+          videoUrl: item.url,
+          thumbnailUrl: item.thumbnailUrl,
+          tag: item.tag,
+          duration: item.duration,
+          description: item.description,
+        });
+      }
       return updatedItem;
     }
 
@@ -1047,16 +1277,33 @@ class DatabaseService {
       id: item.id || `med-${Date.now()}`,
       name: item.name,
       url: item.url,
-      fileType: item.fileType || 'image',
-      format: item.format || 'jpg',
+      fileType: item.fileType || (item.category === 'video' ? 'video' : 'image'),
+      format: item.format || (item.category === 'video' ? 'MP4' : 'jpg'),
       sizeBytes: item.sizeBytes || 102400,
       size: item.size || 'optimized',
       category: item.category as any,
       altText: item.altText || item.name,
+      thumbnailUrl: item.thumbnailUrl,
+      duration: item.duration,
+      assignedPopupSlot: item.assignedPopupSlot,
+      speaker: item.speaker,
+      tag: item.tag,
+      description: item.description,
       createdAt: new Date().toISOString(),
       uploadedAt: new Date().toISOString(),
     };
     this.saveMedia(newItem);
+    if (typeof item.assignedPopupSlot === 'number' && item.assignedPopupSlot >= 1 && item.assignedPopupSlot <= 3) {
+      void this.assignPopupVideo((item.assignedPopupSlot - 1) as 0 | 1 | 2, {
+        title: item.name,
+        subtitle: item.speaker,
+        videoUrl: item.url,
+        thumbnailUrl: item.thumbnailUrl,
+        tag: item.tag,
+        duration: item.duration,
+        description: item.description,
+      });
+    }
     return newItem;
   }
 

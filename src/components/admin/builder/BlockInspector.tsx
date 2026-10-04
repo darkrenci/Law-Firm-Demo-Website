@@ -514,11 +514,10 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
   const getSectionParts = (secType: string) => {
     if (secType === 'hero') {
       return [
-        { id: 'logo', label: 'Emblem Crest', icon: Shield },
         { id: 'eyebrow', label: 'Eyebrow', icon: Type },
         { id: 'headline', label: 'Header 1', icon: FileText },
-        { id: 'subheadline', label: 'Subtitle', icon: AlignLeft },
-        { id: 'buttons', label: 'Buttons', icon: Link },
+        { id: 'image', label: 'Group Photo', icon: ImageIcon },
+        { id: 'body', label: 'Introduction', icon: AlignJustify },
         { id: 'videos', label: 'Embedded Videos (3)', icon: Video },
       ];
     }
@@ -1515,91 +1514,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
             {/* If HERO: Render dedicated, organized element cards */}
             {isHero ? (
               <>
-                {/* PART 1: FIRM EMBLEM / LOGO CREST CARD */}
-                <div
-                  id="part-card-logo"
-                  onClick={() => onSelectPart?.('logo')}
-                  className={`p-3.5 border transition-all rounded-sm space-y-3 ${
-                    activePart === 'logo'
-                      ? 'border-[#c59b63] bg-[#171724] ring-1 ring-[#c59b63]/50 shadow-[0_0_20px_rgba(197,155,99,0.15)]'
-                      : 'border-[#22222f] bg-[#111116] hover:border-[#333345]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-[#c59b63]" />
-                      <span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase tracking-wider">
-                        Firm Emblem / Logo Crest
-                      </span>
-                    </div>
-                    {activePart === 'logo' && (
-                      <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[#c59b63] text-[#0d0d11] font-bold uppercase rounded-xs">
-                        Editing Now
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="space-y-3">
-                    {/* Toggle Show Logo */}
-                    <label className="flex items-center justify-between p-2 bg-[#09090d] border border-[#242430] cursor-pointer">
-                      <span className="text-[11px] text-[#f7f4ee]">Display Firm Logo Crest</span>
-                      <input
-                        type="checkbox"
-                        checked={content.showLogo !== false}
-                        onChange={(e) => handleContentChange('showLogo', e.target.checked)}
-                        className="accent-[#c59b63]"
-                      />
-                    </label>
-
-                    {/* Logo Size Selection */}
-                    <div>
-                      <label className="block text-[10px] text-[#8e877e] uppercase mb-1">Logo Scale Size</label>
-                      <div className="grid grid-cols-3 gap-1.5">
-                        {[
-                          { id: 'sm', label: 'Compact (56px)' },
-                          { id: 'md', label: 'Standard (76px)' },
-                          { id: 'lg', label: 'Monumental (96px)' },
-                        ].map((sz) => (
-                          <button
-                            key={sz.id}
-                            type="button"
-                            onClick={() => handleContentChange('logoSize', sz.id)}
-                            className={`p-1.5 text-center text-[10px] font-cinzel uppercase border transition-colors cursor-pointer ${
-                              (content.logoSize || 'md') === sz.id
-                                ? 'border-[#c59b63] bg-[#1c1c28] text-[#f4e6d0] font-bold'
-                                : 'border-[#22222f] bg-[#09090d] text-[#8e877e]'
-                            }`}
-                          >
-                            {sz.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Custom Logo Image File option */}
-                    <div>
-                      <ImageUploadField
-                        label="Custom Logo Image File (Optional)"
-                        value={content.customLogoUrl || ''}
-                        onChange={(newUrl) => handleContentChange('customLogoUrl', newUrl)}
-                        compact={true}
-                        aspectRatio="square"
-                        helperText="Upload custom logo file (PNG/SVG) or leave blank for default crest."
-                      />
-                      {content.customLogoUrl && (
-                        <button
-                          type="button"
-                          onClick={() => handleContentChange('customLogoUrl', '')}
-                          className="text-[10px] font-cinzel text-[#c59b63] hover:underline mt-1 block cursor-pointer"
-                        >
-                          Reset to Official Lalusis Emblem
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* PART 2: EYEBROW / PRE-TITLE CARD */}
+                {/* PART 1: EYEBROW / PRE-TITLE CARD */}
                 <div
                   id="part-card-eyebrow"
                   onClick={() => onSelectPart?.('eyebrow')}
@@ -1633,7 +1548,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                   />
                 </div>
 
-                {/* PART 3: HEADER 1 (MAIN HEADLINE) CARD */}
+                {/* PART 2: HEADER 1 (MAIN HEADLINE) CARD */}
                 <div
                   id="part-card-headline"
                   onClick={() => onSelectPart?.('headline')}
@@ -1701,173 +1616,126 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                   </div>
                 </div>
 
-                {/* PART 4: SUBTITLE / PARAGRAPH DESCRIPTION CARD */}
+                {/* PART 3: PARTNER GROUP PHOTO */}
                 <div
-                  id="part-card-subheadline"
-                  onClick={() => onSelectPart?.('subheadline')}
+                  id="part-card-image"
+                  onClick={() => onSelectPart?.('image')}
                   className={`p-3.5 border transition-all rounded-sm space-y-3 ${
-                    activePart === 'subheadline'
+                    activePart === 'image'
                       ? 'border-[#c59b63] bg-[#171724] ring-1 ring-[#c59b63]/50 shadow-[0_0_20px_rgba(197,155,99,0.15)]'
                       : 'border-[#22222f] bg-[#111116] hover:border-[#333345]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <AlignLeft className="w-4 h-4 text-[#c59b63]" />
+                      <ImageIcon className="w-4 h-4 text-[#c59b63]" />
                       <span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase tracking-wider">
-                        Subtitle / Paragraph Description
+                        Partner Group Photo
                       </span>
                     </div>
-                    {activePart === 'subheadline' && (
+                    {activePart === 'image' && (
                       <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[#c59b63] text-[#0d0d11] font-bold uppercase rounded-xs">
                         Editing Now
                       </span>
                     )}
                   </div>
 
-                  <textarea
-                    rows={3}
-                    value={content.subheadline || ''}
-                    onFocus={() => onSelectPart?.('subheadline')}
-                    onChange={(e) => handleContentChange('subheadline', e.target.value)}
-                    placeholder="Enter descriptive paragraph explaining chamber doctrine..."
-                    className="w-full bg-[#09090d] border border-[#242430] p-2.5 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none leading-relaxed"
+                  <ImageUploadField
+                    label="Group Picture (Partner Portrait)"
+                    value={content.imageUrl || '/assets/group-picture.svg'}
+                    onChange={(newUrl) => handleContentChange('imageUrl', newUrl)}
+                    compact={true}
+                    aspectRatio="landscape"
+                    helperText="Upload or choose the institutional group portrait from Media Library."
                   />
 
-                  {/* Quick Paragraph Alignment Selector */}
-                  <div>
-                    <label className="block text-[10px] text-[#8e877e] uppercase mb-1">
-                      Paragraph &amp; Text Alignment:
-                    </label>
-                    <div className="grid grid-cols-4 gap-1 bg-[#09090d] p-1 border border-[#242430]">
-                      {[
-                        { id: 'left', label: 'Left', icon: AlignLeft },
-                        { id: 'center', label: 'Center', icon: AlignCenter },
-                        { id: 'right', label: 'Right', icon: AlignRight },
-                        { id: 'justify', label: 'Justify', icon: AlignJustify },
-                      ].map((align) => {
-                        const Icon = align.icon;
-                        const isSelected = (activeTypo.alignment || 'center') === align.id;
-                        return (
-                          <button
-                            key={align.id}
-                            type="button"
-                            onClick={() => handleTypographyChange('alignment', align.id)}
-                            className={`flex items-center justify-center gap-1 py-1.5 text-[10px] font-cinzel uppercase cursor-pointer transition-all ${
-                              isSelected
-                                ? 'bg-[#c59b63] text-[#0d0d11] font-bold'
-                                : 'text-[#8e877e] hover:text-[#f7f4ee]'
-                            }`}
-                          >
-                            <Icon className="w-3 h-3" />
-                            <span>{align.label}</span>
-                          </button>
-                        );
-                      })}
+                  <div className="space-y-2 pt-1">
+                    <div>
+                      <label className="block text-[10px] text-[#8e877e] uppercase mb-0.5">Photo Caption</label>
+                      <input
+                        type="text"
+                        value={content.imageCaption || ''}
+                        onChange={(e) => handleContentChange('imageCaption', e.target.value)}
+                        placeholder="Partners of Lalusis & Partners · Atty. Levy John L.V. Lalusis..."
+                        className="w-full bg-[#09090d] border border-[#242430] px-2.5 py-1.5 text-xs text-[#f7f4ee]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-[#8e877e] uppercase mb-0.5">Alt Text / Description</label>
+                      <input
+                        type="text"
+                        value={content.imageAlt || ''}
+                        onChange={(e) => handleContentChange('imageAlt', e.target.value)}
+                        placeholder="Lalusis & Partners Founding Partners"
+                        className="w-full bg-[#09090d] border border-[#242430] px-2.5 py-1.5 text-xs text-[#f7f4ee]"
+                      />
                     </div>
                   </div>
                 </div>
 
-                {/* PART 5: ACTION BUTTONS (PRIMARY & SECONDARY CTA) */}
+                {/* PART 4: FIRM INTRODUCTION NARRATIVE */}
                 <div
-                  id="part-card-buttons"
-                  onClick={() => onSelectPart?.('buttons')}
+                  id="part-card-body"
+                  onClick={() => onSelectPart?.('body')}
                   className={`p-3.5 border transition-all rounded-sm space-y-3 ${
-                    activePart === 'buttons'
+                    activePart === 'body'
                       ? 'border-[#c59b63] bg-[#171724] ring-1 ring-[#c59b63]/50 shadow-[0_0_20px_rgba(197,155,99,0.15)]'
                       : 'border-[#22222f] bg-[#111116] hover:border-[#333345]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Link className="w-4 h-4 text-[#c59b63]" />
+                      <AlignJustify className="w-4 h-4 text-[#c59b63]" />
                       <span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase tracking-wider">
-                        Action Buttons &amp; Links (Primary &amp; Secondary)
+                        Firm Introduction Narrative
                       </span>
                     </div>
-                    {activePart === 'buttons' && (
+                    {activePart === 'body' && (
                       <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[#c59b63] text-[#0d0d11] font-bold uppercase rounded-xs">
                         Editing Now
                       </span>
                     )}
                   </div>
 
-                  {/* Primary CTA */}
-                  <div className="p-2.5 bg-[#09090d] border border-[#242430] space-y-2">
-                    <span className="font-cinzel text-[10px] font-bold text-[#c59b63] uppercase block">
-                      1. Primary Button (Solid Gold Accent)
-                    </span>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-[9px] text-[#8e877e] uppercase mb-0.5">Label Text</label>
-                        <input
-                          type="text"
-                          value={content.ctaPrimaryText || content.primaryCtaText || ''}
-                          onFocus={() => onSelectPart?.('buttons')}
-                          onChange={(e) => {
-                            handleContentChange('ctaPrimaryText', e.target.value);
-                            handleContentChange('primaryCtaText', e.target.value);
-                          }}
-                          placeholder="Request Consultation"
-                          className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1.5 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[9px] text-[#8e877e] uppercase mb-0.5">Link Path / URL</label>
-                        <input
-                          type="text"
-                          value={content.ctaPrimaryLink || content.primaryCtaLink || ''}
-                          onFocus={() => onSelectPart?.('buttons')}
-                          onChange={(e) => {
-                            handleContentChange('ctaPrimaryLink', e.target.value);
-                            handleContentChange('primaryCtaLink', e.target.value);
-                          }}
-                          placeholder="/consultation"
-                          className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1.5 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none font-mono"
-                        />
-                      </div>
-                    </div>
+                  <div>
+                    <label className="block text-[10px] text-[#8e877e] uppercase mb-1">
+                      Editorial Introduction Text (Paragraphs)
+                    </label>
+                    <textarea
+                      rows={8}
+                      value={content.body ?? content.introduction ?? ''}
+                      onFocus={() => onSelectPart?.('body')}
+                      onChange={(e) => handleContentChange('body', e.target.value)}
+                      placeholder="The FIRM is founded by Atty. Leo Lalusis and Atty. Levy John Lalusis..."
+                      className="w-full bg-[#09090d] border border-[#242430] p-2.5 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none leading-relaxed"
+                    />
                   </div>
 
-                  {/* Secondary CTA */}
-                  <div className="p-2.5 bg-[#09090d] border border-[#242430] space-y-2">
-                    <span className="font-cinzel text-[10px] font-bold text-[#a8a199] uppercase block">
-                      2. Secondary Button (Gold Outline)
+                  <div className="space-y-2 pt-2 border-t border-[#1f1f2a]">
+                    <span className="font-cinzel text-[10px] font-bold text-[#c59b63] uppercase block">
+                      Introduction Video (Optional Stream)
                     </span>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="block text-[9px] text-[#8e877e] uppercase mb-0.5">Label Text</label>
-                        <input
-                          type="text"
-                          value={content.ctaSecondaryText || content.secondaryCtaText || ''}
-                          onFocus={() => onSelectPart?.('buttons')}
-                          onChange={(e) => {
-                            handleContentChange('ctaSecondaryText', e.target.value);
-                            handleContentChange('secondaryCtaText', e.target.value);
-                          }}
-                          placeholder="Explore Practice Areas"
-                          className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1.5 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[9px] text-[#8e877e] uppercase mb-0.5">Link Path / URL</label>
-                        <input
-                          type="text"
-                          value={content.ctaSecondaryLink || content.secondaryCtaLink || ''}
-                          onFocus={() => onSelectPart?.('buttons')}
-                          onChange={(e) => {
-                            handleContentChange('ctaSecondaryLink', e.target.value);
-                            handleContentChange('secondaryCtaLink', e.target.value);
-                          }}
-                          placeholder="/practice-areas"
-                          className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1.5 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none font-mono"
-                        />
-                      </div>
+                    <div>
+                      <label className="block text-[9px] text-[#8e877e] uppercase mb-0.5">Video File / Stream URL</label>
+                      <VideoUploadField
+                        value={content.introVideoUrl || '/videos/introduction.mp4'}
+                        onChange={(url) => handleContentChange('introVideoUrl', url)}
+                      />
+                    </div>
+                    <div className="pt-1">
+                      <ImageUploadField
+                        label="Video Poster Image"
+                        value={content.introPosterUrl || '/videos/introduction.jpg'}
+                        onChange={(posterUrl) => handleContentChange('introPosterUrl', posterUrl)}
+                        compact={true}
+                        aspectRatio="landscape"
+                        helperText="Preview thumbnail for the introduction video"
+                      />
                     </div>
                   </div>
                 </div>
 
-                {/* PART 6: 3 EMBEDDED VIDEOS (CLICKABLE & POPUPABLE) */}
+                {/* PART 5: 3 EMBEDDED VIDEOS (CLICKABLE & POPUPABLE) */}
                 <div
                   id="part-card-videos"
                   onClick={() => onSelectPart?.('videos')}

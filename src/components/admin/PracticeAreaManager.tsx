@@ -8,6 +8,7 @@ import { useToast } from '../ui/Toast';
 import { Scale, Plus, Edit3, Trash2, Search, Sparkles, Layout } from 'lucide-react';
 import { ItemTypographyControls, resolveItemTypography } from './ItemTypographyControls';
 import { ImageUploadField } from '../ui/ImageUploadField';
+import { ItemListEditor } from '../ui/ItemListEditor';
 
 interface PracticeAreaManagerProps {
   onOpenLiveBuilder?: (pageSlug: string) => void;
@@ -221,8 +222,10 @@ const PracticeEditModal: React.FC<{
   onClose: () => void;
   onSave: (pa: PracticeArea) => void;
 }> = ({ area, isNew, onClose, onSave }) => {
-  const [form, setForm] = useState<PracticeArea>({ ...area });
-  const [servicesStr, setServicesStr] = useState((area.keyServices || []).join('\n'));
+  const [form, setForm] = useState<PracticeArea>({
+    ...area,
+    keyServices: area.keyServices || [],
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -236,7 +239,7 @@ const PracticeEditModal: React.FC<{
     onSave({
       ...form,
       slug: autoSlug,
-      keyServices: servicesStr.split('\n').filter((s) => s.trim()),
+      keyServices: (form.keyServices || []).map((s) => s.trim()).filter(Boolean),
     });
   };
 
@@ -323,18 +326,13 @@ const PracticeEditModal: React.FC<{
           />
         </div>
 
-        <div>
-          <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
-            Specific Key Services (1 per line)
-          </label>
-          <textarea
-            rows={4}
-            value={servicesStr}
-            onChange={(e) => setServicesStr(e.target.value)}
-            placeholder="e.g. Cross-Border Due Diligence&#10;SEC Compliance Filings&#10;Joint Venture Structuring"
-            className="w-full bg-[#0d0d11] border border-[#2a2a35] p-2.5 text-xs text-[#f7f4ee] focus:outline-none"
-          />
-        </div>
+        <ItemListEditor
+          label="Specific Key Services"
+          items={form.keyServices || []}
+          onChange={(items) => setForm({ ...form, keyServices: items })}
+          placeholder="e.g. Cross-Border Due Diligence"
+          helperText="Add, delete, or update specialized practice capabilities"
+        />
 
         <div className="pt-2 flex items-center justify-between border-t border-[#22222d]">
           <div className="flex items-center gap-4">

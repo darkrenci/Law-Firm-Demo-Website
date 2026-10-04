@@ -652,40 +652,20 @@ const RenderSectionItem: React.FC<{
         ? 'mx-auto text-justify'
         : 'mx-auto text-center';
 
+      const defaultIntroText =
+        "The FIRM is founded by Atty. Leo Lalusis and Atty. Levy John Lalusis, under the guidance of their senior partner, Atty. Diosdado Anselmo Lalusis. Brothers Lalusis, is the son of the late NBI Chief Danielito Q. Lalusis, who served the NBI for almost 30 years prior to his untimely passing.\n\n" +
+        "Atty. Leo Lalusis passed the Bar in 2019 (the last handwritten Bar Examination) in his only attempt. Upon passing, he entered the NBI as Legal Officer assigned in the Legal Division, specifically in Prosecution and High Profile Cases, where he received several commendations, including for the PNP-PDEA incident. During his stay with the NBI, he was also tasked to represent the bureau in various Senate and House of Representatives hearings and attended several specialized investigative courses. Atty. Leo is also a certified Data Protection Officer (UP Open University, 2023) and has handled high-profile cases before the DOJ and Sandiganbayan. He has represented prominent clients in congressional hearings, including the landmark Senate Blue Ribbon Committee hearings in flood control cases, as well as leading public figures and influencers. To further broaden his jurisprudential acumen, he is one of the youngest Master of Laws candidates in the Graduate School of San Beda University.\n\n" +
+        "Meanwhile, Atty. Levy John Lalusis passed the 2024 Bar Examination. Prior to his admission to the bar, he served with distinguished government bodies, specifically within the Presidential Anti-Corruption Commission (PACC) as a graft investigator and the Department of Transportation (DOTr). Atty. Levy is a certified Tax Specialist with multiple accreditations. Alongside his brother Atty. Leo, he has appeared before the Sandiganbayan representing high-profile institutional and private clients in contentious matters.\n\n" +
+        "On the other hand, Atty. Diosdado Anselmo Lalusis is a seasoned and veteran lawyer who headed the Professional Regulation Commission (PRC) Legal Division for more than a decade. Atty. Diosdado brings seasoned appellate advocacy, exemplary institutional integrity, and foundational legal mentorship to the firm's sovereign and corporate clientele.";
+
+      const introductionBody = content.body || content.introduction || defaultIntroText;
+
       return (
         <section className={`relative overflow-hidden ${bg} ${py} border-b border-[#1c1c25]`}>
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#c59b63_1px,transparent_1px)] [background-size:24px_24px]" />
           
           <div className={`max-w-6xl mx-auto px-6 lg:px-12 relative z-10 ${headTypo.alignClass} space-y-8`}>
-            {/* Part 1: Authentic Brand Emblem / Logo */}
-            {content.showLogo !== false && (
-              <EditablePartWrapper
-                editMode={editMode}
-                partId="logo"
-                partLabel="Firm Logo / Emblem Crest"
-                activeElementPart={activeElementPart}
-                onSelectPart={onSelectPart}
-                className={`flex ${justifyClass} mb-6`}
-              >
-                <div className="p-6 sm:p-8 bg-[#0a0a0d]/95 border-2 border-[#c59b63]/50 shadow-[0_0_60px_rgba(197,155,99,0.22)] inline-block backdrop-blur-sm">
-                  {content.customLogoUrl ? (
-                    <img
-                      src={content.customLogoUrl}
-                      alt="Firm Logo"
-                      className="object-contain"
-                      style={{
-                        height: content.logoSize === 'sm' ? 120 : content.logoSize === 'lg' ? 240 : 180,
-                        maxHeight: 260,
-                      }}
-                    />
-                  ) : (
-                    <LalusisLogoMark size={content.logoSize === 'sm' ? 120 : content.logoSize === 'lg' ? 240 : 180} />
-                  )}
-                </div>
-              </EditablePartWrapper>
-            )}
-
-            {/* Part 2: Eyebrow */}
+            {/* Part 1: Eyebrow */}
             <EditablePartWrapper
               editMode={editMode}
               partId="eyebrow"
@@ -704,7 +684,7 @@ const RenderSectionItem: React.FC<{
               <div className="h-[1px] w-8 bg-[#c59b63]/40" />
             </EditablePartWrapper>
 
-            {/* Part 3: Main Headline (Header 1) */}
+            {/* Part 2: Main Headline (Header 1) */}
             <EditablePartWrapper
               editMode={editMode}
               partId="headline"
@@ -722,59 +702,57 @@ const RenderSectionItem: React.FC<{
               </h1>
             </EditablePartWrapper>
 
-            {/* Part 4: Subheadline / Paragraph */}
+            {/* Part 3: Partner Group Photo */}
             <EditablePartWrapper
               editMode={editMode}
-              partId="subheadline"
-              partLabel="Subtitle / Paragraph Description"
+              partId="image"
+              partLabel="Partner Group Photo"
               activeElementPart={activeElementPart}
               onSelectPart={onSelectPart}
+              className="w-full max-w-4xl mx-auto my-2"
             >
-              <p
-                style={subTypo.customStyle}
-                className={`${subTypo.fontClass} ${subTypo.sizeClass || 'text-sm sm:text-lg'} ${subTypo.colorClass} ${subTypo.weightClass} ${subTypo.trackingClass} ${subTypo.uppercaseClass} ${subTypo.italicClass} max-w-2xl ${subTypo.marginClass} leading-relaxed`}
-              >
-                {content.subheadline ||
-                  'Representing multinational corporations, prominent families, and industry pioneers across high-stakes corporate transactions, commercial litigation, and appellate advocacy.'}
-              </p>
+              <InstitutionalImageFrame
+                imageUrl={content.imageUrl || content.image || '/assets/group-picture.svg'}
+                imageAlt={content.imageAlt || 'Lalusis & Partners Founding Partners'}
+                caption={content.imageCaption || 'Partners of Lalusis & Partners · Atty. Levy John L.V. Lalusis · Senior Partner Atty. Diosdado Anselmo Q. Lalusis · Atty. Leo Anselmo L.V. Lalusis'}
+                sectionId={section.id}
+                editMode={editMode}
+                isAdmin={isAdmin}
+              />
             </EditablePartWrapper>
 
-            {/* Part 5: Call to Action Buttons */}
+            {/* Part 4: Firm Introduction Narrative */}
             <EditablePartWrapper
               editMode={editMode}
-              partId="buttons"
-              partLabel="Action Buttons (Primary & Secondary CTA)"
+              partId="body"
+              partLabel="Firm Introduction & Editorial Narrative"
               activeElementPart={activeElementPart}
               onSelectPart={onSelectPart}
-              className={`pt-4 flex flex-col sm:flex-row items-center ${justifyClass} gap-4`}
+              className="w-full max-w-4xl mx-auto"
             >
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => onNavigate(content.ctaPrimaryLink || content.primaryCtaLink || '/consultation')}
-                className={`${buttonsTypo.fontClass} ${buttonsTypo.sizeClass} ${buttonsTypo.trackingClass} ${buttonsTypo.uppercaseClass} ${buttonsTypo.italicClass}`}
-                style={buttonsTypo.customStyle}
+              <div
+                style={bodyTypo.customStyle}
+                className={`space-y-4 sm:space-y-5 ${bodyTypo.fontClass} ${bodyTypo.sizeClass || 'text-sm sm:text-base'} ${bodyTypo.bodyColorClass || bodyTypo.colorClass} leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] hyphens-auto ${bodyTypo.italicClass} ${bodyTypo.trackingClass}`}
               >
-                {content.ctaPrimaryText || content.primaryCtaText || 'Request Consultation'}
-              </Button>
-              <Button
-                variant="gold-outline"
-                size="lg"
-                onClick={() => onNavigate(content.ctaSecondaryLink || content.secondaryCtaLink || '/practice-areas')}
-                className={`${buttonsTypo.fontClass} ${buttonsTypo.sizeClass} ${buttonsTypo.trackingClass} ${buttonsTypo.uppercaseClass} ${buttonsTypo.italicClass}`}
-                style={buttonsTypo.customStyle}
-              >
-                {content.ctaSecondaryText || content.secondaryCtaText || 'Explore Practice Areas'}
-              </Button>
+                {introductionBody.split('\n\n').map((para: string, i: number) => (
+                  <p
+                    key={i}
+                    className="leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] text-[#ded6c9]"
+                  >
+                    {para}
+                  </p>
+                ))}
+              </div>
             </EditablePartWrapper>
 
+            {/* Watch Introduction Video Player */}
             {(pageSlug === '' || pageSlug === 'home') && (
-              <div className="w-full max-w-3xl mx-auto pt-4">
+              <div className="w-full max-w-3xl mx-auto pt-2">
                 {introductionStarted ? (
                   <video
                     ref={introductionPlayer}
-                    src="/videos/introduction.mp4"
-                    poster="/videos/introduction.jpg"
+                    src={content.introVideoUrl || "/videos/introduction.mp4"}
+                    poster={content.introPosterUrl || "/videos/introduction.jpg"}
                     autoPlay
                     controls
                     playsInline
@@ -786,15 +764,15 @@ const RenderSectionItem: React.FC<{
                   type="button"
                   aria-label="Watch introduction video"
                   onClick={() => setIntroductionStarted(true)}
-                  className="group block w-full relative overflow-hidden border border-[#c59b63]/50 bg-[#0b0b0f] focus:outline-none focus:ring-2 focus:ring-[#c59b63]"
+                  className="group block w-full relative overflow-hidden border border-[#c59b63]/50 bg-[#0b0b0f] focus:outline-none focus:ring-2 focus:ring-[#c59b63] cursor-pointer"
                 >
-                  <img src="/videos/introduction.jpg" alt="Introduction video" width={960} height={525} loading="lazy" decoding="async" className="w-full h-auto" />
+                  <img src={content.introPosterUrl || "/videos/introduction.jpg"} alt="Introduction video" width={960} height={525} loading="lazy" decoding="async" className="w-full h-auto" />
                   <span className="absolute inset-0 bg-black/20 flex items-center justify-center">
                     <span className="w-16 h-16 rounded-full bg-[#0d0d12]/85 border border-[#c59b63] flex items-center justify-center text-[#c59b63] group-hover:bg-[#c59b63] group-hover:text-[#09090c] transition-colors">
                       <Play className="w-7 h-7 ml-1 fill-current" />
                     </span>
                   </span>
-                  <span className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent pt-10 pb-4 text-[#f4e6d0] font-cinzel text-sm tracking-wider">Watch Introduction</span>
+                  <span className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent pt-10 pb-4 text-[#f4e6d0] font-cinzel text-sm tracking-wider">Watch Introduction Video</span>
                 </button>
                 )}
               </div>
@@ -1627,6 +1605,10 @@ const RenderSectionItem: React.FC<{
       );
 
     case 'richText': {
+      // Firm Introduction and partner group photo have been integrated directly into the Hero section on the Home page
+      if ((pageSlug === '' || pageSlug === 'home') && (section.id === 'sec-intro' || section.title?.toLowerCase().includes('introduction') || section.subtitle?.toLowerCase().includes('institutional overview'))) {
+        return null;
+      }
       return (
         <div className={`${bg} ${py} border-b border-[#1a1a23]`}>
           <div className={`max-w-4xl mx-auto px-6 space-y-6 flex flex-col ${typo.flexAlignClass}`}>
@@ -2165,7 +2147,20 @@ const RenderSectionItem: React.FC<{
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
                 {attorneys.map((atty, index) => {
-                  const roleBadge = atty.professionalTitle;
+                  const roleBadge = (() => {
+                    const title = atty.professionalTitle?.trim() || '';
+                    if (title.includes('·')) return title.split('·')[0].trim();
+                    if (title.includes(' - ')) return title.split(' - ')[0].trim();
+                    if (title.includes(',')) return title.split(',')[0].trim();
+                    if (title.length > 25) {
+                      if (title.toLowerCase().includes('senior partner')) return 'Senior Partner';
+                      if (title.toLowerCase().includes('founding partner')) return 'Founding Partner';
+                      if (title.toLowerCase().includes('managing partner')) return 'Managing Partner';
+                      if (title.toLowerCase().includes('partner')) return 'Partner';
+                      return title.slice(0, 22) + '...';
+                    }
+                    return title || (atty.isPartner ? 'Partner' : 'Attorney');
+                  })();
 
                   return (
                     <div
@@ -2214,11 +2209,13 @@ const RenderSectionItem: React.FC<{
                         <div className="absolute inset-0 bg-gradient-to-t from-[#101015] via-black/25 to-transparent opacity-90" />
 
                         {/* Top Role Badge */}
-                        <div className="absolute top-3 left-3">
-                          <span className="px-2.5 py-1 text-[9px] font-cinzel font-semibold tracking-widest uppercase bg-[#0a0a0d]/90 text-[#c59b63] border border-[#c59b63]/40 backdrop-blur-sm shadow-md">
-                            {roleBadge}
-                          </span>
-                        </div>
+                        {roleBadge && (
+                          <div className="absolute top-3 left-3 z-10 max-w-[calc(100%-1.5rem)] pointer-events-none">
+                            <span className="inline-block px-2.5 py-1 text-[9px] font-cinzel font-semibold tracking-widest uppercase bg-[#0a0a0d]/90 text-[#c59b63] border border-[#c59b63]/40 backdrop-blur-sm shadow-md whitespace-nowrap truncate max-w-full">
+                              {roleBadge}
+                            </span>
+                          </div>
+                        )}
 
                         {/* Hover Overlay Hint */}
                         <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
