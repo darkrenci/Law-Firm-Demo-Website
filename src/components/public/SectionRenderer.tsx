@@ -750,7 +750,7 @@ const RenderSectionItem: React.FC<{
 
             {/* Watch Introduction Video Player */}
             {(pageSlug === '' || pageSlug === 'home') && (
-              <div className="w-full max-w-3xl mx-auto pt-2">
+              <div className="w-full mx-auto pt-2">
                 {introductionStarted ? (
                   <video
                     ref={introductionPlayer}
