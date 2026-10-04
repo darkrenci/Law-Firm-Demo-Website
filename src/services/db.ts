@@ -246,13 +246,25 @@ class DatabaseService {
   }
 
   private notify(): void {
-    this.listeners.forEach((listener) => {
-      try {
-        listener();
-      } catch (e) {
-        console.error('Error in DB listener:', e);
-      }
-    });
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        this.listeners.forEach((listener) => {
+          try {
+            listener();
+          } catch (e) {
+            console.error('Error in DB listener:', e);
+          }
+        });
+      }, 0);
+    } else {
+      this.listeners.forEach((listener) => {
+        try {
+          listener();
+        } catch (e) {
+          console.error('Error in DB listener:', e);
+        }
+      });
+    }
   }
 
   // --- CURRENT USER & AUTH ---
@@ -333,8 +345,10 @@ class DatabaseService {
       };
       changed = true;
     }
-    if (changed) {
-      this.save(DB_KEYS.SETTINGS, settings);
+    if (changed && typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(DB_KEYS.SETTINGS, JSON.stringify(settings));
+      } catch {}
     }
     return settings;
   }
@@ -362,6 +376,11 @@ class DatabaseService {
 
   // --- PAGES & PAGE BUILDER ---
   public getPages(): Page[] {
+    const bodyText =
+      "The FIRM was founded by brothers Atty. Leo Anselmo L.V. Lalusis and Atty. Levy John L.V. Lalusis, under the guidance of their senior partner and uncle, Atty. Diosdado Anselmo Q. Lalusis, LPT.\n\n" +
+      "The brothers Atty. Leo and Atty. Levy are the sons of the late Chief Danielito Q. Lalusis, who served the National Bureau of Investigation (NBI) with utmost integrity and excellence for almost 30 years prior to his untimely passing.\n\n" +
+      "With their combined training and experience, the brothers, Atty. Leo and Atty. Levy bring proactive, adaptive, and client-centered legal representation tailored to each client's distinct needs and circumstances. Guided by the principle of LEGAL PRECISION, the firm delivers legal representation grounded in rigorous preparation and a steadfast commitment to achieving results that serve its clients' best interests.";
+
     const rawPages = this.load<Page[]>(DB_KEYS.PAGES, initialPages);
     let cleaned = false;
     const pages = rawPages.map((page) => {
@@ -369,17 +388,17 @@ class DatabaseService {
       if (mod.id === 'page-home' || mod.slug === '') {
         const hero = mod.sections.find(s => s.id === 'sec-hero' || s.type === 'hero');
         const hasDuplicateIntro = mod.sections.some(s => s.id === 'sec-intro');
-        if (hero && (!hero.content?.body || hero.content?.subheadline || hasDuplicateIntro)) {
+        const isNotExactBody = hero?.content?.body !== bodyText;
+        const hasEyebrow = Boolean(hero?.content?.eyebrow);
+        if (hero && (!hero.content?.body || hero.content?.subheadline || hasDuplicateIntro || isNotExactBody || hasEyebrow)) {
           cleaned = true;
-          const introSec = mod.sections.find(s => s.id === 'sec-intro');
-          const bodyText = hero.content?.body || introSec?.content?.body || "The FIRM is founded by Atty. Leo Lalusis and Atty. Levy John Lalusis, under the guidance of their senior partner, Atty. Diosdado Anselmo Lalusis. Brothers Lalusis, is the son of the late NBI Chief Danielito Q. Lalusis, who served the NBI for almost 30 years prior to his untimely passing.\n\nAtty. Leo Lalusis passed the Bar in 2019 (the last handwritten Bar Examination) in his only attempt. Upon passing, he entered the NBI as Legal Officer assigned in the Legal Division, specifically in Prosecution and High Profile Cases, where he received several commendations, including for the PNP-PDEA incident. During his stay with the NBI, he was also tasked to represent the bureau in various Senate and House of Representatives hearings and attended several specialized investigative courses. Atty. Leo is also a certified Data Protection Officer (UP Open University, 2023) and has handled high-profile cases before the DOJ and Sandiganbayan. He has represented prominent clients in congressional hearings, including the landmark Senate Blue Ribbon Committee hearings in flood control cases, as well as leading public figures and influencers. To further broaden his jurisprudential acumen, he is one of the youngest Master of Laws candidates in the Graduate School of San Beda University.\n\nMeanwhile, Atty. Levy John Lalusis passed the 2024 Bar Examination. Prior to his admission to the bar, he served with distinguished government bodies, specifically within the Presidential Anti-Corruption Commission (PACC) as a graft investigator and the Department of Transportation (DOTr). Atty. Levy is a certified Tax Specialist with multiple accreditations. Alongside his brother Atty. Leo, he has appeared before the Sandiganbayan representing high-profile institutional and private clients in contentious matters.\n\nOn the other hand, Atty. Diosdado Anselmo Lalusis is a seasoned and veteran lawyer who headed the Professional Regulation Commission (PRC) Legal Division for more than a decade. Atty. Diosdado brings seasoned appellate advocacy, exemplary institutional integrity, and foundational legal mentorship to the firm's sovereign and corporate clientele.";
           mod = {
             ...mod,
             sections: mod.sections
               .filter(s => s.id !== 'sec-intro')
               .map(s => {
                 if (s.id === 'sec-hero' || s.type === 'hero') {
-                  const { subheadline, ctaPrimaryText, ctaPrimaryLink, ctaSecondaryText, ctaSecondaryLink, ...restContent } = s.content || {};
+                  const { eyebrow, subheadline, ctaPrimaryText, ctaPrimaryLink, ctaSecondaryText, ctaSecondaryLink, ...restContent } = s.content || {};
                   return {
                     ...s,
                     content: {
@@ -398,13 +417,204 @@ class DatabaseService {
           };
         }
       }
+      if (mod.id === 'page-about' || mod.slug === 'about') {
+        const aboutStory = mod.sections.find(s => s.id === 'sec-about-story' || (s.type === 'imageText' && s.title?.includes('Heritage')));
+        if (aboutStory && aboutStory.content?.body !== bodyText) {
+          cleaned = true;
+          mod = {
+            ...mod,
+            sections: mod.sections.map(s => {
+              if (s.id === 'sec-about-story' || (s.type === 'imageText' && s.title?.includes('Heritage'))) {
+                return {
+                  ...s,
+                  content: {
+                    ...s.content,
+                    body: bodyText,
+                  },
+                };
+              }
+              return s;
+            }),
+          };
+        }
+      }
       if (mod.sections.some((s) => s.id === 'sec-stats' || (s.type === 'stats' && s.title === 'Firm Milestones'))) {
         cleaned = true;
-        return {
+        mod = {
           ...mod,
           sections: mod.sections.filter(
             (s) => s.id !== 'sec-stats' && !(s.type === 'stats' && s.title === 'Firm Milestones')
           ),
+        };
+      }
+      // Remove unwanted sections: Why Choose Us (Ethos), Guiding Principles (Values), redundant hero headers, home contact-info, CTA banners, and about hero header
+      const sectionsToHide = new Set([
+        'sec-why-us',
+        'sec-about-values',
+        'sec-about-hero',
+        'sec-attorneys-hero',
+        'sec-pa-hero',
+        'sec-contact-hero',
+        'sec-contact-info',
+        'sec-cta',
+        'sec-attorneys-cta',
+        'sec-pa-cta',
+      ]);
+      const shouldRemoveSection = (s: any) =>
+        sectionsToHide.has(s.id) ||
+        s.type === 'cta' ||
+        s.content?.headline?.toLowerCase().includes('schedule') ||
+        s.content?.heading?.toLowerCase().includes('schedule') ||
+        s.content?.headline?.toLowerCase().includes('consult with our senior') ||
+        s.content?.heading?.toLowerCase().includes('consult with our senior') ||
+        s.content?.headline?.toLowerCase().includes('retain strategic counsel') ||
+        s.content?.heading?.toLowerCase().includes('retain strategic counsel') ||
+        s.content?.heading?.toLowerCase().includes('a legacy of strategic') ||
+        s.content?.headline?.toLowerCase().includes('a legacy of strategic') ||
+        s.content?.subheading?.toLowerCase().includes('founded in 1998') ||
+        s.content?.subheadline?.toLowerCase().includes('founded in 1998') ||
+        s.title?.toLowerCase().includes('about hero header');
+
+      if (mod.sections.some(s => shouldRemoveSection(s))) {
+        cleaned = true;
+        mod = {
+          ...mod,
+          sections: mod.sections.filter(s => !shouldRemoveSection(s)),
+        };
+      }
+
+      // Sanitize any residual imageEyebrow or imageCaption containing 'Institutional Standard' or 'Quezon City Legal Chambers'
+      if (mod.sections.some(s =>
+        s.content?.imageEyebrow?.toLowerCase().includes('institutional') ||
+        s.content?.imageCaption?.toLowerCase().includes('quezon city legal chambers') ||
+        s.content?.caption?.toLowerCase().includes('quezon city legal chambers')
+      )) {
+        cleaned = true;
+        mod = {
+          ...mod,
+          sections: mod.sections.map(s => {
+            if (s.content) {
+              return {
+                ...s,
+                content: {
+                  ...s.content,
+                  imageEyebrow: s.content.imageEyebrow?.toLowerCase().includes('institutional') ? '' : s.content.imageEyebrow,
+                  imageCaption: s.content.imageCaption?.toLowerCase().includes('quezon city legal chambers') ? '' : s.content.imageCaption,
+                  caption: s.content.caption?.toLowerCase().includes('quezon city legal chambers') ? '' : s.content.caption,
+                },
+              };
+            }
+            return s;
+          }),
+        };
+      }
+
+      // Replace contact heading with Connect with Our Partners
+      if (mod.sections.some(s =>
+        s.id === 'sec-contact-main' &&
+        (s.content?.headline !== 'Connect with Our Partners' || s.content?.heading !== 'Connect with Our Partners')
+      )) {
+        cleaned = true;
+        mod = {
+          ...mod,
+          sections: mod.sections.map(s => {
+            if (s.id === 'sec-contact-main') {
+              return {
+                ...s,
+                content: {
+                  ...s.content,
+                  eyebrow: '',
+                  headline: 'Connect with Our Partners',
+                  heading: 'Connect with Our Partners',
+                  subheadline: '',
+                  subheading: '',
+                },
+              };
+            }
+            return s;
+          }),
+        };
+      }
+
+      // Remove all small gold eyebrows across all sections
+      if (mod.sections.some(s => Boolean(s.content?.eyebrow))) {
+        cleaned = true;
+        mod = {
+          ...mod,
+          sections: mod.sections.map(s => ({
+            ...s,
+            content: {
+              ...s.content,
+              eyebrow: '',
+            },
+          })),
+        };
+      }
+
+      // Clear boilerplate subtitles / descriptions across practice areas, attorneys, and contact
+      const hasUnwantedSubtitles = mod.sections.some(s =>
+        s.content?.description?.includes('cross-border') ||
+        s.content?.subheadline?.includes('cross-border') ||
+        s.content?.description?.includes('Fourteen dedicated') ||
+        s.content?.description?.includes('Our partners blend specialized') ||
+        s.content?.body?.includes('Schedule a confidential evaluation') ||
+        s.content?.subheadline?.includes('Future Point Plaza Suites, Panay') ||
+        s.content?.subheading?.includes('Future Point Plaza Suites, Panay') ||
+        s.content?.subheading?.includes('Grand Tower') ||
+        s.content?.subheading?.includes('Ayala') ||
+        (s.id === 'sec-practices' && (s.content?.description || s.content?.subheadline)) ||
+        (s.id === 'sec-contact-info' && (s.content?.subheading || s.content?.subheadline || s.subtitle)) ||
+        (s.id === 'sec-attorneys-grid' && (s.content?.description || s.content?.subheadline)) ||
+        (s.id === 'sec-attorneys-cta' && (s.content?.body || s.content?.subheadline)) ||
+        (s.id === 'sec-pa-grid' && (s.content?.description || s.content?.subheadline)) ||
+        (s.id === 'sec-pa-cta' && (s.content?.body || s.content?.subheadline)) ||
+        (s.id === 'sec-contact-main' && (s.content?.subheadline || s.content?.subheading))
+      );
+
+      if (hasUnwantedSubtitles) {
+        cleaned = true;
+        mod = {
+          ...mod,
+          sections: mod.sections.map(s => {
+            const isTarget =
+              s.id === 'sec-practices' ||
+              s.id === 'sec-contact-info' ||
+              s.id === 'sec-attorneys-grid' ||
+              s.id === 'sec-attorneys-cta' ||
+              s.id === 'sec-pa-grid' ||
+              s.id === 'sec-pa-cta' ||
+              s.id === 'sec-contact-main' ||
+              s.content?.description?.includes('cross-border') ||
+              s.content?.subheadline?.includes('cross-border') ||
+              s.content?.description?.includes('Fourteen dedicated') ||
+              s.content?.description?.includes('Our partners blend specialized') ||
+              s.content?.body?.includes('Schedule a confidential evaluation') ||
+              s.content?.subheadline?.includes('Future Point Plaza Suites, Panay') ||
+              s.content?.subheading?.includes('Future Point Plaza Suites, Panay') ||
+              s.content?.subheading?.includes('Grand Tower') ||
+              s.content?.subheading?.includes('Ayala');
+
+            if (isTarget) {
+              const { description, subheadline, subheading, body, ...restContent } = s.content || {};
+              const nextContent: Record<string, any> = {
+                ...restContent,
+                description: '',
+                subheadline: '',
+                subheading: '',
+              };
+              if (s.id === 'sec-attorneys-cta' || s.id === 'sec-pa-cta' || s.content?.body?.includes('Schedule a confidential evaluation')) {
+                nextContent.body = '';
+              } else if (body !== undefined) {
+                nextContent.body = body;
+              }
+              return {
+                ...s,
+                subtitle: '',
+                content: nextContent,
+              };
+            }
+            return s;
+          }),
         };
       }
       return mod;
@@ -610,7 +820,79 @@ class DatabaseService {
 
   // --- ATTORNEYS ---
   public getAttorneys(includeUnpublished: boolean = true): Attorney[] {
-    const list = this.load<Attorney[]>(DB_KEYS.ATTORNEYS, initialAttorneys);
+    let list = this.load<Attorney[]>(DB_KEYS.ATTORNEYS, initialAttorneys);
+    let changed = false;
+    list = list.map((a) => {
+      // Senior Partner Atty. Diosdado
+      if (
+        a.id === 'atty-3' ||
+        a.slug?.toLowerCase().includes('diosdado') ||
+        a.fullName?.toLowerCase().includes('diosdado')
+      ) {
+        const expected = 'SENIOR PARTNER · SENIOR ADVISORY COUNSEL & ADMINISTRATIVE LITIGANT';
+        if (a.professionalTitle !== expected) {
+          changed = true;
+          return {
+            ...a,
+            professionalTitle: expected,
+          };
+        }
+      }
+      // Founding Partner Atty. Levy (with Litigant Lawyer)
+      if (
+        a.id === 'atty-2' ||
+        a.slug?.toLowerCase().includes('levy') ||
+        a.fullName?.toLowerCase().includes('levy')
+      ) {
+        const expected = 'Founding Partner · Corporate Regulatory Compliance, Tax & Real Estate, Litigant Lawyer';
+        if (a.professionalTitle !== expected) {
+          changed = true;
+          return {
+            ...a,
+            professionalTitle: expected,
+            primarySpecialization: a.primarySpecialization?.includes('Litigant Lawyer')
+              ? a.primarySpecialization
+              : 'Corporate Regulatory Compliance, Tax & Estate Planning, Real Estate & Housing, Litigant Lawyer, and Government Investigations',
+          };
+        }
+      }
+      // Founding Partner Atty. Leo (High-Profile Litigation & Criminal Defense)
+      if (
+        a.id === 'atty-1' ||
+        a.slug?.toLowerCase().includes('leo') ||
+        a.fullName?.toLowerCase().includes('leo')
+      ) {
+        const expected = 'Founding Partner · High-Profile Litigation & Criminal Defense';
+        const expectedBio =
+          'Atty. Leo Lalusis passed the Bar in 2019, the last traditional (handwritten) Bar Examination, in his first and only attempt. After being admitted to the Bar, he followed in his father\'s footsteps and joined the NBI as a Legal Officer. There, he was assigned to the Bureau’s Legal Division, specifically the Prosecution and High-Profile Cases Team, where he received several commendations for working on cases such as the sensational PNP-PDEA Shootout in 2021 and the investigation into the murder of Percival “Percy Lapid” Mabasa in 2022, among others. During his time with the NBI, he attended several investigative courses and was also tasked with representing the premier investigative agency in various Senate and House of Representatives hearings.\n\n' +
+          'As a litigation lawyer, Atty. Leo is well experienced, having attended several high-profile cases before the Department of Justice (DOJ), the Office of the Ombudsman, and the Sandiganbayan.\n\n' +
+          'Having compiled a portfolio of several high-profile cases, Atty. Leo has also represented clients before the Senate of the Philippines, among which includes the controversial probe on the Flood Control Scam conducted by the Senate Blue Ribbon Committee. This earned him the trust and confidence of several high-profile celebrities and social media influencers who continue to retain his services for delivering satisfactory representation.\n\n' +
+          'With a desire to deepen his legal knowledge, Atty. Leo attended several legal trainings and certificate courses to keep abreast of the complexities of emerging fields of law and ensure that the client’s best interests are delivered. He became a Certified Data Protection Officer, certified by the University of the Philippines (UP) Open University in 2021, and is currently taking his Master of Laws (LL.M.) at the San Beda University Graduate School of Law, one of the youngest in his class.';
+
+        if (
+          a.professionalTitle !== expected ||
+          a.primarySpecialization?.includes('Litigant Lawyer') ||
+          a.biography !== expectedBio
+        ) {
+          changed = true;
+          return {
+            ...a,
+            professionalTitle: expected,
+            primarySpecialization:
+              'High-Profile Criminal Defense, Congressional Inquiries, DOJ/Ombudsman/Sandiganbayan Advocacy, and Data Privacy',
+            biography: expectedBio,
+          };
+        }
+      }
+      return a;
+    });
+
+    if (changed && typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(DB_KEYS.ATTORNEYS, JSON.stringify(list));
+      } catch {}
+    }
+
     return includeUnpublished ? list : list.filter((a) => a.isPublished);
   }
 
@@ -652,7 +934,11 @@ class DatabaseService {
     // Ensure the 14 standardized practice areas are present and updated:
     if (!list || list.length < 14 || !list.some((p) => p.slug === 'criminal-and-administrative-litigation')) {
       list = initialPracticeAreas;
-      this.save(DB_KEYS.PRACTICE_AREAS, list);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(DB_KEYS.PRACTICE_AREAS, JSON.stringify(list));
+        } catch {}
+      }
     }
     if (includeDrafts) return list;
     return list.filter((pa) => pa.status === 'published');
@@ -1098,7 +1384,11 @@ class DatabaseService {
         const initialVideos = initialMedia.filter((m) => m.category === 'video' || m.fileType === 'video');
         if (initialVideos.length > 0) {
           const merged = [...initialVideos, ...list];
-          this.save(DB_KEYS.MEDIA, merged);
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem(DB_KEYS.MEDIA, JSON.stringify(merged));
+            } catch {}
+          }
           return merged;
         }
       }
@@ -1365,8 +1655,10 @@ class DatabaseService {
       return newItem;
     });
 
-    if (changed) {
-      this.save(DB_KEYS.NAVIGATION, updated);
+    if (changed && typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(DB_KEYS.NAVIGATION, JSON.stringify(updated));
+      } catch {}
     }
     return updated;
   }

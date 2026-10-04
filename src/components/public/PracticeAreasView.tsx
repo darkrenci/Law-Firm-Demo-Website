@@ -11,11 +11,14 @@ interface PracticeAreasViewProps {
   onNavigate: (path: string) => void;
 }
 
+// Practice area popups & detail pages disabled/hidden for now per user request; preserved to easily re-enable later
+const ENABLE_PRACTICE_POPUP = false;
+
 export const PracticeAreasView: React.FC<PracticeAreasViewProps> = ({ slug, currentSlug, onNavigate }) => {
   const activeSlug = slug || currentSlug;
   const practiceAreas = db.getPracticeAreas(false);
 
-  if (activeSlug) {
+  if (ENABLE_PRACTICE_POPUP && activeSlug) {
     const area = db.getPracticeAreaBySlug(activeSlug);
     if (!area) {
       return (
@@ -35,9 +38,6 @@ export const PracticeAreasView: React.FC<PracticeAreasViewProps> = ({ slug, curr
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <span className="font-cinzel text-xs font-semibold tracking-[0.25em] text-[#c59b63] uppercase">
-            Legal Disciplines
-          </span>
           <h1 className="font-cormorant text-4xl sm:text-6xl font-light text-[#f7f4ee]">
             Chamber Practice Areas
           </h1>
@@ -63,16 +63,18 @@ export const PracticeAreasView: React.FC<PracticeAreasViewProps> = ({ slug, curr
             return (
               <div
                 key={area.id}
-                onClick={() => onNavigate(`/practice-areas/${area.slug}`)}
-                className="group bg-[#121217] border border-[#22222d] hover:border-[#c59b63]/60 transition-all duration-300 p-8 flex flex-col justify-between cursor-pointer"
+                onClick={ENABLE_PRACTICE_POPUP ? () => onNavigate(`/practice-areas/${area.slug}`) : undefined}
+                className={`group bg-[#121217] border border-[#22222d] transition-all duration-300 p-8 flex flex-col justify-between select-text ${
+                  ENABLE_PRACTICE_POPUP ? 'hover:border-[#c59b63]/60 cursor-pointer' : 'cursor-default'
+                }`}
               >
                 <div className="space-y-4">
-                  <div className="w-12 h-12 bg-[#181822] border border-[#2d2d3c] group-hover:border-[#c59b63] flex items-center justify-center text-[#c59b63] transition-colors">
+                  <div className="w-12 h-12 bg-[#181822] border border-[#2d2d3c] flex items-center justify-center text-[#c59b63] transition-colors">
                     <Scale className="w-6 h-6" />
                   </div>
                   <h3
                     style={titleTypo.customStyle}
-                    className={`${titleTypo.fontClass} ${titleTypo.sizeClass} ${titleTypo.colorClass} font-medium group-hover:text-[#f4e6d0]`}
+                    className={`${titleTypo.fontClass} ${titleTypo.sizeClass} ${titleTypo.colorClass} font-medium`}
                   >
                     {area.title}
                   </h3>
@@ -84,12 +86,15 @@ export const PracticeAreasView: React.FC<PracticeAreasViewProps> = ({ slug, curr
                   </p>
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-[#1d1d26] flex items-center justify-between text-xs text-[#c59b63]">
-                  <span className="font-cinzel text-[10px] tracking-wider uppercase">
-                    Explore Scope
-                  </span>
-                  <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
-                </div>
+                {/* Explore Scope action link - hidden for now per user request, preserved to re-enable later */}
+                {ENABLE_PRACTICE_POPUP && (
+                  <div className="pt-6 mt-6 border-t border-[#1d1d26] flex items-center justify-between text-xs text-[#c59b63]">
+                    <span className="font-cinzel text-[10px] tracking-wider uppercase">
+                      Explore Scope
+                    </span>
+                    <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                  </div>
+                )}
               </div>
             );
           })}
@@ -238,7 +243,7 @@ const PracticeAreaDetail: React.FC<{
                       />
                       <div className="min-w-0">
                         <span className="font-cinzel text-[9px] text-[#c59b63] uppercase tracking-wider block">
-                          {atty.professionalTitle}
+                          {(atty.professionalTitle || '').replace(/^[-–—]\s*/, '').trim()}
                         </span>
                         <h5 className="font-cormorant text-base text-[#f7f4ee] group-hover:text-[#f4e6d0] truncate">
                           {atty.fullName}

@@ -65,9 +65,6 @@ export const ConsultationView: React.FC<ConsultationViewProps> = ({ onNavigate }
       <div className="max-w-4xl mx-auto px-6 lg:px-8 space-y-12">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto space-y-4">
-          <span className="font-cinzel text-xs font-semibold tracking-[0.25em] text-[#c59b63] uppercase">
-            Executive Engagement Protocol
-          </span>
           <h1 className="font-cormorant text-4xl sm:text-6xl font-light text-[#f7f4ee]">
             Request Legal Consultation
           </h1>

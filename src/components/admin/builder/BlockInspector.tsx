@@ -371,6 +371,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
       updates.subtitle = value;
       nextContent.subheadline = value;
       nextContent.subheading = value;
+      nextContent.description = value;
     }
     onUpdate(updates);
   };
@@ -514,7 +515,6 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
   const getSectionParts = (secType: string) => {
     if (secType === 'hero') {
       return [
-        { id: 'eyebrow', label: 'Eyebrow', icon: Type },
         { id: 'headline', label: 'Header 1', icon: FileText },
         { id: 'image', label: 'Group Photo', icon: ImageIcon },
         { id: 'body', label: 'Introduction', icon: AlignJustify },
@@ -898,7 +898,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
             />
 
             {/* Preset Gallery */}
-            {section.type === 'imageText' && [['imageEyebrow', 'Photo badge heading', 'Institutional Standard'], ['imageCaption', 'Place / photo caption', 'Quezon City Legal Chambers'], ['imageAlt', 'Image description', content.headline || section.title || 'Lalusis Law Office']].map(([key, label, fallback]) => (
+            {section.type === 'imageText' && [['imageEyebrow', 'Photo badge heading', ''], ['imageCaption', 'Place / photo caption', ''], ['imageAlt', 'Image description', content.headline || section.title || 'Lalusis Law Office']].map(([key, label, fallback]) => (
               <label key={key} className="block text-xs text-[#d4af7a]">{label}
                 <input value={content[key] ?? fallback} onChange={e => handleContentChange(key, e.target.value)} className="mt-1 w-full bg-[#09090d] border border-[#242430] p-2 text-xs text-[#f7f4ee]" />
               </label>
@@ -1514,41 +1514,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
             {/* If HERO: Render dedicated, organized element cards */}
             {isHero ? (
               <>
-                {/* PART 1: EYEBROW / PRE-TITLE CARD */}
-                <div
-                  id="part-card-eyebrow"
-                  onClick={() => onSelectPart?.('eyebrow')}
-                  className={`p-3.5 border transition-all rounded-sm space-y-2 ${
-                    activePart === 'eyebrow'
-                      ? 'border-[#c59b63] bg-[#171724] ring-1 ring-[#c59b63]/50 shadow-[0_0_20px_rgba(197,155,99,0.15)]'
-                      : 'border-[#22222f] bg-[#111116] hover:border-[#333345]'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Type className="w-4 h-4 text-[#c59b63]" />
-                      <span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase tracking-wider">
-                        Eyebrow / Pre-Title
-                      </span>
-                    </div>
-                    {activePart === 'eyebrow' && (
-                      <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[#c59b63] text-[#0d0d11] font-bold uppercase rounded-xs">
-                        Editing Now
-                      </span>
-                    )}
-                  </div>
-
-                  <input
-                    type="text"
-                    value={content.eyebrow || ''}
-                    onFocus={() => onSelectPart?.('eyebrow')}
-                    onChange={(e) => handleContentChange('eyebrow', e.target.value)}
-                    placeholder="e.g. Attorneys at Law · Established 1998"
-                    className="w-full bg-[#09090d] border border-[#242430] px-3 py-2 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none font-sans"
-                  />
-                </div>
-
-                {/* PART 2: HEADER 1 (MAIN HEADLINE) CARD */}
+                {/* PART 1: HEADER 1 (MAIN HEADLINE) CARD */}
                 <div
                   id="part-card-headline"
                   onClick={() => onSelectPart?.('headline')}
@@ -1702,12 +1668,12 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                       Editorial Introduction Text (Paragraphs)
                     </label>
                     <textarea
-                      rows={8}
-                      value={content.body ?? content.introduction ?? ''}
+                      rows={10}
+                      value={content.body ?? content.introduction ?? "The FIRM was founded by brothers Atty. Leo Anselmo L.V. Lalusis and Atty. Levy John L.V. Lalusis, under the guidance of their senior partner and uncle, Atty. Diosdado Anselmo Q. Lalusis, LPT.\n\nThe brothers Atty. Leo and Atty. Levy are the sons of the late Chief Danielito Q. Lalusis, who served the National Bureau of Investigation (NBI) with utmost integrity and excellence for almost 30 years prior to his untimely passing.\n\nWith their combined training and experience, the brothers, Atty. Leo and Atty. Levy bring proactive, adaptive, and client-centered legal representation tailored to each client's distinct needs and circumstances. Guided by the principle of LEGAL PRECISION, the firm delivers legal representation grounded in rigorous preparation and a steadfast commitment to achieving results that serve its clients' best interests."}
                       onFocus={() => onSelectPart?.('body')}
                       onChange={(e) => handleContentChange('body', e.target.value)}
-                      placeholder="The FIRM is founded by Atty. Leo Lalusis and Atty. Levy John Lalusis..."
-                      className="w-full bg-[#09090d] border border-[#242430] p-2.5 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none leading-relaxed"
+                      placeholder="The FIRM was founded by brothers Atty. Leo Anselmo L.V. Lalusis and Atty. Levy John L.V. Lalusis..."
+                      className="w-full bg-[#09090d] border border-[#242430] p-2.5 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none leading-relaxed font-sans"
                     />
                   </div>
 

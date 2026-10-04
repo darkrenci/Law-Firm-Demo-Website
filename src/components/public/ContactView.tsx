@@ -55,9 +55,6 @@ export const ContactView: React.FC<ContactViewProps> = ({ onNavigate }) => {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 space-y-16">
         {/* Page Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <span className="font-cinzel text-xs font-semibold tracking-[0.25em] text-[#c59b63] uppercase">
-            Chambers &amp; Location
-          </span>
           <h1 className="font-cormorant text-4xl sm:text-6xl font-light text-[#f7f4ee]">
             Contact Lalusis &amp; Partners
           </h1>

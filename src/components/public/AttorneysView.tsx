@@ -78,9 +78,6 @@ const AttorneysDirectory: React.FC<{
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Page Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <span className="font-cinzel text-xs font-semibold tracking-[0.25em] text-[#c59b63] uppercase">
-            Chamber Partners
-          </span>
           <h1 className="font-cormorant text-4xl sm:text-6xl font-light text-[#f7f4ee]">
             Partners
           </h1>
@@ -168,7 +165,7 @@ const AttorneysDirectory: React.FC<{
                       style={titleTypo.customStyle}
                       className={`${titleTypo.fontClass} ${titleTypo.sizeClass} ${titleTypo.colorClass} tracking-[0.2em] uppercase block`}
                     >
-                      {attorney.professionalTitle}
+                      {(attorney.professionalTitle || '').replace(/^[-–—]\s*/, '').trim()}
                     </span>
                     <h3
                       style={nameTypo.customStyle}
@@ -293,7 +290,7 @@ const AttorneyProfileDetail: React.FC<{
                 style={titleTypo.customStyle}
                 className={`${titleTypo.fontClass} ${titleTypo.sizeClass} ${titleTypo.colorClass} font-semibold tracking-[0.25em] uppercase block`}
               >
-                {attorney.professionalTitle}
+                {(attorney.professionalTitle || '').replace(/^[-–—]\s*/, '').trim()}
               </span>
               <h1
                 style={nameTypo.customStyle}
@@ -311,12 +308,18 @@ const AttorneyProfileDetail: React.FC<{
               <h3 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase">
                 Professional Background
               </h3>
-              <p
+              <div
                 style={bioTypo.customStyle}
-                className={`${bioTypo.fontClass} ${bioTypo.sizeClass} ${bioTypo.colorClass}`}
+                className={`space-y-4 ${bioTypo.fontClass} ${bioTypo.sizeClass} ${bioTypo.colorClass}`}
               >
-                {attorney.biography}
-              </p>
+                {(attorney.biography || '')
+                  .split(/\n\s*\n/)
+                  .map((p) => p.trim())
+                  .filter(Boolean)
+                  .map((para, i) => (
+                    <p key={i}>{para}</p>
+                  ))}
+              </div>
             </div>
 
             {/* Admissions */}

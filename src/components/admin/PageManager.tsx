@@ -232,20 +232,20 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         limit: 6,
       },
       attorneys: {
-        eyebrow: 'Partners',
+        eyebrow: '',
         headline: 'Distinguished Partners',
         limit: 4,
       },
       stats: {
         stats: [
-          { label: 'Advocacy History', value: '1986', subtitle: 'Quezon City Chambers' },
+          { label: 'Advocacy History', value: '1986', subtitle: 'Firm Foundation' },
           { label: 'Deals Advised', value: '₱180B+', subtitle: 'M&A and Transactions' },
           { label: 'Precedents', value: '140+', subtitle: 'Supreme Court Decisions' },
           { label: 'Corporate Clients', value: '350+', subtitle: 'Institutional Retainers' },
         ],
       },
       articles: {
-        eyebrow: 'Scholarly Insights',
+        eyebrow: '',
         headline: 'Legal Insights & Briefings',
         limit: 3,
       },
