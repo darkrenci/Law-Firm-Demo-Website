@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { db } from '../../services/db';
 import { MediaAsset } from '../../types';
 import {
@@ -81,6 +82,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
   // Filter media items
   const filtered = mediaList.filter((item) => {
@@ -190,9 +192,9 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
     }
   };
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-fadeIn"
       role="dialog"
       aria-modal="true"
     >
@@ -460,6 +462,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
