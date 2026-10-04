@@ -184,12 +184,7 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
         </div>
 
-        {/* Legal Disclaimer Box */}
-        <div className="mt-14 pt-8 border-t border-[#181820] text-[11px] text-[#6e6860] leading-relaxed">
-          <p>
-            <strong className="text-[#8e877e] uppercase font-cinzel">Legal Disclaimer:</strong> The materials and information presented on this website are provided solely for general educational and informational purposes and do not constitute legal advice. Communicating with Lalusis &amp; Partners or any of its attorneys through this website, via email, or by submitting a consultation form does not create an attorney-client relationship. You should not act or refrain from acting on the basis of any content included without seeking appropriate legal or professional counsel on your specific factual circumstances.
-          </p>
-        </div>
+        {/* Legal disclaimer box hidden. */}
 
         {/* Bottom Bar: Copyright & Admin Portal */}
         <div className="mt-8 pt-6 border-t border-[#14141a] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7a746b]">
