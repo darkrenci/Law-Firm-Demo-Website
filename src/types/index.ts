@@ -143,15 +143,12 @@ export type SectionBlockType =
   | 'attorneys'
   | 'practiceAreas'
   | 'articles'
-  | 'insights'
   | 'news'
   | 'faq'
-  | 'faqs'
   | 'testimonials'
   | 'awards'
   | 'cta'
   | 'contactInfo'
-  | 'contact'
   | 'contactForm'
   | 'consultationForm'
   | 'divider'
@@ -407,7 +404,7 @@ export interface MediaItem {
   format?: string;
   sizeBytes?: number;
   size?: string;
-  category: 'branding' | 'attorneys' | 'offices' | 'insights' | 'general' | 'portrait' | 'portraits' | 'architectural' | 'video';
+  category: 'branding' | 'attorneys' | 'offices' | 'insights' | 'general' | 'portrait' | 'architectural' | 'video';
   altText: string;
   dataUrl?: string;
   createdAt?: string;

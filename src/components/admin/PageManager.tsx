@@ -200,9 +200,6 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
   // Add new section from Catalog
   const handleInsertSection = (type: SectionType) => {
     const defaultContents: Record<SectionType, any> = {
-      insights: { headline: 'Legal Insights', limit: 6 },
-      faqs: { headline: 'Frequently Asked Questions', limit: 5 },
-      contact: { headline: 'Executive Chambers' },
       hero: {
         headline: 'Corporate Counsel & Strategic Advocacy',
         subheadline: 'Trusted trial representation and high-stakes corporate advisory for discerning institutions.',

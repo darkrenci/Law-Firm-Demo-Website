@@ -637,6 +637,25 @@ const RenderSectionItem: React.FC<{
   const cardsTypo = resolvePartTypography(section, 'cards', 'cormorant');
   const quoteTypo = resolvePartTypography(section, 'quote', 'cormorant');
 
+  // User explicitly requested to remove CTA sections, Schedule consultation banners, Consult with senior partners, Retain strategic counsel, and About hero ("A Legacy of Strategic...")
+  const headlineStr = (content?.headline || content?.heading || section.title || '').toLowerCase();
+  const subStr = (content?.subheadline || content?.subheading || content?.body || '').toLowerCase();
+
+  if (
+    type === 'cta' ||
+    headlineStr.includes('schedule') ||
+    headlineStr.includes('consult with our senior') ||
+    headlineStr.includes('retain strategic counsel') ||
+    headlineStr.includes('a legacy of strategic') ||
+    subStr.includes('founded in 1998') ||
+    section.id === 'sec-about-hero' ||
+    section.id === 'sec-cta' ||
+    section.id === 'sec-attorneys-cta' ||
+    section.id === 'sec-pa-cta'
+  ) {
+    return null;
+  }
+
   switch (type) {
     case 'hero': {
       const isLeft = headTypo.alignment === 'left';
@@ -652,59 +671,19 @@ const RenderSectionItem: React.FC<{
         ? 'mx-auto text-justify'
         : 'mx-auto text-center';
 
+      const defaultIntroText =
+        "The FIRM was founded by brothers Atty. Leo Anselmo L.V. Lalusis and Atty. Levy John L.V. Lalusis, under the guidance of their senior partner and uncle, Atty. Diosdado Anselmo Q. Lalusis, LPT.\n\n" +
+        "The brothers Atty. Leo and Atty. Levy are the sons of the late Chief Danielito Q. Lalusis, who served the National Bureau of Investigation (NBI) with utmost integrity and excellence for almost 30 years prior to his untimely passing.\n\n" +
+        "With their combined training and experience, the brothers, Atty. Leo and Atty. Levy bring proactive, adaptive, and client-centered legal representation tailored to each client's distinct needs and circumstances. Guided by the principle of LEGAL PRECISION, the firm delivers legal representation grounded in rigorous preparation and a steadfast commitment to achieving results that serve its clients' best interests.";
+
+      const introductionBody = content.body || content.introduction || defaultIntroText;
+
       return (
         <section className={`relative overflow-hidden ${bg} ${py} border-b border-[#1c1c25]`}>
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#c59b63_1px,transparent_1px)] [background-size:24px_24px]" />
           
           <div className={`max-w-6xl mx-auto px-6 lg:px-12 relative z-10 ${headTypo.alignClass} space-y-8`}>
-            {/* Part 1: Authentic Brand Emblem / Logo */}
-            {content.showLogo !== false && (
-              <EditablePartWrapper
-                editMode={editMode}
-                partId="logo"
-                partLabel="Firm Logo / Emblem Crest"
-                activeElementPart={activeElementPart}
-                onSelectPart={onSelectPart}
-                className={`flex ${justifyClass} mb-6`}
-              >
-                <div className="p-6 sm:p-8 bg-[#0a0a0d]/95 border-2 border-[#c59b63]/50 shadow-[0_0_60px_rgba(197,155,99,0.22)] inline-block backdrop-blur-sm">
-                  {content.customLogoUrl ? (
-                    <img
-                      src={content.customLogoUrl}
-                      alt="Firm Logo"
-                      className="object-contain"
-                      style={{
-                        height: content.logoSize === 'sm' ? 120 : content.logoSize === 'lg' ? 240 : 180,
-                        maxHeight: 260,
-                      }}
-                    />
-                  ) : (
-                    <LalusisLogoMark size={content.logoSize === 'sm' ? 120 : content.logoSize === 'lg' ? 240 : 180} />
-                  )}
-                </div>
-              </EditablePartWrapper>
-            )}
-
-            {/* Part 2: Eyebrow */}
-            <EditablePartWrapper
-              editMode={editMode}
-              partId="eyebrow"
-              partLabel="Eyebrow / Pre-Title"
-              activeElementPart={activeElementPart}
-              onSelectPart={onSelectPart}
-              className={`inline-flex items-center gap-3 ${eyeTypo.justifyClass}`}
-            >
-              <div className="h-[1px] w-8 bg-[#c59b63]/40" />
-              <span
-                style={eyeTypo.customStyle}
-                className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-xs'} uppercase tracking-[0.3em] ${eyeTypo.colorClass || 'text-[#d4af7a]'} ${eyeTypo.weightClass || 'font-medium'} ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-              >
-                {content.eyebrow || 'Attorneys at Law · Established 1998'}
-              </span>
-              <div className="h-[1px] w-8 bg-[#c59b63]/40" />
-            </EditablePartWrapper>
-
-            {/* Part 3: Main Headline (Header 1) */}
+            {/* Header 1 (Main Headline) */}
             <EditablePartWrapper
               editMode={editMode}
               partId="headline"
@@ -722,59 +701,61 @@ const RenderSectionItem: React.FC<{
               </h1>
             </EditablePartWrapper>
 
-            {/* Part 4: Subheadline / Paragraph */}
+            {/* Partner Group Photo */}
             <EditablePartWrapper
               editMode={editMode}
-              partId="subheadline"
-              partLabel="Subtitle / Paragraph Description"
+              partId="image"
+              partLabel="Partner Group Photo"
               activeElementPart={activeElementPart}
               onSelectPart={onSelectPart}
+              className="w-full max-w-4xl mx-auto my-2"
             >
-              <p
-                style={subTypo.customStyle}
-                className={`${subTypo.fontClass} ${subTypo.sizeClass || 'text-sm sm:text-lg'} ${subTypo.colorClass} ${subTypo.weightClass} ${subTypo.trackingClass} ${subTypo.uppercaseClass} ${subTypo.italicClass} max-w-2xl ${subTypo.marginClass} leading-relaxed`}
-              >
-                {content.subheadline ||
-                  'Representing multinational corporations, prominent families, and industry pioneers across high-stakes corporate transactions, commercial litigation, and appellate advocacy.'}
-              </p>
+              <InstitutionalImageFrame
+                imageUrl={content.imageUrl || content.image || '/assets/group-picture.svg'}
+                imageAlt={content.imageAlt || 'Lalusis & Partners Founding Partners'}
+                caption={content.imageCaption || 'Partners of Lalusis & Partners · Atty. Levy John L.V. Lalusis · Senior Partner Atty. Diosdado Anselmo Q. Lalusis · Atty. Leo Anselmo L.V. Lalusis'}
+                sectionId={section.id}
+                editMode={editMode}
+                isAdmin={isAdmin}
+              />
             </EditablePartWrapper>
 
-            {/* Part 5: Call to Action Buttons */}
+            {/* Firm Introduction Narrative (3 Paragraphs with Spacing) */}
             <EditablePartWrapper
               editMode={editMode}
-              partId="buttons"
-              partLabel="Action Buttons (Primary & Secondary CTA)"
+              partId="body"
+              partLabel="Firm Introduction & Editorial Narrative"
               activeElementPart={activeElementPart}
               onSelectPart={onSelectPart}
-              className={`pt-4 flex flex-col sm:flex-row items-center ${justifyClass} gap-4`}
+              className="w-full max-w-4xl mx-auto"
             >
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => onNavigate(content.ctaPrimaryLink || content.primaryCtaLink || '/consultation')}
-                className={`${buttonsTypo.fontClass} ${buttonsTypo.sizeClass} ${buttonsTypo.trackingClass} ${buttonsTypo.uppercaseClass} ${buttonsTypo.italicClass}`}
-                style={buttonsTypo.customStyle}
+              <div
+                style={bodyTypo.customStyle}
+                className={`space-y-6 sm:space-y-8 ${bodyTypo.fontClass} ${bodyTypo.sizeClass || 'text-sm sm:text-base'} ${bodyTypo.bodyColorClass || bodyTypo.colorClass} leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] hyphens-auto ${bodyTypo.italicClass} ${bodyTypo.trackingClass}`}
               >
-                {content.ctaPrimaryText || content.primaryCtaText || 'Request Consultation'}
-              </Button>
-              <Button
-                variant="gold-outline"
-                size="lg"
-                onClick={() => onNavigate(content.ctaSecondaryLink || content.secondaryCtaLink || '/practice-areas')}
-                className={`${buttonsTypo.fontClass} ${buttonsTypo.sizeClass} ${buttonsTypo.trackingClass} ${buttonsTypo.uppercaseClass} ${buttonsTypo.italicClass}`}
-                style={buttonsTypo.customStyle}
-              >
-                {content.ctaSecondaryText || content.secondaryCtaText || 'Explore Practice Areas'}
-              </Button>
+                {introductionBody
+                  .split(/\n\s*\n/)
+                  .map((p: string) => p.trim())
+                  .filter(Boolean)
+                  .map((para: string, i: number) => (
+                    <p
+                      key={i}
+                      className="leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] text-[#ded6c9] mb-6 sm:mb-8 last:mb-0"
+                    >
+                      {para}
+                    </p>
+                  ))}
+              </div>
             </EditablePartWrapper>
 
+            {/* Watch Introduction Video Player */}
             {(pageSlug === '' || pageSlug === 'home') && (
-              <div className="w-full max-w-3xl mx-auto pt-4">
+              <div className={`w-full max-w-6xl pt-2 ${statsTypo.marginClass}`}>
                 {introductionStarted ? (
                   <video
                     ref={introductionPlayer}
-                    src="/videos/introduction.mp4"
-                    poster="/videos/introduction.jpg"
+                    src={content.introVideoUrl || "/videos/introduction.mp4"}
+                    poster={content.introPosterUrl || "/videos/introduction.jpg"}
                     autoPlay
                     controls
                     playsInline
@@ -786,15 +767,15 @@ const RenderSectionItem: React.FC<{
                   type="button"
                   aria-label="Watch introduction video"
                   onClick={() => setIntroductionStarted(true)}
-                  className="group block w-full relative overflow-hidden border border-[#c59b63]/50 bg-[#0b0b0f] focus:outline-none focus:ring-2 focus:ring-[#c59b63]"
+                  className="group block w-full relative overflow-hidden border border-[#c59b63]/50 bg-[#0b0b0f] focus:outline-none focus:ring-2 focus:ring-[#c59b63] cursor-pointer"
                 >
-                  <img src="/videos/introduction.jpg" alt="Introduction video" width={960} height={525} loading="lazy" decoding="async" className="w-full h-auto" />
+                  <img src={content.introPosterUrl || "/videos/introduction.jpg"} alt="Introduction video" width={960} height={525} loading="lazy" decoding="async" className="w-full h-auto" />
                   <span className="absolute inset-0 bg-black/20 flex items-center justify-center">
                     <span className="w-16 h-16 rounded-full bg-[#0d0d12]/85 border border-[#c59b63] flex items-center justify-center text-[#c59b63] group-hover:bg-[#c59b63] group-hover:text-[#09090c] transition-colors">
                       <Play className="w-7 h-7 ml-1 fill-current" />
                     </span>
                   </span>
-                  <span className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent pt-10 pb-4 text-[#f4e6d0] font-cinzel text-sm tracking-wider">Watch Introduction</span>
+                  <span className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent pt-10 pb-4 text-[#f4e6d0] font-cinzel text-sm tracking-wider">Watch Introduction Video</span>
                 </button>
                 )}
               </div>
@@ -1066,22 +1047,6 @@ const RenderSectionItem: React.FC<{
       return (
         <div className={`${bg} ${py} border-b border-[#1a1a23]`}>
           <div className={`max-w-4xl ${headTypo.marginClass} px-6 ${headTypo.alignClass} space-y-3`}>
-            {(content.eyebrow || section.subtitle) && (
-              <EditablePartWrapper
-                editMode={editMode}
-                partId="eyebrow"
-                partLabel="Eyebrow / Sub-Header"
-                activeElementPart={activeElementPart}
-                onSelectPart={onSelectPart}
-              >
-                <span
-                  style={eyeTypo.customStyle}
-                  className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-                >
-                  {content.eyebrow || section.subtitle}
-                </span>
-              </EditablePartWrapper>
-            )}
             <EditablePartWrapper
                 editMode={editMode}
                 partId="headline"
@@ -1121,22 +1086,6 @@ const RenderSectionItem: React.FC<{
       return (
         <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
           <div className={`max-w-4xl ${headTypo.marginClass} px-6 ${headTypo.alignClass} space-y-5`}>
-            {content.eyebrow && (
-              <EditablePartWrapper
-                editMode={editMode}
-                partId="eyebrow"
-                partLabel="Eyebrow / Sub-Header"
-                activeElementPart={activeElementPart}
-                onSelectPart={onSelectPart}
-              >
-                <span
-                  style={eyeTypo.customStyle}
-                  className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase block ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-                >
-                  {content.eyebrow}
-                </span>
-              </EditablePartWrapper>
-            )}
             {(content.headline || content.heading || section.title) && (
               <EditablePartWrapper
                 editMode={editMode}
@@ -1197,22 +1146,6 @@ const RenderSectionItem: React.FC<{
           <div className={`${maxWidthClass} mx-auto px-6`}>
             <div className={`bg-[#111116] ${borderClass} p-8 sm:p-14 ${typo.alignClass} space-y-6 relative overflow-hidden`}>
               <div className="space-y-3">
-                {content.eyebrow && (
-                  <EditablePartWrapper
-                    editMode={editMode}
-                    partId="eyebrow"
-                    partLabel="Eyebrow / Category"
-                    activeElementPart={activeElementPart}
-                    onSelectPart={onSelectPart}
-                  >
-                    <span
-                      style={eyeTypo.customStyle}
-                      className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || 'text-[#c59b63]'} uppercase block ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-                    >
-                      {content.eyebrow}
-                    </span>
-                  </EditablePartWrapper>
-                )}
                 {(content.headline || content.heading || section.title) && (
                   <EditablePartWrapper
                     editMode={editMode}
@@ -1384,24 +1317,6 @@ const RenderSectionItem: React.FC<{
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className={`flex flex-col md:flex-row md:items-end justify-between mb-12 ${typo.alignClass === 'text-center' ? 'md:items-center text-center' : typo.alignClass === 'text-right' ? 'md:items-end text-right' : 'text-left'}`}>
               <div className={`space-y-3 ${typo.marginClass}`}>
-                <EditablePartWrapper
-                  editMode={editMode}
-                  partId="eyebrow"
-                  partLabel="Eyebrow / Sub-Header"
-                  activeElementPart={activeElementPart}
-                  onSelectPart={onSelectPart}
-                >
-                  <div className={`flex items-center gap-2 ${eyeTypo.justifyClass}`}>
-                    <Bell className={`w-4 h-4 ${eyeTypo.colorClass || eyeTypo.subColorClass}`} />
-                    <span
-                      style={eyeTypo.customStyle}
-                      className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-                    >
-                      {content.eyebrow || 'Chambers Announcements'}
-                    </span>
-                  </div>
-                </EditablePartWrapper>
-
                 <EditablePartWrapper
                   editMode={editMode}
                   partId="headline"
@@ -1627,27 +1542,13 @@ const RenderSectionItem: React.FC<{
       );
 
     case 'richText': {
+      // Firm Introduction and partner group photo have been integrated directly into the Hero section on the Home page
+      if ((pageSlug === '' || pageSlug === 'home') && (section.id === 'sec-intro' || section.title?.toLowerCase().includes('introduction') || section.subtitle?.toLowerCase().includes('institutional overview'))) {
+        return null;
+      }
       return (
         <div className={`${bg} ${py} border-b border-[#1a1a23]`}>
           <div className={`max-w-4xl mx-auto px-6 space-y-6 flex flex-col ${typo.flexAlignClass}`}>
-            {/* Eyebrow */}
-            {Boolean(content.eyebrow) && (
-              <EditablePartWrapper
-                editMode={editMode}
-                partId="eyebrow"
-                partLabel="Eyebrow / Sub-Header"
-                activeElementPart={activeElementPart}
-                onSelectPart={onSelectPart}
-              >
-                <span
-                  style={eyeTypo.customStyle}
-                  className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase block ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-                >
-                  {content.eyebrow}
-                </span>
-              </EditablePartWrapper>
-            )}
-
             {/* Headline / Title */}
             {Boolean(content.headline || content.heading) && (
               <EditablePartWrapper
@@ -1720,14 +1621,18 @@ const RenderSectionItem: React.FC<{
                 style={bodyTypo.customStyle}
                 className={`space-y-4 sm:space-y-5 ${bodyTypo.fontClass} ${bodyTypo.sizeClass || 'text-sm sm:text-base'} ${bodyTypo.bodyColorClass || bodyTypo.colorClass} leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] hyphens-auto ${bodyTypo.italicClass} ${bodyTypo.trackingClass} ${bodyTypo.dropCapClass}`}
               >
-                {(content.body || '').split('\n\n').map((para: string, i: number) => (
-                  <p
-                    key={i}
-                    className="leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] text-[#ded6c9]"
-                  >
-                    {para}
-                  </p>
-                ))}
+                {(content.body || '')
+                  .split(/\n\s*\n/)
+                  .map((p: string) => p.trim())
+                  .filter(Boolean)
+                  .map((para: string, i: number) => (
+                    <p
+                      key={i}
+                      className="leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] text-[#ded6c9] mb-6 sm:mb-8 last:mb-0"
+                    >
+                      {para}
+                    </p>
+                  ))}
               </div>
             </EditablePartWrapper>
 
@@ -1868,36 +1773,12 @@ const RenderSectionItem: React.FC<{
                     className="w-full h-80 sm:h-[420px] object-cover filter brightness-90 contrast-105"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute -bottom-4 -right-4 bg-[#0a0a0d] border border-[#c59b63] p-4 text-left shadow-2xl hidden sm:block">
-                    <span className="font-cinzel text-[10px] text-[#c59b63] uppercase tracking-widest block">
-                      {content.imageEyebrow ?? "Institutional Standard"}
-                    </span>
-                    <p className="font-cormorant text-lg text-[#f4e6d0] mt-0.5">
-                      {content.imageCaption ?? "Quezon City Legal Chambers"}
-                    </p>
-                  </div>
                 </div>
               </EditablePartWrapper>
             </div>
 
             {/* Text side */}
             <div className={`lg:col-span-6 space-y-6 order-1 lg:order-2 ${headTypo.alignClass}`}>
-              {(content.eyebrow || section.subtitle) && (
-                <EditablePartWrapper
-                  editMode={editMode}
-                  partId="eyebrow"
-                  partLabel="Eyebrow / Category"
-                  activeElementPart={activeElementPart}
-                  onSelectPart={onSelectPart}
-                >
-                  <span
-                    style={eyeTypo.customStyle}
-                    className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-                  >
-                    {content.eyebrow || section.subtitle}
-                  </span>
-                </EditablePartWrapper>
-              )}
 
               <EditablePartWrapper
                 editMode={editMode}
@@ -1942,9 +1823,13 @@ const RenderSectionItem: React.FC<{
                   style={bodyTypo.customStyle}
                   className={`space-y-4 ${bodyTypo.fontClass} ${bodyTypo.sizeClass || 'text-sm'} ${bodyTypo.bodyColorClass || bodyTypo.colorClass} ${bodyTypo.weightClass} ${bodyTypo.trackingClass} ${bodyTypo.uppercaseClass} ${bodyTypo.italicClass} ${bodyTypo.dropCapClass} leading-relaxed`}
                 >
-                  {(content.body || '').split('\n\n').map((para: string, i: number) => (
-                    <p key={i}>{para}</p>
-                  ))}
+                  {(content.body || '')
+                    .split(/\n\s*\n/)
+                    .map((p: string) => p.trim())
+                    .filter(Boolean)
+                    .map((para: string, i: number) => (
+                      <p key={i} className="mb-5 last:mb-0 leading-relaxed text-[#ded6c9]">{para}</p>
+                    ))}
                 </div>
 
                 {content.points && content.points.length > 0 && (
@@ -1992,21 +1877,6 @@ const RenderSectionItem: React.FC<{
             <div className={`max-w-3xl ${headTypo.marginClass} mb-14 space-y-3 ${headTypo.alignClass}`}>
               <EditablePartWrapper
                 editMode={editMode}
-                partId="eyebrow"
-                partLabel="Eyebrow / Category"
-                activeElementPart={activeElementPart}
-                onSelectPart={onSelectPart}
-              >
-                <span
-                  style={eyeTypo.customStyle}
-                  className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-                >
-                  {content.eyebrow || 'Core Legal Disciplines'}
-                </span>
-              </EditablePartWrapper>
-
-              <EditablePartWrapper
-                editMode={editMode}
                 partId="headline"
                 partLabel="Section Heading / Title"
                 activeElementPart={activeElementPart}
@@ -2020,24 +1890,26 @@ const RenderSectionItem: React.FC<{
                 </h2>
               </EditablePartWrapper>
 
-              <EditablePartWrapper
-                editMode={editMode}
-                partId="subheadline"
-                partLabel="Subtitle / Overview Description"
-                activeElementPart={activeElementPart}
-                onSelectPart={onSelectPart}
-              >
-                <p
-                  style={subTypo.customStyle}
-                  className={`${subTypo.fontClass} ${subTypo.sizeClass || 'text-sm'} ${subTypo.bodyColorClass || subTypo.colorClass} max-w-2xl ${subTypo.marginClass} leading-relaxed ${subTypo.weightClass} ${subTypo.trackingClass} ${subTypo.uppercaseClass} ${subTypo.italicClass}`}
+              {Boolean(
+                (content.subheadline && !content.subheadline.includes('cross-border') && !content.subheadline.includes('disciplines')) ||
+                (content.subheading && !content.subheading.includes('cross-border') && !content.subheading.includes('disciplines')) ||
+                (content.description && !content.description.includes('cross-border') && !content.description.includes('Fourteen dedicated') && !content.description.includes('disciplines'))
+              ) && (
+                <EditablePartWrapper
+                  editMode={editMode}
+                  partId="subheadline"
+                  partLabel="Subtitle / Overview Description"
+                  activeElementPart={activeElementPart}
+                  onSelectPart={onSelectPart}
                 >
-                  {content.subheadline ||
-                    content.subheading ||
-                    content.description ||
-                    section.subtitle ||
-                    'Structured multi-disciplinary advocacy engineered for high-stakes corporate disputes, sovereign regulations, and cross-border transactions.'}
-                </p>
-              </EditablePartWrapper>
+                  <p
+                    style={subTypo.customStyle}
+                    className={`${subTypo.fontClass} ${subTypo.sizeClass || 'text-sm'} ${subTypo.bodyColorClass || subTypo.colorClass} max-w-2xl ${subTypo.marginClass} leading-relaxed ${subTypo.weightClass} ${subTypo.trackingClass} ${subTypo.uppercaseClass} ${subTypo.italicClass}`}
+                  >
+                    {content.subheadline || content.subheading || content.description}
+                  </p>
+                </EditablePartWrapper>
+              )}
             </div>
 
             <EditablePartWrapper
@@ -2060,19 +1932,32 @@ const RenderSectionItem: React.FC<{
                     color: 'text-[#a8a199]',
                   });
 
+                  // Practice area popups & clicks disabled/hidden for now per user request; preserved to easily re-enable later
+                  const ENABLE_PRACTICE_POPUP = false;
+
                   return (
                     <div
                       key={area.id}
-                      onClick={() => onNavigate(`/practice-areas/${area.slug}`)}
-                      className="group bg-[#111116] border border-[#22222d] hover:border-[#c59b63]/60 p-8 transition-all duration-300 flex flex-col justify-between cursor-pointer text-left"
+                      onClick={
+                        editMode
+                          ? () => onSelectPart?.('cards')
+                          : ENABLE_PRACTICE_POPUP
+                          ? () => onNavigate(`/practice-areas/${area.slug}`)
+                          : undefined
+                      }
+                      className={`group bg-[#111116] border border-[#22222d] p-8 transition-all duration-300 flex flex-col justify-between text-left select-text ${
+                        ENABLE_PRACTICE_POPUP
+                          ? 'hover:border-[#c59b63]/60 cursor-pointer'
+                          : 'cursor-default'
+                      }`}
                     >
                       <div className="space-y-4">
-                        <div className="w-10 h-10 bg-[#191922] border border-[#2e2e3d] group-hover:border-[#c59b63] flex items-center justify-center text-[#c59b63] transition-colors">
+                        <div className="w-10 h-10 bg-[#191922] border border-[#2e2e3d] flex items-center justify-center text-[#c59b63] transition-colors">
                           <Scale className="w-5 h-5" />
                         </div>
                         <h3
                           style={{ ...cardsTypo.customStyle, ...itemTitleTypo.customStyle }}
-                          className={`${itemTitleTypo.fontClass} ${itemTitleTypo.sizeClass} ${cardsTypo.weightClass || 'font-light'} ${itemTitleTypo.colorClass} group-hover:text-[#f4e6d0] ${cardsTypo.trackingClass} ${cardsTypo.uppercaseClass} ${cardsTypo.italicClass}`}
+                          className={`${itemTitleTypo.fontClass} ${itemTitleTypo.sizeClass} ${cardsTypo.weightClass || 'font-light'} ${itemTitleTypo.colorClass} ${cardsTypo.trackingClass} ${cardsTypo.uppercaseClass} ${cardsTypo.italicClass}`}
                         >
                           {area.title}
                         </h3>
@@ -2083,10 +1968,14 @@ const RenderSectionItem: React.FC<{
                           {area.shortDescription}
                         </p>
                       </div>
-                      <div className="pt-6 border-t border-[#1a1a23] mt-6 flex items-center justify-between text-[11px] font-cinzel uppercase tracking-wider text-[#c59b63]">
-                        <span>View Discipline</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                      </div>
+
+                      {/* View Discipline link - hidden for now per user request; preserved for future re-enablement */}
+                      {ENABLE_PRACTICE_POPUP && (
+                        <div className="pt-6 border-t border-[#1a1a23] mt-6 flex items-center justify-between text-[11px] font-cinzel uppercase tracking-wider text-[#c59b63]">
+                          <span>View Discipline</span>
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -2110,21 +1999,6 @@ const RenderSectionItem: React.FC<{
             <div className={`max-w-3xl ${headTypo.marginClass} mb-14 space-y-3 ${headTypo.alignClass}`}>
               <EditablePartWrapper
                 editMode={editMode}
-                partId="eyebrow"
-                partLabel="Eyebrow / Category"
-                activeElementPart={activeElementPart}
-                onSelectPart={onSelectPart}
-              >
-                <span
-                  style={eyeTypo.customStyle}
-                  className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-                >
-                  {content.eyebrow || 'Partners'}
-                </span>
-              </EditablePartWrapper>
-
-              <EditablePartWrapper
-                editMode={editMode}
                 partId="headline"
                 partLabel="Section Heading / Title"
                 activeElementPart={activeElementPart}
@@ -2138,7 +2012,12 @@ const RenderSectionItem: React.FC<{
                 </h2>
               </EditablePartWrapper>
 
-              {(content.subheadline || content.subheading || content.description || section.subtitle) && (
+              {Boolean(
+                (content.subheadline && !content.subheadline.includes('Under the guidance of senior')) ||
+                (content.subheading && !content.subheading.includes('Under the guidance of senior')) ||
+                (content.description && !content.description.includes('Under the guidance of senior')) ||
+                (section.subtitle && !section.subtitle.includes('Under the guidance of senior') && section.subtitle !== 'Leadership & Senior Counsel')
+              ) && (
                 <EditablePartWrapper
                   editMode={editMode}
                   partId="subheadline"
@@ -2150,7 +2029,7 @@ const RenderSectionItem: React.FC<{
                     style={subTypo.customStyle}
                     className={`${subTypo.fontClass} ${subTypo.sizeClass || 'text-sm'} ${subTypo.bodyColorClass || subTypo.colorClass} max-w-2xl ${subTypo.marginClass} leading-relaxed ${subTypo.weightClass} ${subTypo.trackingClass} ${subTypo.uppercaseClass} ${subTypo.italicClass}`}
                   >
-                    {content.subheadline || content.subheading || content.description || section.subtitle}
+                    {content.subheadline || content.subheading || content.description || (section.subtitle !== 'Leadership & Senior Counsel' ? section.subtitle : '')}
                   </p>
                 </EditablePartWrapper>
               )}
@@ -2165,7 +2044,21 @@ const RenderSectionItem: React.FC<{
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
                 {attorneys.map((atty, index) => {
-                  const roleBadge = atty.professionalTitle;
+                  const cleanTitle = (atty.professionalTitle || '').replace(/^[-–—]\s*/, '').trim();
+                  const roleBadge = (() => {
+                    const title = cleanTitle;
+                    if (title.includes('·')) return title.split('·')[0].trim();
+                    if (title.includes(' - ')) return title.split(' - ')[0].trim();
+                    if (title.includes(',')) return title.split(',')[0].trim();
+                    if (title.length > 25) {
+                      if (title.toLowerCase().includes('senior partner')) return 'Senior Partner';
+                      if (title.toLowerCase().includes('founding partner')) return 'Founding Partner';
+                      if (title.toLowerCase().includes('managing partner')) return 'Managing Partner';
+                      if (title.toLowerCase().includes('partner')) return 'Partner';
+                      return title.slice(0, 22) + '...';
+                    }
+                    return title || (atty.isPartner ? 'Partner' : 'Attorney');
+                  })();
 
                   return (
                     <div
@@ -2213,13 +2106,6 @@ const RenderSectionItem: React.FC<{
                         {/* Gradient Scrim */}
                         <div className="absolute inset-0 bg-gradient-to-t from-[#101015] via-black/25 to-transparent opacity-90" />
 
-                        {/* Top Role Badge */}
-                        <div className="absolute top-3 left-3">
-                          <span className="px-2.5 py-1 text-[9px] font-cinzel font-semibold tracking-widest uppercase bg-[#0a0a0d]/90 text-[#c59b63] border border-[#c59b63]/40 backdrop-blur-sm shadow-md">
-                            {roleBadge}
-                          </span>
-                        </div>
-
                         {/* Hover Overlay Hint */}
                         <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <span className="px-2.5 py-1 text-[9px] font-cinzel tracking-wider uppercase bg-[#c59b63] text-[#09090c] font-bold shadow-md flex items-center gap-1">
@@ -2233,7 +2119,7 @@ const RenderSectionItem: React.FC<{
                       <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4 bg-[#101015] border-t border-[#1e1e28]">
                         <div className="space-y-2">
                           <span className="font-cinzel text-[10px] text-[#c59b63] uppercase tracking-[0.2em] block font-semibold">
-                            {atty.professionalTitle}
+                            {cleanTitle}
                           </span>
                           <h3
                             style={cardsTypo.customStyle}
@@ -2383,7 +2269,7 @@ const RenderSectionItem: React.FC<{
                     <div className="md:col-span-8 space-y-4">
                       <div>
                         <span className="font-cinzel text-xs font-semibold text-[#c59b63] uppercase tracking-[0.25em] block">
-                          {selectedPartnerModal.professionalTitle}
+                          {(selectedPartnerModal.professionalTitle || '').replace(/^[-–—]\s*/, '').trim()}
                         </span>
                         <h2 className="font-cormorant text-3xl sm:text-4xl font-bold text-[#f7f4ee] mt-1">
                           {selectedPartnerModal.fullName}
@@ -2398,9 +2284,15 @@ const RenderSectionItem: React.FC<{
                         <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#c59b63] uppercase">
                           {content.biographyTitle ?? "Executive Biography & Practice Narrative"}
                         </h4>
-                        <p className="text-xs sm:text-sm text-[#c8c0b4] leading-relaxed font-sans text-justify">
-                          {selectedPartnerModal.biography}
-                        </p>
+                        <div className="space-y-4 text-xs sm:text-sm text-[#c8c0b4] leading-relaxed font-sans text-justify">
+                          {(selectedPartnerModal.biography || '')
+                            .split(/\n\s*\n/)
+                            .map((p) => p.trim())
+                            .filter(Boolean)
+                            .map((para, i) => (
+                              <p key={i}>{para}</p>
+                            ))}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2573,7 +2465,7 @@ const RenderSectionItem: React.FC<{
 
     case 'stats': {
       const statItems = content.stats || content.items || [
-        { label: 'Advocacy History', value: '1986', subtitle: 'Quezon City Chambers' },
+        { label: 'Advocacy History', value: '1986', subtitle: 'Firm Foundation' },
         { label: 'Deals Advised', value: '₱180B+', subtitle: 'M&A and Transactions' },
         { label: 'Precedents', value: '150+', subtitle: 'Supreme Court Decisions' },
         { label: 'Corporate Clients', value: '350+', subtitle: 'Institutional Retainers' },
@@ -2583,24 +2475,8 @@ const RenderSectionItem: React.FC<{
         <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
           <div className="max-w-7xl mx-auto px-6 lg:px-12 space-y-10">
             {/* Optional Section Header */}
-            {(content.eyebrow || content.headline || content.heading || section.title) && (
+            {(content.headline || content.heading || section.title) && (
               <div className={`max-w-3xl ${typo.marginClass} space-y-2.5 ${typo.alignClass}`}>
-                {content.eyebrow && (
-                  <EditablePartWrapper
-                    editMode={editMode}
-                    partId="eyebrow"
-                    partLabel="Eyebrow / Sub-Header"
-                    activeElementPart={activeElementPart}
-                    onSelectPart={onSelectPart}
-                  >
-                    <span
-                      style={eyeTypo.customStyle}
-                      className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-                    >
-                      {content.eyebrow}
-                    </span>
-                  </EditablePartWrapper>
-                )}
                 <EditablePartWrapper
                   editMode={editMode}
                   partId="headline"
@@ -2676,21 +2552,6 @@ const RenderSectionItem: React.FC<{
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className={`flex flex-col md:flex-row md:items-end justify-between mb-12 ${headTypo.alignClass === 'text-center' ? 'md:items-center text-center' : headTypo.alignClass === 'text-right' ? 'md:items-end text-right' : 'text-left'}`}>
               <div className={`space-y-3 ${headTypo.marginClass}`}>
-                <EditablePartWrapper
-                  editMode={editMode}
-                  partId="eyebrow"
-                  partLabel="Eyebrow / Sub-Header"
-                  activeElementPart={activeElementPart}
-                  onSelectPart={onSelectPart}
-                >
-                  <span
-                    style={eyeTypo.customStyle}
-                    className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-                  >
-                    {content.eyebrow || 'Scholarly Commentary'}
-                  </span>
-                </EditablePartWrapper>
-
                 <EditablePartWrapper
                   editMode={editMode}
                   partId="headline"
@@ -2801,21 +2662,6 @@ const RenderSectionItem: React.FC<{
             <div className={`mb-12 space-y-3 ${headTypo.marginClass} ${headTypo.alignClass}`}>
               <EditablePartWrapper
                 editMode={editMode}
-                partId="eyebrow"
-                partLabel="Eyebrow / Sub-Header"
-                activeElementPart={activeElementPart}
-                onSelectPart={onSelectPart}
-              >
-                <span
-                  style={eyeTypo.customStyle}
-                  className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-                >
-                  {content.eyebrow || 'Institutional Clarity'}
-                </span>
-              </EditablePartWrapper>
-
-              <EditablePartWrapper
-                editMode={editMode}
                 partId="headline"
                 partLabel="Section Heading / Title"
                 activeElementPart={activeElementPart}
@@ -2866,21 +2712,6 @@ const RenderSectionItem: React.FC<{
         <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
           <div className="max-w-5xl mx-auto px-6 space-y-12">
             <div className={`space-y-3 ${headTypo.marginClass} ${headTypo.alignClass}`}>
-              <EditablePartWrapper
-                editMode={editMode}
-                partId="eyebrow"
-                partLabel="Eyebrow / Sub-Header"
-                activeElementPart={activeElementPart}
-                onSelectPart={onSelectPart}
-              >
-                <span
-                  style={eyeTypo.customStyle}
-                  className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
-                >
-                  {content.eyebrow || 'Accolades & Judicial Recognition'}
-                </span>
-              </EditablePartWrapper>
-
               <EditablePartWrapper
                 editMode={editMode}
                 partId="headline"
@@ -2965,20 +2796,25 @@ const RenderSectionItem: React.FC<{
       return (
         <section className={`${bg} ${py} border-b border-[#1a1a23] relative overflow-hidden`}>
           <div className={`max-w-4xl ${headTypo.marginClass} px-6 space-y-6 relative z-10 ${headTypo.alignClass}`}>
-            <EditablePartWrapper
-              editMode={editMode}
-              partId="eyebrow"
-              partLabel="Eyebrow / Sub-Header"
-              activeElementPart={activeElementPart}
-              onSelectPart={onSelectPart}
-            >
-              <span
-                style={eyeTypo.customStyle}
-                className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
+            {Boolean(
+              content.eyebrow &&
+              !content.eyebrow.toLowerCase().includes('confidential engagement')
+            ) && (
+              <EditablePartWrapper
+                editMode={editMode}
+                partId="eyebrow"
+                partLabel="Eyebrow / Sub-Header"
+                activeElementPart={activeElementPart}
+                onSelectPart={onSelectPart}
               >
-                {content.eyebrow || 'Confidential Engagement'}
-              </span>
-            </EditablePartWrapper>
+                <span
+                  style={eyeTypo.customStyle}
+                  className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
+                >
+                  {content.eyebrow}
+                </span>
+              </EditablePartWrapper>
+            )}
 
             <EditablePartWrapper
               editMode={editMode}
@@ -2995,24 +2831,25 @@ const RenderSectionItem: React.FC<{
               </h2>
             </EditablePartWrapper>
 
-            <EditablePartWrapper
-              editMode={editMode}
-              partId="subheadline"
-              partLabel="Subtitle / Advisory Scope"
-              activeElementPart={activeElementPart}
-              onSelectPart={onSelectPart}
-            >
-              <p
-                style={subTypo.customStyle}
-                className={`${subTypo.fontClass} ${subTypo.sizeClass || 'text-sm sm:text-base'} ${subTypo.bodyColorClass || subTypo.colorClass} max-w-2xl ${subTypo.marginClass} leading-relaxed ${subTypo.weightClass} ${subTypo.trackingClass} ${subTypo.uppercaseClass} ${subTypo.italicClass}`}
+            {Boolean(
+              (content.subheadline && !content.subheadline.includes('Schedule a confidential evaluation')) ||
+              (content.body && !content.body.includes('Schedule a confidential evaluation') && !content.body.includes('Whether confronting complex') && !content.body.includes('Whether navigating complex'))
+            ) && (
+              <EditablePartWrapper
+                editMode={editMode}
+                partId="subheadline"
+                partLabel="Subtitle / Advisory Scope"
+                activeElementPart={activeElementPart}
+                onSelectPart={onSelectPart}
               >
-                {content.subheadline ||
-                  content.body ||
-                  content.description ||
-                  section.subtitle ||
-                  'Our partners provide discreet, conflict-cleared guidance on complex corporate, litigation, and cross-border regulatory matters.'}
-              </p>
-            </EditablePartWrapper>
+                <p
+                  style={subTypo.customStyle}
+                  className={`${subTypo.fontClass} ${subTypo.sizeClass || 'text-sm sm:text-base'} ${subTypo.bodyColorClass || subTypo.colorClass} max-w-2xl ${subTypo.marginClass} leading-relaxed ${subTypo.weightClass} ${subTypo.trackingClass} ${subTypo.uppercaseClass} ${subTypo.italicClass}`}
+                >
+                  {content.subheadline || content.body}
+                </p>
+              </EditablePartWrapper>
+            )}
 
             <EditablePartWrapper
               editMode={editMode}
@@ -3061,37 +2898,35 @@ const RenderSectionItem: React.FC<{
         <section className={`${bg} ${py} border-b border-[#1a1a23] relative overflow-hidden`}>
           <div className="max-w-7xl mx-auto px-6 lg:px-12">
             <div className={`mb-12 space-y-3 ${headTypo.marginClass} ${headTypo.alignClass}`}>
-              <EditablePartWrapper
-                editMode={editMode}
-                partId="eyebrow"
-                partLabel="Eyebrow / Category"
-                activeElementPart={activeElementPart}
-                onSelectPart={onSelectPart}
-              >
-                <span
-                  style={eyeTypo.customStyle}
-                  className={`${eyeTypo.fontClass} ${eyeTypo.sizeClass || 'text-[11px]'} font-semibold tracking-[0.25em] ${eyeTypo.colorClass || eyeTypo.subColorClass} uppercase ${eyeTypo.trackingClass} ${eyeTypo.italicClass}`}
+              {Boolean(
+                !((content.headline || content.heading || '').toLowerCase().includes('executive chambers'))
+              ) && (
+                <EditablePartWrapper
+                  editMode={editMode}
+                  partId="headline"
+                  partLabel="Main Section Headline"
+                  activeElementPart={activeElementPart}
+                  onSelectPart={onSelectPart}
                 >
-                  {content.eyebrow || 'Chambers & Communications'}
-                </span>
-              </EditablePartWrapper>
+                  <h2
+                    style={headTypo.customStyle}
+                    className={`${headTypo.fontClass} ${headTypo.sizeClass || 'text-3xl sm:text-5xl'} ${headTypo.weightClass} ${headTypo.colorClass} leading-tight ${headTypo.trackingClass} ${headTypo.uppercaseClass} ${headTypo.italicClass}`}
+                  >
+                    {(() => {
+                      const h = content.headline || content.heading || '';
+                      if (h.toLowerCase().includes('official legal chambers') || !h || h.toLowerCase().includes('executive chambers') || h.includes('Chambers & Partners')) {
+                        return 'Connect with Our Partners';
+                      }
+                      return h;
+                    })()}
+                  </h2>
+                </EditablePartWrapper>
+              )}
 
-              <EditablePartWrapper
-                editMode={editMode}
-                partId="headline"
-                partLabel="Main Section Headline"
-                activeElementPart={activeElementPart}
-                onSelectPart={onSelectPart}
-              >
-                <h2
-                  style={headTypo.customStyle}
-                  className={`${headTypo.fontClass} ${headTypo.sizeClass || 'text-3xl sm:text-5xl'} ${headTypo.weightClass} ${headTypo.colorClass} leading-tight ${headTypo.trackingClass} ${headTypo.uppercaseClass} ${headTypo.italicClass}`}
-                >
-                  {content.headline || content.heading || section.title || 'Official Legal Chambers'}
-                </h2>
-              </EditablePartWrapper>
-
-              {(content.subheadline || content.subheading || section.subtitle) && (
+              {Boolean(
+                (content.subheadline && !content.subheadline.includes('Future Point Plaza') && !content.subheadline.includes('Ayala') && !content.subheadline.includes('Grand Tower') && !content.subheadline.includes('Panay')) ||
+                (content.subheading && !content.subheading.includes('Future Point Plaza') && !content.subheading.includes('Ayala') && !content.subheading.includes('Grand Tower') && !content.subheading.includes('Panay'))
+              ) && (
                 <EditablePartWrapper
                   editMode={editMode}
                   partId="subheadline"
@@ -3103,7 +2938,7 @@ const RenderSectionItem: React.FC<{
                     style={subTypo.customStyle}
                     className={`${subTypo.fontClass} ${subTypo.sizeClass || 'text-sm sm:text-base'} ${subTypo.bodyColorClass || subTypo.colorClass} max-w-2xl ${subTypo.marginClass} leading-relaxed ${subTypo.weightClass} ${subTypo.trackingClass} ${subTypo.uppercaseClass} ${subTypo.italicClass}`}
                   >
-                    {content.subheadline || content.subheading || section.subtitle}
+                    {content.subheadline || content.subheading}
                   </p>
                 </EditablePartWrapper>
               )}
