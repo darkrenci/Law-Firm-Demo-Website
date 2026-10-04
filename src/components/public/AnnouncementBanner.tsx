@@ -40,13 +40,13 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({ onNaviga
       <div className="w-full bg-[#100f14] border-b border-[#c59b63]/30 text-[#f7f4ee] py-2.5 px-4 sm:px-8 relative z-30 transition-all">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-6 text-center sm:text-left">
           {/* Left badge & headline */}
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 min-w-0">
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 min-w-0 max-w-full">
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#c59b63] text-[#0d0d11] font-cinzel text-[10px] font-bold tracking-widest uppercase flex-shrink-0">
               <Bell className="w-3 h-3 fill-current" />
               <span>Announcement</span>
             </span>
 
-            <p className="text-xs sm:text-sm text-[#ded6c9] font-medium truncate max-w-xl">
+            <p className="text-xs sm:text-sm text-[#ded6c9] font-medium min-w-0 max-w-full sm:max-w-xl break-words sm:truncate">
               {announcement.title}
             </p>
 

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Logo } from '../brand/Logo';
 import { Button } from '../ui/Buttons';
 import {
@@ -33,6 +34,37 @@ export const Header: React.FC<HeaderProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isPracticeDropdownOpen, setIsPracticeDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const menuTrigger = useRef<HTMLButtonElement>(null);
+  const menuPanel = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { setIsMobileMenuOpen(false); }, [currentPath]);
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 1280px)');
+    const resize = () => { if (desktop.matches) setIsMobileMenuOpen(false); };
+    desktop.addEventListener('change', resize);
+    return () => desktop.removeEventListener('change', resize);
+  }, []);
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    menuPanel.current?.querySelector<HTMLButtonElement>('button')?.focus();
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsMobileMenuOpen(false);
+      if (event.key !== 'Tab') return;
+      const buttons = menuPanel.current?.querySelectorAll<HTMLButtonElement>('button:not([disabled])');
+      if (!buttons?.length) return;
+      const first = buttons[0], last = buttons[buttons.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', keydown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', keydown);
+      menuTrigger.current?.focus();
+    };
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     const unsub = db.subscribe(() => {
@@ -59,7 +91,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 w-full transition-all duration-300">
       {/* Top Pre-Header Utility Bar */}
-      <div className="hidden lg:block bg-[#070709] border-b border-[#1c1c24] text-[11px] text-[#a8a199] py-2 px-6 lg:px-12">
+      <div className="hidden 2xl:block bg-[#070709] border-b border-[#1c1c24] text-[11px] text-[#a8a199] py-2 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
@@ -98,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Main Navigation Bar */}
       <div
-        className={`w-full transition-all duration-300 overflow-x-clip ${
+        className={`w-full transition-all duration-300 ${
           isScrolled
             ? 'bg-[#0a0a0d]/95 backdrop-blur-md border-b border-[#c59b63]/30 shadow-2xl py-3 sm:py-3.5'
             : 'bg-[#0d0d11]/90 backdrop-blur-sm border-b border-[#1f1f2a] py-4 sm:py-4.5'
@@ -106,12 +138,14 @@ export const Header: React.FC<HeaderProps> = ({
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 lg:gap-4">
           {/* Brand Logo with responsive spacing */}
-          <div
+          <button
+            type="button"
+            aria-label="Lalusis & Partners home"
             onClick={() => handleLinkClick('/')}
-            className="cursor-pointer flex-shrink-0 mr-3 lg:mr-5 xl:mr-6 2xl:mr-8"
+            className="cursor-pointer min-w-0 flex-1 xl:flex-none"
           >
-            <Logo variant="horizontal" />
-          </div>
+            <Logo variant="header" />
+          </button>
 
           {/* Desktop Navigation Links */}
           <nav className="hidden xl:flex items-center gap-2.5 xl:gap-3.5 2xl:gap-6 flex-shrink-0">
@@ -197,7 +231,7 @@ export const Header: React.FC<HeaderProps> = ({
           </nav>
 
           {/* Actions: Search, Admin Switcher & CTA */}
-          <div className="hidden sm:flex items-center gap-2.5 2xl:gap-3 flex-shrink-0 ml-2">
+          <div className="hidden xl:flex items-center gap-2.5 2xl:gap-3 flex-shrink-0 ml-2">
             <button
               onClick={onOpenSearch}
               className="p-2 text-[#a8a199] hover:text-[#c59b63] hover:bg-white/5 transition-colors cursor-pointer"
@@ -228,18 +262,22 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Mobile Menu & Search triggers */}
-          <div className="flex items-center gap-2 xl:hidden">
+          <div className="flex shrink-0 items-center xl:hidden">
             <button
               onClick={onOpenSearch}
-              className="p-2 text-[#a8a199] hover:text-[#c59b63] cursor-pointer"
+              className="w-11 h-11 flex items-center justify-center text-[#a8a199] hover:text-[#c59b63] cursor-pointer"
               aria-label="Search"
             >
               <Search className="w-5 h-5" />
             </button>
             <button
+              ref={menuTrigger}
+              type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-[#f7f4ee] hover:text-[#c59b63] cursor-pointer"
+              className="w-11 h-11 flex items-center justify-center text-[#f7f4ee] hover:text-[#c59b63] cursor-pointer"
               aria-label="Toggle Navigation Menu"
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-navigation"
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -248,8 +286,12 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Mobile Drawer Menu */}
-      {isMobileMenuOpen && (
-        <div className="xl:hidden fixed inset-0 top-[70px] z-50 bg-[#0b0b0e]/98 border-t border-[#1f1f2a] p-6 overflow-y-auto flex flex-col justify-between">
+      {isMobileMenuOpen && createPortal(
+        <div ref={menuPanel} id="mobile-navigation" role="dialog" aria-modal="true" aria-label="Navigation menu" className="xl:hidden fixed inset-0 z-[70] bg-[#0b0b0e] p-4 sm:p-6 overflow-y-auto overscroll-contain flex flex-col">
+          <div className="flex items-center justify-between gap-4 border-b border-[#1f1f2a] pb-3 mb-4">
+            <span className="font-cinzel text-[#d4af7a]">Menu</span>
+            <button type="button" aria-label="Close navigation menu" onClick={() => setIsMobileMenuOpen(false)} className="w-11 h-11 flex items-center justify-center text-[#f7f4ee]"><X /></button>
+          </div>
           <div className="space-y-4">
             {navigation
               .filter((item) => item.isVisible)
@@ -257,17 +299,17 @@ export const Header: React.FC<HeaderProps> = ({
                 <div key={item.id} className="border-b border-[#1c1c24] pb-3">
                   <button
                     onClick={() => handleLinkClick(item.path)}
-                    className="w-full text-left font-cinzel text-sm uppercase tracking-[0.16em] text-[#f7f4ee] hover:text-[#c59b63] py-1"
+                    className="w-full min-h-11 text-left font-cinzel text-sm uppercase tracking-[0.16em] text-[#f7f4ee] hover:text-[#c59b63] py-2"
                   >
                     {item.label}
                   </button>
                   {item.children && (
                     <div className="pl-4 mt-2 space-y-2 border-l border-[#c59b63]/30">
-                      {item.children.map((c) => (
+                      {item.children.filter(c => c.isVisible).map((c) => (
                         <button
                           key={c.id}
                           onClick={() => handleLinkClick(c.path)}
-                          className="block text-xs text-[#a8a199] hover:text-[#c59b63]"
+                          className="block min-h-11 py-2 text-left text-xs text-[#a8a199] hover:text-[#c59b63]"
                         >
                           {c.label}
                         </button>
@@ -291,7 +333,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <div className="pt-8 border-t border-[#1c1c24] mt-8 text-center space-y-3">
             <p className="text-xs text-[#a8a199]">{settings.contact.telephone}</p>
-            <p className="text-xs text-[#a8a199]">{settings.contact.email}</p>
+            <p className="text-xs text-[#a8a199] break-all">{settings.contact.email}</p>
             <button
               onClick={() => {
                 setIsMobileMenuOpen(false);
@@ -303,7 +345,7 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Admin CMS Portal</span>
             </button>
           </div>
-        </div>
+        </div>, document.body
       )}
     </header>
   );

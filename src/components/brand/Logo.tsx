@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface LogoProps {
-  variant?: 'full' | 'horizontal' | 'mark' | 'hero' | 'compact' | 'footer';
+  variant?: 'full' | 'horizontal' | 'mark' | 'hero' | 'compact' | 'footer' | 'header';
   className?: string;
   markClassName?: string;
   textClassName?: string;
@@ -268,6 +268,16 @@ export const Logo: React.FC<LogoProps> = ({
 }) => {
   if (variant === 'mark') {
     return <LalusisLogoMark className={markClassName || 'w-16 h-16 sm:w-20 sm:h-20'} />;
+  }
+
+  if (variant === 'header') {
+    return <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+      <LalusisLogoMark className="w-9 h-9 sm:w-12 sm:h-12 shrink-0" />
+      <div className="min-w-0 text-left">
+        <span className="block font-cinzel text-[12px] sm:text-lg font-bold tracking-wide text-[#f4e6d0] leading-snug">Lalusis &amp; Partners</span>
+        <span className="block mt-1 font-cinzel text-[8px] sm:text-[10px] tracking-wider text-[#c59b63]">Attorneys at Law</span>
+      </div>
+    </div>;
   }
 
   if (variant === 'hero') {
