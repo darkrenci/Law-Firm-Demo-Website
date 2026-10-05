@@ -331,9 +331,9 @@ class DatabaseService {
     ) {
       settings.contact = {
         ...settings.contact,
-        address: '110, Unit 20, Suite J, Future Point Plaza Suites, Panay Avenue',
-        suiteFloor: 'Unit 20, Suite J, Future Point Plaza Suites',
-        cityStateZip: 'South Triangle, 1103, Quezon City, NCR, Second District',
+        address: '20th flr., Suite J, Future Point Plaza Suites, 110 Panay Ave., South Triangle, Quezon City.',
+        suiteFloor: '20th flr., Suite J, Future Point Plaza Suites, 110 Panay Ave.',
+        cityStateZip: 'South Triangle, Quezon City.',
         country: 'Philippines',
         telephone: '+63 917 327 5931',
         emergencyLine: '+63 917 327 5931',
@@ -343,6 +343,10 @@ class DatabaseService {
         officeHoursWeekend: 'Saturday: By Prior Appointment Only',
         googleMapEmbedUrl: 'https://maps.google.com/maps?q=Future+Point+Plaza+Suites+Panay+Avenue+Quezon+City&t=&z=16&ie=UTF8&iwloc=&output=embed',
       };
+      changed = true;
+    }
+    if (settings.contact.address?.startsWith('110, Unit 20, Suite J, Future Point Plaza Suites')) {
+      settings.contact = { ...settings.contact, address: '20th flr., Suite J, Future Point Plaza Suites, 110 Panay Ave., South Triangle, Quezon City.', suiteFloor: '20th flr., Suite J, Future Point Plaza Suites, 110 Panay Ave.', cityStateZip: 'South Triangle, Quezon City.' };
       changed = true;
     }
     if (changed && typeof window !== 'undefined') {
@@ -385,6 +389,13 @@ class DatabaseService {
     let cleaned = false;
     const pages = rawPages.map((page) => {
       let mod = page;
+      mod = { ...mod, sections: mod.sections.map(section => {
+        if (section.content?.address?.startsWith('110, Unit 20, Suite J, Future Point Plaza Suites')) {
+          changed = true;
+          return { ...section, content: { ...section.content, address: '20th flr., Suite J, Future Point Plaza Suites, 110 Panay Ave., South Triangle, Quezon City.' } };
+        }
+        return section;
+      }) };
       if (mod.id === 'page-home' || mod.slug === '') {
         const hero = mod.sections.find(s => s.id === 'sec-hero' || s.type === 'hero');
         const hasDuplicateIntro = mod.sections.some(s => s.id === 'sec-intro');

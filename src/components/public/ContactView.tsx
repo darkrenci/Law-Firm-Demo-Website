@@ -82,8 +82,6 @@ export const ContactView: React.FC<ContactViewProps> = ({ onNavigate }) => {
                       Chamber Address
                     </h4>
                     <p className="text-[#ded6c9] mt-1">{settings.contact.address}</p>
-                    <p>{settings.contact.suiteFloor}</p>
-                    <p>{settings.contact.cityStateZip}</p>
                   </div>
                 </div>
 

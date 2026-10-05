@@ -155,8 +155,6 @@ export const Footer: React.FC<FooterProps> = ({
                 <MapPin className="w-4 h-4 text-[#c59b63] flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-[#d8cebe]">{settings.contact.address}</p>
-                  <p>{settings.contact.suiteFloor}</p>
-                  <p>{settings.contact.cityStateZip}</p>
                 </div>
               </div>
 

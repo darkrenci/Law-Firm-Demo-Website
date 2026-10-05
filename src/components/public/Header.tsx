@@ -98,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center gap-2">
               <MapPin className="w-3.5 h-3.5 text-[#c59b63]" />
               <span>
-                {settings.contact.suiteFloor}, {settings.contact.cityStateZip}
+                {settings.contact.address}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -135,7 +135,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="utility-ticker-track flex w-max">
             {[0, 1].map(copy => (
               <div key={copy} aria-hidden={copy === 1 ? true : undefined} className="utility-ticker-copy flex shrink-0 items-center gap-8 pr-8 whitespace-nowrap">
-                <span className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5 text-[#c59b63]" />{settings.contact.suiteFloor}, {settings.contact.cityStateZip}</span>
+                <span className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5 text-[#c59b63]" />{settings.contact.address}</span>
                 <span className="flex items-center gap-2"><Clock className="w-3.5 h-3.5 text-[#c59b63]" />{settings.contact.officeHoursWeekday}</span>
                 <span className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-[#c59b63]" />Direct: {settings.contact.telephone}</span>
               </div>

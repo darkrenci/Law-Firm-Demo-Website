@@ -7,7 +7,7 @@ export const chamberFields = [
   [
     "address",
     "Office address",
-    "110, Unit 20, Suite J, Future Point Plaza Suites, Panay Avenue, South Triangle, 1103, Quezon City, NCR, Second District, Philippines"
+    "20th flr., Suite J, Future Point Plaza Suites, 110 Panay Ave., South Triangle, Quezon City."
   ],
   [
     "phone",
