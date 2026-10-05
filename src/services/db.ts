@@ -403,7 +403,7 @@ class DatabaseService {
                     ...s,
                     content: {
                       ...restContent,
-                      imageUrl: restContent.imageUrl || '/assets/group-picture.svg',
+                      imageUrl: restContent.imageUrl || '/assets/founding-partners.jpg',
                       imageAlt: restContent.imageAlt || 'Lalusis & Partners Founding Partners',
                       imageCaption: restContent.imageCaption || 'Partners of Lalusis & Partners · Atty. Levy John L.V. Lalusis · Senior Partner Atty. Diosdado Anselmo Q. Lalusis · Atty. Leo Anselmo L.V. Lalusis',
                       body: bodyText,

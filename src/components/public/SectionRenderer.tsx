@@ -371,9 +371,9 @@ const InstitutionalImageFrame: React.FC<{
   editMode = false,
   isAdmin = false,
 }) => {
-  const DEFAULT_PORTRAIT = '/assets/group-picture.svg';
+  const DEFAULT_PORTRAIT = '/assets/founding-partners.jpg';
   const resolveSrc = (src?: string) => {
-    if (!src || src === '/Group Picture.jpeg' || src === '/Group%20Picture.jpeg') {
+    if (!src || ['https://loofsuqbuiozrtxsaexz.supabase.co/storage/v1/object/public/media/uploads/1790416273276-c57c0526-group-picture.jpeg', '/assets/group-picture.svg', '/Group Picture.jpeg', '/Group%20Picture.jpeg', '/Group Picture.jpg', '/Group%20Picture.jpg'].includes(src)) {
       return DEFAULT_PORTRAIT;
     }
     return src;
@@ -711,7 +711,7 @@ const RenderSectionItem: React.FC<{
               className="w-full max-w-4xl mx-auto my-2"
             >
               <InstitutionalImageFrame
-                imageUrl={content.imageUrl || content.image || '/assets/group-picture.svg'}
+                imageUrl={content.imageUrl || content.image || '/assets/founding-partners.jpg'}
                 imageAlt={content.imageAlt || 'Lalusis & Partners Founding Partners'}
                 caption={content.imageCaption || 'Partners of Lalusis & Partners · Atty. Levy John L.V. Lalusis · Senior Partner Atty. Diosdado Anselmo Q. Lalusis · Atty. Leo Anselmo L.V. Lalusis'}
                 sectionId={section.id}
@@ -1598,7 +1598,7 @@ const RenderSectionItem: React.FC<{
                 className="w-full my-2"
               >
                 <InstitutionalImageFrame
-                  imageUrl={content.imageUrl || content.image || '/assets/group-picture.svg'}
+                  imageUrl={content.imageUrl || content.image || '/assets/founding-partners.jpg'}
                   imageAlt={content.imageAlt || 'Lalusis & Partners Founding Partners'}
                   caption={content.imageCaption || 'Partners of Lalusis & Partners · Atty. Levy John L.V. Lalusis, Senior Partner Atty. Diosdado Anselmo Q. Lalusis, and Atty. Leo Anselmo L.V. Lalusis'}
                   sectionId={section.id}

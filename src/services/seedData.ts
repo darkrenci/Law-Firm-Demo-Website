@@ -902,10 +902,10 @@ export const initialMedia: MediaItem[] = [
   {
     id: 'med-group-portrait',
     name: 'Founding Partners Institutional Chamber Portrait (Group Picture)',
-    url: '/assets/group-picture.svg',
+    url: '/assets/founding-partners.jpg',
     fileType: 'image',
-    format: 'SVG',
-    sizeBytes: 23761,
+    format: 'JPEG',
+    sizeBytes: 158858,
     category: 'branding',
     altText: 'Founding Partners of Lalusis & Partners: Atty. Levy John L.V. Lalusis, Senior Partner Atty. Diosdado Anselmo Q. Lalusis, and Atty. Leo Anselmo L.V. Lalusis',
     createdAt: '2026-09-01',
@@ -1220,7 +1220,7 @@ export const initialPages: Page[] = [
         order: 1,
         content: {
           headline: 'Legal Precision.',
-          imageUrl: '/assets/group-picture.svg',
+          imageUrl: '/assets/founding-partners.jpg',
           imageAlt: 'Lalusis & Partners Founding Partners – Atty. Levy John Lalusis, Atty. Diosdado Anselmo Lalusis, and Atty. Leo Lalusis',
           imageCaption: 'Founding Partners of Lalusis & Partners · Atty. Levy John Lalusis · Atty. Diosdado Anselmo Lalusis · Atty. Leo Lalusis',
           body: "The FIRM was founded by brothers Atty. Leo Anselmo L.V. Lalusis and Atty. Levy John L.V. Lalusis, under the guidance of their senior partner and uncle, Atty. Diosdado Anselmo Q. Lalusis, LPT.\n\nThe brothers Atty. Leo and Atty. Levy are the sons of the late Chief Danielito Q. Lalusis, who served the National Bureau of Investigation (NBI) with utmost integrity and excellence for almost 30 years prior to his untimely passing.\n\nWith their combined training and experience, the brothers, Atty. Leo and Atty. Levy bring proactive, adaptive, and client-centered legal representation tailored to each client's distinct needs and circumstances. Guided by the principle of LEGAL PRECISION, the firm delivers legal representation grounded in rigorous preparation and a steadfast commitment to achieving results that serve its clients' best interests.",
@@ -1271,7 +1271,7 @@ export const initialPages: Page[] = [
         content: {
           eyebrow: '',
           heading: '',
-          imageUrl: '/assets/group-picture.svg',
+          imageUrl: '/assets/founding-partners.jpg',
           imageAlt: 'Lalusis & Partners Founding Partners – Atty. Levy John Lalusis, Atty. Diosdado Anselmo Lalusis, and Atty. Leo Lalusis',
           imageCaption: 'Founding Partners of Lalusis & Partners · Atty. Levy John Lalusis · Atty. Diosdado Anselmo Lalusis · Atty. Leo Lalusis',
           body: "The FIRM was founded by brothers Atty. Leo Anselmo L.V. Lalusis and Atty. Levy John L.V. Lalusis, under the guidance of their senior partner and uncle, Atty. Diosdado Anselmo Q. Lalusis, LPT.\n\nThe brothers Atty. Leo and Atty. Levy are the sons of the late Chief Danielito Q. Lalusis, who served the National Bureau of Investigation (NBI) with utmost integrity and excellence for almost 30 years prior to his untimely passing.\n\nWith their combined training and experience, the brothers, Atty. Leo and Atty. Levy bring proactive, adaptive, and client-centered legal representation tailored to each client's distinct needs and circumstances. Guided by the principle of LEGAL PRECISION, the firm delivers legal representation grounded in rigorous preparation and a steadfast commitment to achieving results that serve its clients' best interests.",
@@ -1348,7 +1348,7 @@ export const initialPages: Page[] = [
           eyebrow: '',
           heading: 'Forged in Complex Advocacy, Driven by Principle',
           body: "The FIRM was founded by brothers Atty. Leo Anselmo L.V. Lalusis and Atty. Levy John L.V. Lalusis, under the guidance of their senior partner and uncle, Atty. Diosdado Anselmo Q. Lalusis, LPT.\n\nThe brothers Atty. Leo and Atty. Levy are the sons of the late Chief Danielito Q. Lalusis, who served the National Bureau of Investigation (NBI) with utmost integrity and excellence for almost 30 years prior to his untimely passing.\n\nWith their combined training and experience, the brothers, Atty. Leo and Atty. Levy bring proactive, adaptive, and client-centered legal representation tailored to each client's distinct needs and circumstances. Guided by the principle of LEGAL PRECISION, the firm delivers legal representation grounded in rigorous preparation and a steadfast commitment to achieving results that serve its clients' best interests.",
-          imageUrl: '/assets/group-picture.svg',
+          imageUrl: '/assets/founding-partners.jpg',
         },
       },
       {
