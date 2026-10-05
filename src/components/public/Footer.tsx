@@ -40,14 +40,14 @@ export const Footer: React.FC<FooterProps> = ({
             <div onClick={() => onNavigate('/')} className="cursor-pointer">
               <Logo variant="footer" />
             </div>
-            <div className="pt-2">
+            {/*<div className="pt-2">
               <span className="font-cinzel text-[11px] tracking-[0.2em] text-[#c59b63] uppercase block">
                 Established {settings.general.establishedYear} · Quezon City
               </span>
               <p className="text-xs text-[#6e6860] mt-1 font-mono">
                 Republic of the Philippines
               </p>
-            </div>
+            </div>*/}
           </div>
 
           {/* Col 2: Practice Areas (3 cols) */}
