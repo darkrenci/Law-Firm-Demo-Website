@@ -2965,7 +2965,7 @@ const RenderSectionItem: React.FC<{
                             {content.addressTitle ?? 'Principal Legal Chambers'}
                           </h4>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            {content.address ?? '110, Unit 20, Suite J, Future Point Plaza Suites, Panay Avenue, South Triangle, 1103, Quezon City, NCR, Second District, Philippines'}
+                            {content.address ?? '20th flr., Suite J, Future Point Plaza Suites, 110 Panay Ave., South Triangle, Quezon City.'}
                           </p>
                           <span className="text-[10px] text-[#c59b63] block pt-1 font-mono">
                             {content.addressNote ?? "By Appointment & Scheduled Retainers"}
