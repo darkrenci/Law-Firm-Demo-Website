@@ -1870,7 +1870,8 @@ const RenderSectionItem: React.FC<{
       );
 
     case 'practiceAreas': {
-      const practiceList = db.getPracticeAreas(false).slice(0, content.limit || 6);
+      const publishedPractices = db.getPracticeAreas(false);
+      const practiceList = pageSlug === 'practice-areas' ? publishedPractices : publishedPractices.slice(0, content.limit || 6);
       return (
         <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
           <div className="max-w-7xl mx-auto px-6 lg:px-12">

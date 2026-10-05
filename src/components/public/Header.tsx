@@ -202,7 +202,7 @@ export const Header: React.FC<HeaderProps> = ({
                             : 'opacity-0 -translate-y-2 pointer-events-none'
                         }`}
                       >
-                        <div className="bg-[#121217] border border-[#c59b63]/40 shadow-2xl p-2 divide-y divide-[#1f1f28]">
+                        <div className="bg-[#121217] border border-[#c59b63]/40 shadow-2xl max-h-[65vh] overflow-y-auto overscroll-contain p-2 divide-y divide-[#1f1f28]">
                           {item.children
                             .filter((c) => c.isVisible)
                             .map((child) => (

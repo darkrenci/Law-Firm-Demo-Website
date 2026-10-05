@@ -1671,7 +1671,13 @@ class DatabaseService {
         localStorage.setItem(DB_KEYS.NAVIGATION, JSON.stringify(updated));
       } catch {}
     }
-    return updated;
+    return updated.map(item => item.path === '/practice-areas' ? {
+      ...item,
+      children: this.getPracticeAreas(false).map((area, index) => ({
+        id: 'practice-nav-' + area.id, label: area.title,
+        path: '/practice-areas/' + area.slug, isVisible: true, order: index + 1,
+      })),
+    } : item);
   }
 
   public saveNavigation(nav: MenuItem[]): void {
