@@ -34,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isPracticeDropdownOpen, setIsPracticeDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isInfoPaused, setIsInfoPaused] = useState(false);
   const menuTrigger = useRef<HTMLButtonElement>(null);
   const menuPanel = useRef<HTMLDivElement>(null);
 
@@ -91,7 +92,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 w-full transition-all duration-300">
       {/* Top Pre-Header Utility Bar */}
-      <div className="hidden 2xl:block bg-[#070709] border-b border-[#1c1c24] text-[11px] text-[#a8a199] py-2 px-6 lg:px-12">
+      <div className="hidden xl:block bg-[#070709] border-b border-[#1c1c24] text-[11px] text-[#a8a199] py-2 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
@@ -126,6 +127,22 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Scrolling contact information for phones and tablets. */}
+      <div className="utility-ticker xl:hidden flex items-center bg-[#070709] border-b border-[#1c1c24] text-xs text-[#a8a199]" data-paused={isInfoPaused}>
+        <div className="utility-ticker-viewport min-w-0 flex-1 overflow-hidden py-2" tabIndex={0} aria-label="Chambers address, hours and telephone">
+          <div className="utility-ticker-track flex w-max">
+            {[0, 1].map(copy => (
+              <div key={copy} aria-hidden={copy === 1 ? true : undefined} className="utility-ticker-copy flex shrink-0 items-center gap-8 pr-8 whitespace-nowrap">
+                <span className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5 text-[#c59b63]" />{settings.contact.suiteFloor}, {settings.contact.cityStateZip}</span>
+                <span className="flex items-center gap-2"><Clock className="w-3.5 h-3.5 text-[#c59b63]" />{settings.contact.officeHoursWeekday}</span>
+                <span className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-[#c59b63]" />Direct: {settings.contact.telephone}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <button type="button" onClick={() => setIsInfoPaused(value => !value)} aria-label={isInfoPaused ? 'Resume scrolling information' : 'Pause scrolling information'} aria-pressed={isInfoPaused} className="utility-ticker-toggle shrink-0 self-stretch px-3 text-[#c59b63] border-l border-[#1c1c24] text-xs">{isInfoPaused ? 'Play' : 'Pause'}</button>
       </div>
 
       {/* Main Navigation Bar */}

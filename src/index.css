@@ -78,3 +78,18 @@
   box-shadow: 0 0 15px -3px rgba(197, 155, 99, 0.15);
 }
 
+
+/* Continuous, readable contact strip on narrow screens. */
+@keyframes utility-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.utility-ticker-track { animation: utility-scroll 38s linear infinite; }
+.utility-ticker:hover .utility-ticker-track,
+.utility-ticker:focus-within .utility-ticker-track,
+.utility-ticker[data-paused="true"] .utility-ticker-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .utility-ticker-track { animation: none; }
+  .utility-ticker-viewport { overflow-x: auto; }
+  .utility-ticker-copy[aria-hidden="true"], .utility-ticker-toggle { display: none; }
+}

@@ -40,9 +40,6 @@ export const Footer: React.FC<FooterProps> = ({
             <div onClick={() => onNavigate('/')} className="cursor-pointer">
               <Logo variant="footer" />
             </div>
-            <p className="text-xs sm:text-sm text-[#8e877e] leading-relaxed font-sans pr-4">
-              Lalusis &amp; Partners is an institutional Philippine law firm dedicated to high-consequence corporate counseling, complex commercial dispute resolution, and supreme appellate advocacy.
-            </p>
             <div className="pt-2">
               <span className="font-cinzel text-[11px] tracking-[0.2em] text-[#c59b63] uppercase block">
                 Established {settings.general.establishedYear} · Quezon City
