@@ -235,7 +235,7 @@ export const SettingsManager: React.FC = () => {
               </label>
               <input
                 type="text"
-                value={settings.seoDefaults.metaTitle}
+                value={settings.seoDefaults?.metaTitle ?? settings.seo?.defaultTitle ?? ''}
                 onChange={(e) =>
                   setSettings({
                     ...settings,
@@ -252,7 +252,7 @@ export const SettingsManager: React.FC = () => {
               </label>
               <textarea
                 rows={3}
-                value={settings.seoDefaults.metaDescription}
+                value={settings.seoDefaults?.metaDescription ?? settings.seo?.defaultDescription ?? ''}
                 onChange={(e) =>
                   setSettings({
                     ...settings,

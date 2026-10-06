@@ -1,3 +1,4 @@
+import { usePageMetadata } from './lib/usePageMetadata';
 import React, { useState, useEffect } from 'react';
 import { db } from './services/db';
 import { Page } from './types';
@@ -41,6 +42,7 @@ export default function App() {
   const [currentPath, setCurrentPath] = useState<string>(
     typeof window !== 'undefined' ? window.location.pathname || '/' : '/'
   );
+  usePageMetadata(currentPath);
   const [adminTab, setAdminTab] = useState<AdminTab>('dashboard');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);

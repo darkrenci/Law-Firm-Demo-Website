@@ -397,6 +397,15 @@ class DatabaseService {
         return section;
       }) };
       if (mod.id === 'page-home' || mod.slug === '') {
+        // Upgrade only the original demo copy; preserve custom CMS wording.
+        const oldTitle = 'Lalusis & Partners | Attorneys at Law \u2013 Legal Precision';
+        if (mod.seoTitle === oldTitle) mod = { ...mod, seoTitle: 'Law Firm in Quezon City | Lalusis & Partners' };
+        if (mod.seoDescription === 'Lalusis & Partners provides decisive advocacy and sophisticated legal counsel to sovereign entities, multinational conglomerates, and high-net-worth families.') {
+          mod = { ...mod, seoDescription: 'Lalusis & Partners provides legal counsel and representation in Quezon City. Explore our practice areas, meet our partners, and request a consultation.' };
+        }
+        mod = { ...mod, sections: mod.sections.map(section => section.type === 'hero' && section.content?.headline === 'Legal Precision.'
+          ? { ...section, content: { ...section.content, headline: 'Law Firm in Quezon City' } } : section) };
+
         const hero = mod.sections.find(s => s.id === 'sec-hero' || s.type === 'hero');
         const hasDuplicateIntro = mod.sections.some(s => s.id === 'sec-intro');
         const isNotExactBody = hero?.content?.body !== bodyText;
