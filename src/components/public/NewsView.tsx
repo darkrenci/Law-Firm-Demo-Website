@@ -1,3 +1,4 @@
+import { NavigationLink } from '../ui/NavigationLink';
 import React from 'react';
 import { db } from '../../services/db';
 import { NewsItem } from '../../types';
@@ -21,9 +22,9 @@ export const NewsView: React.FC<NewsViewProps> = ({ slug, currentSlug, onNavigat
       return (
         <div className="py-24 text-center space-y-4">
           <h2 className="font-cinzel text-xl text-[#f4e6d0]">Notice Not Found</h2>
-          <Button variant="gold-outline" size="sm" onClick={() => onNavigate('/news')}>
+          <NavigationLink href={'/news'} variant="gold-outline" size="sm" onClick={() => onNavigate('/news')}>
             Return to News &amp; Events
-          </Button>
+          </NavigationLink>
         </div>
       );
     }
@@ -42,13 +43,13 @@ export const NewsView: React.FC<NewsViewProps> = ({ slug, currentSlug, onNavigat
     return (
       <div className="bg-[#0d0d11] min-h-screen py-12 sm:py-20 text-left">
         <div className="max-w-4xl mx-auto px-6 space-y-8">
-          <button
+          <NavigationLink href={'/news'}
             onClick={() => onNavigate('/news')}
             className="inline-flex items-center gap-2 text-xs font-cinzel uppercase tracking-wider text-[#c59b63] hover:text-[#f7f4ee] transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>All Firm Announcements</span>
-          </button>
+          </NavigationLink>
 
           <header className="border-b border-[#22222d] pb-6 space-y-3">
             <div className="flex items-center gap-2 text-[11px] text-[#c59b63] font-cinzel uppercase tracking-widest">
@@ -79,9 +80,9 @@ export const NewsView: React.FC<NewsViewProps> = ({ slug, currentSlug, onNavigat
           </div>
 
           <div className="pt-8 border-t border-[#22222d]">
-            <Button variant="gold-outline" size="sm" onClick={() => onNavigate('/news')}>
+            <NavigationLink href={'/news'} variant="gold-outline" size="sm" onClick={() => onNavigate('/news')}>
               Back to All Announcements
-            </Button>
+            </NavigationLink>
           </div>
         </div>
       </div>
@@ -117,7 +118,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ slug, currentSlug, onNavigat
             });
 
             return (
-              <div
+              <NavigationLink href={`/news/${item.slug}`}
                 key={item.id}
                 onClick={() => onNavigate(`/news/${item.slug}`)}
                 className="group bg-[#121217] border border-[#22222d] hover:border-[#c59b63]/60 transition-all duration-300 p-7 flex flex-col justify-between cursor-pointer"
@@ -151,7 +152,7 @@ export const NewsView: React.FC<NewsViewProps> = ({ slug, currentSlug, onNavigat
                   </span>
                   <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
                 </div>
-              </div>
+              </NavigationLink>
             );
           })}
         </div>

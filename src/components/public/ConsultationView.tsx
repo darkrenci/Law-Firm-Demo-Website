@@ -1,3 +1,4 @@
+import { NavigationLink } from '../ui/NavigationLink';
 import React, { useState } from 'react';
 import { db } from '../../services/db';
 import { Button } from '../ui/Buttons';
@@ -100,9 +101,9 @@ export const ConsultationView: React.FC<ConsultationViewProps> = ({ onNavigate }
             </div>
 
             <div className="pt-6 flex justify-center gap-4">
-              <Button variant="primary" size="md" onClick={() => onNavigate('/')}>
+              <NavigationLink href={'/'} variant="primary" size="md" onClick={() => onNavigate('/')}>
                 Return to Firm Homepage
-              </Button>
+              </NavigationLink>
               <Button
                 variant="gold-outline"
                 size="md"

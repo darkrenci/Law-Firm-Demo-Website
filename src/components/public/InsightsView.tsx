@@ -1,3 +1,4 @@
+import { NavigationLink } from '../ui/NavigationLink';
 import React, { useState } from 'react';
 import { db } from '../../services/db';
 import { Article } from '../../types';
@@ -22,9 +23,9 @@ export const InsightsView: React.FC<InsightsViewProps> = ({ slug, currentSlug, o
       return (
         <div className="py-24 text-center space-y-4">
           <h2 className="font-cinzel text-xl text-[#f4e6d0]">Article Not Found</h2>
-          <Button variant="gold-outline" size="sm" onClick={() => onNavigate('/insights')}>
+          <NavigationLink href={'/insights'} variant="gold-outline" size="sm" onClick={() => onNavigate('/insights')}>
             Back to Insights
-          </Button>
+          </NavigationLink>
         </div>
       );
     }
@@ -183,13 +184,13 @@ const ArticleReadingDetail: React.FC<{
       <div className="max-w-4xl mx-auto px-6 lg:px-8 space-y-10">
         {/* Back Link */}
         <div className="flex items-center justify-between">
-          <button
+          <NavigationLink href={'/insights'}
             onClick={() => onNavigate('/insights')}
             className="inline-flex items-center gap-2 text-xs font-cinzel uppercase tracking-wider text-[#c59b63] hover:text-[#f7f4ee] transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>All Legal Insights</span>
-          </button>
+          </NavigationLink>
           <button
             onClick={handleShare}
             className="inline-flex items-center gap-1.5 text-xs text-[#a8a199] hover:text-[#c59b63] transition-colors cursor-pointer"
@@ -308,9 +309,9 @@ const ArticleReadingDetail: React.FC<{
           <p className="text-xs text-[#a8a199] max-w-md mx-auto">
             Discuss your company’s exposure or transactional structure with our corporate and litigation partners.
           </p>
-          <Button variant="primary" size="md" onClick={() => onNavigate('/consultation')}>
+          <NavigationLink href={'/consultation'} variant="primary" size="md" onClick={() => onNavigate('/consultation')}>
             Initiate Case Inquiry
-          </Button>
+          </NavigationLink>
         </div>
       </div>
     </div>

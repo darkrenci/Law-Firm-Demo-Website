@@ -391,7 +391,7 @@ class DatabaseService {
       let mod = page;
       mod = { ...mod, sections: mod.sections.map(section => {
         if (section.content?.address?.startsWith('110, Unit 20, Suite J, Future Point Plaza Suites')) {
-          changed = true;
+          cleaned = true;
           return { ...section, content: { ...section.content, address: '20th flr., Suite J, Future Point Plaza Suites, 110 Panay Ave., South Triangle, Quezon City.' } };
         }
         return section;

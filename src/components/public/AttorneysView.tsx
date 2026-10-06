@@ -1,3 +1,4 @@
+import { NavigationLink } from '../ui/NavigationLink';
 import React, { useState } from 'react';
 import { db } from '../../services/db';
 import { Attorney } from '../../types';
@@ -41,9 +42,9 @@ export const AttorneysView: React.FC<AttorneysViewProps> = ({ slug, currentSlug,
         <div className="py-24 text-center space-y-4">
           <h2 className="font-cinzel text-xl text-[#f4e6d0]">Partner Not Found</h2>
           <p className="text-xs text-[#a8a199]">The requested partner profile is not available.</p>
-          <Button variant="gold-outline" size="sm" onClick={() => onNavigate('/attorneys')}>
+          <NavigationLink href={'/attorneys'} variant="gold-outline" size="sm" onClick={() => onNavigate('/attorneys')}>
             Return to Partners
-          </Button>
+          </NavigationLink>
         </div>
       );
     }
@@ -138,7 +139,7 @@ const AttorneysDirectory: React.FC<{
             });
 
             return (
-              <div
+              <NavigationLink href={`/attorneys/${attorney.slug}`}
                 key={attorney.id}
                 onClick={() => onNavigate(`/attorneys/${attorney.slug}`)}
                 className="group bg-[#121217] border border-[#22222d] hover:border-[#c59b63]/60 transition-all duration-300 cursor-pointer flex flex-col justify-between"
@@ -198,7 +199,7 @@ const AttorneysDirectory: React.FC<{
                     </span>
                   </div>
                 </div>
-              </div>
+              </NavigationLink>
             );
           })}
         </div>
@@ -231,13 +232,13 @@ const AttorneyProfileDetail: React.FC<{
     <div className="bg-[#0d0d11] min-h-screen py-12 sm:py-20 text-left">
       <div className="max-w-6xl mx-auto px-6 lg:px-12 space-y-12">
         {/* Back Link */}
-        <button
+        <NavigationLink href={'/attorneys'}
           onClick={() => onNavigate('/attorneys')}
           className="inline-flex items-center gap-2 text-xs font-cinzel uppercase tracking-wider text-[#c59b63] hover:text-[#f7f4ee] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Partners</span>
-        </button>
+        </NavigationLink>
 
         {/* Profile Card Header */}
         <div className="bg-[#121217] border border-[#252533] p-8 sm:p-12 grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
@@ -271,14 +272,14 @@ const AttorneyProfileDetail: React.FC<{
                 <span className="font-mono text-[11px]">{attorney.phone}</span>
               </div>
               <div className="pt-2">
-                <Button
+                <NavigationLink href={'/consultation'}
                   variant="primary"
                   size="sm"
                   className="w-full"
                   onClick={() => onNavigate('/consultation')}
                 >
                   Consult With Partner
-                </Button>
+                </NavigationLink>
               </div>
             </div>
           </div>

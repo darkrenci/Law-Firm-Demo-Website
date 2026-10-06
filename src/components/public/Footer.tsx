@@ -1,3 +1,4 @@
+import { NavigationLink } from '../ui/NavigationLink';
 import React, { useState, useEffect } from 'react';
 import { Logo } from '../brand/Logo';
 import { db } from '../../services/db';
@@ -37,9 +38,9 @@ export const Footer: React.FC<FooterProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
           {/* Col 1: Brand & Identity (4 cols) */}
           <div className="min-w-0 lg:col-span-4 space-y-6">
-            <div onClick={() => onNavigate('/')} className="cursor-pointer">
+            <NavigationLink href={'/'} onClick={() => onNavigate('/')} className="cursor-pointer">
               <Logo variant="footer" />
-            </div>
+            </NavigationLink>
             {/*<div className="pt-2">
               <span className="font-cinzel text-[11px] tracking-[0.2em] text-[#c59b63] uppercase block">
                 Established {settings.general.establishedYear} · Quezon City
@@ -58,22 +59,22 @@ export const Footer: React.FC<FooterProps> = ({
             <ul className="space-y-2.5 text-xs">
               {practiceAreas.map((pa) => (
                 <li key={pa.id}>
-                  <button
+                  <NavigationLink href={`/practice-areas/${pa.slug}`}
                     onClick={() => onNavigate(`/practice-areas/${pa.slug}`)}
                     className="hover:text-[#c59b63] transition-colors text-left block"
                   >
                     {pa.title}
-                  </button>
+                  </NavigationLink>
                 </li>
               ))}
               <li>
-                <button
+                <NavigationLink href={'/practice-areas'}
                   onClick={() => onNavigate('/practice-areas')}
                   className="text-[#c59b63] hover:text-[#f7f4ee] transition-colors font-cinzel text-[11px] uppercase tracking-wider pt-1 inline-flex items-center gap-1"
                 >
                   <span>All Practice Areas</span>
                   <span>→</span>
-                </button>
+                </NavigationLink>
               </li>
             </ul>
           </div>
@@ -85,36 +86,36 @@ export const Footer: React.FC<FooterProps> = ({
             </h4>
             <ul className="space-y-2.5 text-xs">
               <li>
-                <button
+                <NavigationLink href={'/about'}
                   onClick={() => onNavigate('/about')}
                   className="hover:text-[#c59b63] transition-colors"
                 >
                   About Lalusis
-                </button>
+                </NavigationLink>
               </li>
               <li>
-                <button
+                <NavigationLink href={'/attorneys'}
                   onClick={() => onNavigate('/attorneys')}
                   className="hover:text-[#c59b63] transition-colors"
                 >
                   Partners
-                </button>
+                </NavigationLink>
               </li>
               <li>
-                <button
+                <NavigationLink href={'/contact'}
                   onClick={() => onNavigate('/contact')}
                   className="hover:text-[#c59b63] transition-colors"
                 >
                   Contact &amp; Chambers
-                </button>
+                </NavigationLink>
               </li>
               <li>
-                <button
+                <NavigationLink href={'/consultation'}
                   onClick={() => onNavigate('/consultation')}
                   className="hover:text-[#c59b63] transition-colors"
                 >
                   Request Consultation
-                </button>
+                </NavigationLink>
               </li>
               {/* Commented out / hidden per user request (can be uncommented to restore):
               <li>
@@ -200,12 +201,12 @@ export const Footer: React.FC<FooterProps> = ({
                 <div className="h-3 w-[1px] bg-[#22222c]" />
               </>
             )}
-            <button
+            <NavigationLink href={'/about'}
               onClick={() => onNavigate('/about')}
               className="hover:text-[#c59b63] transition-colors cursor-pointer"
             >
               Privacy &amp; Privilege
-            </button>
+            </NavigationLink>
             <div className="h-3 w-[1px] bg-[#22222c]" />
             <button
               onClick={onOpenAdmin}

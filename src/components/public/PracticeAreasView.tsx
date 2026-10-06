@@ -1,3 +1,4 @@
+import { NavigationLink } from '../ui/NavigationLink';
 import React from 'react';
 import { db } from '../../services/db';
 import { PracticeArea } from '../../types';
@@ -24,9 +25,9 @@ export const PracticeAreasView: React.FC<PracticeAreasViewProps> = ({ slug, curr
       return (
         <div className="py-24 text-center space-y-4">
           <h2 className="font-cinzel text-xl text-[#f4e6d0]">Practice Area Not Found</h2>
-          <Button variant="gold-outline" size="sm" onClick={() => onNavigate('/practice-areas')}>
+          <NavigationLink href={'/practice-areas'} variant="gold-outline" size="sm" onClick={() => onNavigate('/practice-areas')}>
             Return to All Practices
-          </Button>
+          </NavigationLink>
         </div>
       );
     }
@@ -135,13 +136,13 @@ const PracticeAreaDetail: React.FC<{
     <div className="bg-[#0d0d11] min-h-screen py-12 sm:py-20 text-left">
       <div className="max-w-6xl mx-auto px-6 lg:px-12 space-y-12">
         {/* Back link */}
-        <button
+        <NavigationLink href={'/practice-areas'}
           onClick={() => onNavigate('/practice-areas')}
           className="inline-flex items-center gap-2 text-xs font-cinzel uppercase tracking-wider text-[#c59b63] hover:text-[#f7f4ee] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to All Practice Disciplines</span>
-        </button>
+        </NavigationLink>
 
         {/* Hero Banner for Practice */}
         <div className="bg-[#121217] border border-[#262633] p-8 sm:p-12 space-y-6">
@@ -169,13 +170,13 @@ const PracticeAreaDetail: React.FC<{
           </p>
 
           <div className="pt-2">
-            <Button
+            <NavigationLink href={'/consultation'}
               variant="primary"
               size="md"
               onClick={() => onNavigate('/consultation')}
             >
               Retain Chamber for this Practice
-            </Button>
+            </NavigationLink>
           </div>
         </div>
 
@@ -230,7 +231,7 @@ const PracticeAreaDetail: React.FC<{
               {relevantAttorneys.length > 0 ? (
                 <div className="space-y-4">
                   {relevantAttorneys.map((atty) => (
-                    <div
+                    <NavigationLink href={`/attorneys/${atty.slug}`}
                       key={atty.id}
                       onClick={() => onNavigate(`/attorneys/${atty.slug}`)}
                       className="group flex items-center gap-3 p-2 bg-[#17171e] border border-[#252533] hover:border-[#c59b63]/50 cursor-pointer transition-colors"
@@ -252,7 +253,7 @@ const PracticeAreaDetail: React.FC<{
                           {atty.primarySpecialization}
                         </p>
                       </div>
-                    </div>
+                    </NavigationLink>
                   ))}
                 </div>
               ) : (
@@ -262,14 +263,14 @@ const PracticeAreaDetail: React.FC<{
               )}
 
               <div className="pt-2">
-                <Button
+                <NavigationLink href={'/consultation'}
                   variant="gold-outline"
                   size="sm"
                   className="w-full"
                   onClick={() => onNavigate('/consultation')}
                 >
                   Request Group Review
-                </Button>
+                </NavigationLink>
               </div>
             </div>
           </div>

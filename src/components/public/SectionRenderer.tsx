@@ -1,3 +1,4 @@
+import { NavigationLink } from '../ui/NavigationLink';
 import { submitInquiry } from '../../services/inquiryService';
 import { supabaseService } from '../../services/supabaseService';
 import React, { useState, useEffect, useRef } from 'react';
@@ -1015,7 +1016,7 @@ const RenderSectionItem: React.FC<{
                     )}
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <Button
+                    <NavigationLink href={'/consultation'}
                       variant="gold-outline"
                       size="sm"
                       onClick={() => {
@@ -1025,7 +1026,7 @@ const RenderSectionItem: React.FC<{
                       className="font-cinzel text-xs"
                     >
                       Request Consultation
-                    </Button>
+                    </NavigationLink>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -1190,7 +1191,7 @@ const RenderSectionItem: React.FC<{
                   onSelectPart={onSelectPart}
                 >
                   <div className={`pt-4 flex ${content.buttonAlign === 'center' ? 'justify-center' : content.buttonAlign === 'right' ? 'justify-end' : 'justify-start'}`}>
-                    <Button
+                    <NavigationLink href={content.buttonLink || '/consultation'} target={content.buttonLink?.startsWith('http') ? '_blank' : undefined}
                       variant={(content.buttonVariant as any) || 'primary'}
                       size="lg"
                       className={`${buttonsTypo.fontClass} ${buttonsTypo.sizeClass} ${buttonsTypo.trackingClass} ${buttonsTypo.uppercaseClass} ${buttonsTypo.italicClass}`}
@@ -1204,7 +1205,7 @@ const RenderSectionItem: React.FC<{
                       }}
                     >
                       {content.buttonText}
-                    </Button>
+                    </NavigationLink>
                   </div>
                 </EditablePartWrapper>
               )}
@@ -1233,7 +1234,7 @@ const RenderSectionItem: React.FC<{
               onSelectPart={onSelectPart}
             >
               <div className={`flex items-center ${alignClass} gap-4`}>
-                <Button
+                <NavigationLink href={content.buttonLink || '/consultation'} target={content.buttonLink?.startsWith('http') ? '_blank' : undefined}
                   variant={(content.buttonVariant as any) || 'primary'}
                   size="lg"
                   className={`${buttonsTypo.fontClass} ${buttonsTypo.sizeClass} ${buttonsTypo.trackingClass} ${buttonsTypo.uppercaseClass} ${buttonsTypo.italicClass}`}
@@ -1248,7 +1249,7 @@ const RenderSectionItem: React.FC<{
                 >
                   <span>{content.buttonText || 'Take Action'}</span>
                   {content.buttonLink?.startsWith('http') && <ExternalLink className="w-3.5 h-3.5 ml-2" />}
-                </Button>
+                </NavigationLink>
               </div>
             </EditablePartWrapper>
           </div>
@@ -1357,7 +1358,7 @@ const RenderSectionItem: React.FC<{
                 activeElementPart={activeElementPart}
                 onSelectPart={onSelectPart}
               >
-                <Button
+                <NavigationLink href={content.buttonLink || '/news'}
                   variant="gold-outline"
                   size="sm"
                   onClick={() => onNavigate(content.buttonLink || '/news')}
@@ -1365,7 +1366,7 @@ const RenderSectionItem: React.FC<{
                   style={buttonsTypo.customStyle}
                 >
                   {content.buttonText || 'Browse All Dispatches'}
-                </Button>
+                </NavigationLink>
               </EditablePartWrapper>
             </div>
 
@@ -1489,7 +1490,7 @@ const RenderSectionItem: React.FC<{
                     Lalusis &amp; Partners · Official Record
                   </span>
                   <div className="flex items-center gap-2">
-                    <button
+                    <NavigationLink href={`/news/${selectedNews.slug}`}
                       onClick={() => {
                         setSelectedNews(null);
                         onNavigate(`/news/${selectedNews.slug}`);
@@ -1497,7 +1498,7 @@ const RenderSectionItem: React.FC<{
                       className="px-3 py-1.5 text-xs font-cinzel text-[#c59b63] hover:text-[#f4e6d0] uppercase tracking-wider cursor-pointer"
                     >
                       Full Article &rarr;
-                    </button>
+                    </NavigationLink>
                     <button
                       onClick={() => setSelectedNews(null)}
                       className="px-4 py-1.5 bg-[#c59b63] text-[#0d0d11] font-cinzel text-xs font-bold uppercase tracking-wider hover:bg-[#d4af7a] cursor-pointer"
@@ -1853,7 +1854,7 @@ const RenderSectionItem: React.FC<{
                   onSelectPart={onSelectPart}
                   className={`pt-2 flex ${buttonsTypo.justifyClass}`}
                 >
-                  <Button
+                  <NavigationLink href={content.primaryCtaLink || content.buttonLink || '/about'}
                     variant="gold-outline"
                     size="md"
                     className={`${buttonsTypo.fontClass} ${buttonsTypo.sizeClass} ${buttonsTypo.trackingClass} ${buttonsTypo.uppercaseClass} ${buttonsTypo.italicClass}`}
@@ -1861,7 +1862,7 @@ const RenderSectionItem: React.FC<{
                     onClick={() => onNavigate(content.primaryCtaLink || content.buttonLink || '/about')}
                   >
                     {content.primaryCtaText || content.buttonText}
-                  </Button>
+                  </NavigationLink>
                 </EditablePartWrapper>
               )}
             </div>
@@ -2251,7 +2252,7 @@ const RenderSectionItem: React.FC<{
                           </div>
                         )}
                         <div className="pt-2">
-                          <Button
+                          <NavigationLink href={'/consultation'}
                             variant="primary"
                             size="sm"
                             className="w-full font-cinzel text-xs uppercase"
@@ -2261,7 +2262,7 @@ const RenderSectionItem: React.FC<{
                             }}
                           >
                             {content.requestLabel ?? "Request Consultation"}
-                          </Button>
+                          </NavigationLink>
                         </div>
                       </div>
                     </div>
@@ -2436,7 +2437,7 @@ const RenderSectionItem: React.FC<{
                     {content.registryLabel ?? "Lalusis & Partners · Verified Partner Registry"}
                   </span>
                   <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                    <Button
+                    <NavigationLink href={'/consultation'}
                       variant="gold-outline"
                       size="sm"
                       onClick={() => {
@@ -2446,7 +2447,7 @@ const RenderSectionItem: React.FC<{
                       className="font-cinzel text-xs"
                     >
                       {content.scheduleLabel ?? "Schedule Consultation"}
-                    </Button>
+                    </NavigationLink>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -2593,7 +2594,7 @@ const RenderSectionItem: React.FC<{
                 activeElementPart={activeElementPart}
                 onSelectPart={onSelectPart}
               >
-                <Button
+                <NavigationLink href={content.buttonLink || '/insights'}
                   variant="gold-outline"
                   size="sm"
                   onClick={() => onNavigate(content.buttonLink || '/insights')}
@@ -2601,7 +2602,7 @@ const RenderSectionItem: React.FC<{
                   style={buttonsTypo.customStyle}
                 >
                   {content.buttonText || 'Browse All Insights'}
-                </Button>
+                </NavigationLink>
               </EditablePartWrapper>
             </div>
 
@@ -2860,7 +2861,7 @@ const RenderSectionItem: React.FC<{
               onSelectPart={onSelectPart}
             >
               <div className={`pt-4 flex flex-col sm:flex-row items-center ${buttonsTypo.justifyClass} gap-4`}>
-                <Button
+                <NavigationLink href={content.primaryCtaLink || content.buttonLink || '/consultation'}
                   variant="primary"
                   size="lg"
                   className={`${buttonsTypo.fontClass} ${buttonsTypo.sizeClass} ${buttonsTypo.trackingClass} ${buttonsTypo.uppercaseClass} ${buttonsTypo.italicClass}`}
@@ -2868,8 +2869,8 @@ const RenderSectionItem: React.FC<{
                   onClick={() => onNavigate(content.primaryCtaLink || content.buttonLink || '/consultation')}
                 >
                   {content.primaryCtaText || content.buttonText || 'Initiate Case Evaluation'}
-                </Button>
-                <Button
+                </NavigationLink>
+                <NavigationLink href={content.secondaryCtaLink || '/contact'}
                   variant="gold-outline"
                   size="lg"
                   className={`${buttonsTypo.fontClass} ${buttonsTypo.sizeClass} ${buttonsTypo.trackingClass} ${buttonsTypo.uppercaseClass} ${buttonsTypo.italicClass}`}
@@ -2877,7 +2878,7 @@ const RenderSectionItem: React.FC<{
                   onClick={() => onNavigate(content.secondaryCtaLink || '/contact')}
                 >
                   {content.secondaryCtaText || 'Chambers Contact'}
-                </Button>
+                </NavigationLink>
               </div>
             </EditablePartWrapper>
           </div>

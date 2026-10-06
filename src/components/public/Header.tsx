@@ -1,3 +1,4 @@
+import { NavigationLink } from '../ui/NavigationLink';
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Logo } from '../brand/Logo';
@@ -53,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({
     const keydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setIsMobileMenuOpen(false);
       if (event.key !== 'Tab') return;
-      const buttons = menuPanel.current?.querySelectorAll<HTMLButtonElement>('button:not([disabled])');
+      const buttons = menuPanel.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]');
       if (!buttons?.length) return;
       const first = buttons[0], last = buttons[buttons.length - 1];
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
@@ -155,14 +156,14 @@ export const Header: React.FC<HeaderProps> = ({
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-2 lg:gap-4">
           {/* Brand Logo with responsive spacing */}
-          <button
-            type="button"
+          <NavigationLink href={'/'}
+
             aria-label="Lalusis & Partners home"
             onClick={() => handleLinkClick('/')}
             className="cursor-pointer min-w-0 flex-1 xl:flex-none"
           >
             <Logo variant="header" />
-          </button>
+          </NavigationLink>
 
           {/* Desktop Navigation Links */}
           <nav className="hidden xl:flex items-center gap-2.5 xl:gap-3.5 2xl:gap-6 flex-shrink-0">
@@ -182,7 +183,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onMouseEnter={() => setIsPracticeDropdownOpen(true)}
                       onMouseLeave={() => setIsPracticeDropdownOpen(false)}
                     >
-                      <button
+                      <NavigationLink href={item.path}
                         onClick={() => handleLinkClick(item.path)}
                         className={`flex items-center gap-1 font-cinzel text-[11px] 2xl:text-xs uppercase tracking-[0.1em] 2xl:tracking-[0.16em] py-2 transition-colors cursor-pointer ${
                           isActive
@@ -192,7 +193,7 @@ export const Header: React.FC<HeaderProps> = ({
                       >
                         <span>{item.label}</span>
                         <ChevronDown className="w-3 h-3 text-[#c59b63] transition-transform duration-200 group-hover:rotate-180" />
-                      </button>
+                      </NavigationLink>
 
                       {/* Dropdown Menu */}
                       <div
@@ -206,7 +207,7 @@ export const Header: React.FC<HeaderProps> = ({
                           {item.children
                             .filter((c) => c.isVisible)
                             .map((child) => (
-                              <button
+                              <NavigationLink href={child.path}
                                 key={child.id}
                                 onClick={() => handleLinkClick(child.path)}
                                 className="w-full text-left px-3.5 py-2.5 text-xs text-[#d8cebe] hover:text-[#f4e6d0] hover:bg-[#1a1a23] transition-colors flex items-center justify-between group/child cursor-pointer"
@@ -215,15 +216,15 @@ export const Header: React.FC<HeaderProps> = ({
                                 <span className="text-[#c59b63] opacity-0 group-hover/child:opacity-100 transition-opacity text-xs">
                                   →
                                 </span>
-                              </button>
+                              </NavigationLink>
                             ))}
                           <div className="pt-1.5 px-2">
-                            <button
+                            <NavigationLink href={'/practice-areas'}
                               onClick={() => handleLinkClick('/practice-areas')}
                               className="w-full text-center py-2 font-cinzel text-[11px] text-[#c59b63] hover:text-white uppercase tracking-wider"
                             >
                               View All Disciplines
-                            </button>
+                            </NavigationLink>
                           </div>
                         </div>
                       </div>
@@ -232,7 +233,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }
 
                 return (
-                  <button
+                  <NavigationLink href={item.path}
                     key={item.id}
                     onClick={() => handleLinkClick(item.path)}
                     className={`font-cinzel text-[11px] 2xl:text-xs uppercase tracking-[0.1em] 2xl:tracking-[0.16em] py-1 transition-all duration-200 cursor-pointer ${
@@ -242,7 +243,7 @@ export const Header: React.FC<HeaderProps> = ({
                     }`}
                   >
                     {item.label}
-                  </button>
+                  </NavigationLink>
                 );
               })}
           </nav>
@@ -268,14 +269,14 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Admin CMS</span>
             </button>
 
-            <Button
+            <NavigationLink href={'/consultation'}
               variant="primary"
               size="sm"
               onClick={() => handleLinkClick('/consultation')}
               className="whitespace-nowrap px-3.5 2xl:px-5 py-2 text-xs"
             >
               Request Consultation
-            </Button>
+            </NavigationLink>
           </div>
 
           {/* Mobile Menu & Search triggers */}
@@ -315,22 +316,22 @@ export const Header: React.FC<HeaderProps> = ({
               .filter((item) => item.isVisible)
               .map((item) => (
                 <div key={item.id} className="border-b border-[#1c1c24] pb-3">
-                  <button
+                  <NavigationLink href={item.path}
                     onClick={() => handleLinkClick(item.path)}
-                    className="w-full min-h-11 text-left font-cinzel text-sm uppercase tracking-[0.16em] text-[#f7f4ee] hover:text-[#c59b63] py-2"
+                    className="block w-full min-h-11 text-left font-cinzel text-sm uppercase tracking-[0.16em] text-[#f7f4ee] hover:text-[#c59b63] py-2"
                   >
                     {item.label}
-                  </button>
+                  </NavigationLink>
                   {item.children && (
                     <div className="pl-4 mt-2 space-y-2 border-l border-[#c59b63]/30">
                       {item.children.filter(c => c.isVisible).map((c) => (
-                        <button
+                        <NavigationLink href={c.path}
                           key={c.id}
                           onClick={() => handleLinkClick(c.path)}
                           className="block min-h-11 py-2 text-left text-xs text-[#a8a199] hover:text-[#c59b63]"
                         >
                           {c.label}
-                        </button>
+                        </NavigationLink>
                       ))}
                     </div>
                   )}
@@ -338,14 +339,14 @@ export const Header: React.FC<HeaderProps> = ({
               ))}
 
             <div className="pt-4">
-              <Button
+              <NavigationLink href={'/consultation'}
                 variant="primary"
                 size="lg"
                 className="w-full"
                 onClick={() => handleLinkClick('/consultation')}
               >
                 Request Consultation
-              </Button>
+              </NavigationLink>
             </div>
           </div>
 

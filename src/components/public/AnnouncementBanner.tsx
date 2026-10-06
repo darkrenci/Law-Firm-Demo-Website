@@ -1,3 +1,4 @@
+import { NavigationLink } from '../ui/NavigationLink';
 import React, { useState, useEffect } from 'react';
 import { db } from '../../services/db';
 import { NewsItem } from '../../types';
@@ -129,7 +130,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({ onNaviga
                 Lalusis &amp; Partners · Attorneys at Law
               </span>
               <div className="flex items-center gap-2">
-                <button
+                <NavigationLink href={'/news'}
                   onClick={() => {
                     setIsModalOpen(false);
                     onNavigate('/news');
@@ -137,7 +138,7 @@ export const AnnouncementBanner: React.FC<AnnouncementBannerProps> = ({ onNaviga
                   className="px-3 py-1.5 text-xs font-cinzel text-[#c59b63] hover:text-[#f4e6d0] uppercase tracking-wider cursor-pointer"
                 >
                   View All News &rarr;
-                </button>
+                </NavigationLink>
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-1.5 bg-[#c59b63] text-[#0d0d11] font-cinzel text-xs font-bold uppercase tracking-wider hover:bg-[#d4af7a] cursor-pointer"

@@ -1,3 +1,4 @@
+import { NavigationLink } from '../ui/NavigationLink';
 import React, { useState } from 'react';
 import { db } from '../../services/db';
 import { FAQItem, FAQCategory } from '../../types';
@@ -147,12 +148,12 @@ export const FAQsView: React.FC<FAQsViewProps> = ({ onNavigate }) => {
             Our Managing Partner and practice group chairs are available for confidential consultations.
           </p>
           <div className="pt-2 flex justify-center gap-4">
-            <Button variant="primary" size="md" onClick={() => onNavigate('/consultation')}>
+            <NavigationLink href={'/consultation'} variant="primary" size="md" onClick={() => onNavigate('/consultation')}>
               Request Consultation
-            </Button>
-            <Button variant="gold-outline" size="md" onClick={() => onNavigate('/contact')}>
+            </NavigationLink>
+            <NavigationLink href={'/contact'} variant="gold-outline" size="md" onClick={() => onNavigate('/contact')}>
               Direct Contact
-            </Button>
+            </NavigationLink>
           </div>
         </div>
       </div>
