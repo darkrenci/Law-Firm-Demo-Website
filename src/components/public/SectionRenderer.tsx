@@ -684,9 +684,6 @@ const RenderSectionItem: React.FC<{
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#c59b63_1px,transparent_1px)] [background-size:24px_24px]" />
           
           <div className={`max-w-6xl mx-auto px-6 lg:px-12 relative z-10 ${headTypo.alignClass} space-y-8`}>
-            {(pageSlug === '' || pageSlug === 'home') && (
-              <p className="font-cinzel text-sm tracking-widest text-[#c59b63]">{db.getSettings().general.tagline}</p>
-            )}
             {/* Header 1 (Main Headline) */}
             <EditablePartWrapper
               editMode={editMode}
