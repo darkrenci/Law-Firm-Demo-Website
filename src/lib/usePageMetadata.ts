@@ -23,6 +23,38 @@ function setMeta(key: string, value: string, property = false) {
 export function usePageMetadata(path: string) {
   useEffect(() => {
     const update = () => {
+      const { settings, slug, title, description, noindex } = resolvePageMetadata(path);
+      const origin = siteOrigin(import.meta.env.VITE_SITE_URL || undefined);
+      const canonical = origin + (slug === 'home' ? '/' : '/' + slug.replace(/^partners\//, 'attorneys/'));
+      let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+      if (noindex) link?.remove();
+      else {
+        if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link); }
+        link.href = canonical;
+      }
+      setMeta('og:url', canonical, true);
+      setMeta('og:image', origin + '/assets/founding-partners.jpg', true);
+      setMeta('twitter:image', origin + '/assets/founding-partners.jpg');
+      let schema = document.getElementById('business-schema');
+      if (noindex) schema?.remove();
+      else {
+        if (!schema) { schema = document.createElement('script'); schema.id = 'business-schema'; schema.setAttribute('type', 'application/ld+json'); document.head.appendChild(schema); }
+        schema.textContent = JSON.stringify(businessSchema(settings, origin));
+      }
+      document.title = title;
+      setMeta('description', description);
+      setMeta('og:title', title, true);
+      setMeta('og:description', description, true);
+      setMeta('twitter:title', title);
+      setMeta('twitter:description', description);
+      setMeta('robots', noindex ? 'noindex, nofollow' : 'index, follow');
+    };
+    update();
+    return db.subscribe(update);
+  }, [path]);
+}
+
+export function resolvePageMetadata(path: string) {
       const settings = db.getSettings();
       const brand = clean(settings.general.firmName) || 'Lalusis & Partners';
       let slug = path.split(/[?#]/)[0].replace(/^\/+|\/+$/g, '') || 'home';
@@ -56,32 +88,6 @@ export function usePageMetadata(path: string) {
       }
       title ||= (defaults[slug]?.[0] || clean(page?.title) || 'Legal Services') + ' | ' + brand;
       description ||= defaults[slug]?.[1] || 'Learn about ' + clean(page?.title) + ' at ' + brand + ' in Quezon City. Contact our office for further information.';
-      const origin = siteOrigin(import.meta.env.VITE_SITE_URL || undefined);
-      const canonical = origin + (slug === 'home' ? '/' : '/' + slug.replace(/^partners\//, 'attorneys/'));
-      let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
-      if (noindex) link?.remove();
-      else {
-        if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link); }
-        link.href = canonical;
-      }
-      setMeta('og:url', canonical, true);
-      setMeta('og:image', origin + '/assets/founding-partners.jpg', true);
-      setMeta('twitter:image', origin + '/assets/founding-partners.jpg');
-      let schema = document.getElementById('business-schema');
-      if (noindex) schema?.remove();
-      else {
-        if (!schema) { schema = document.createElement('script'); schema.id = 'business-schema'; schema.setAttribute('type', 'application/ld+json'); document.head.appendChild(schema); }
-        schema.textContent = JSON.stringify(businessSchema(settings, origin));
-      }
-      document.title = title;
-      setMeta('description', description);
-      setMeta('og:title', title, true);
-      setMeta('og:description', description, true);
-      setMeta('twitter:title', title);
-      setMeta('twitter:description', description);
-      setMeta('robots', noindex ? 'noindex, nofollow' : 'index, follow');
-    };
-    update();
-    return db.subscribe(update);
-  }, [path]);
+
+  return { settings, slug, title, description, noindex };
 }

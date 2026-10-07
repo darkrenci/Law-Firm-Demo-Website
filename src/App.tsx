@@ -39,9 +39,9 @@ const AuditLogs = lazy(() => import('./components/admin/AuditLogs').then(module 
 const AdminLogin = lazy(() => import('./components/admin/AdminLogin').then(module => ({ default: module.AdminLogin })));
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 
-export default function App() {
+export default function App({ initialPath = '/', prerender = false }: { initialPath?: string; prerender?: boolean } = {}) {
   const [currentPath, setCurrentPath] = useState<string>(
-    typeof window !== 'undefined' ? window.location.pathname || '/' : '/'
+    typeof window !== 'undefined' ? window.location.pathname || '/' : initialPath
   );
   usePageMetadata(currentPath);
   useEffect(() => {
@@ -69,6 +69,7 @@ export default function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [pages, setPages] = useState<Page[]>(db.getPages());
   const [showOpeningScreen, setShowOpeningScreen] = useState<boolean>(() => {
+    if (prerender || (typeof document !== 'undefined' && document.getElementById('root')?.hasChildNodes())) return false;
     // If directly loading admin dashboard, don't show the public site opening screen
     if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) {
       return false;

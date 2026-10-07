@@ -55,6 +55,7 @@ const DB_KEYS = {
 type Listener = () => void;
 
 class DatabaseService {
+  private initialSnapshot: Record<string, string> = typeof document === 'undefined' ? {} : JSON.parse(document.getElementById('public-snapshot')?.textContent || '{}');
   private listeners: Set<Listener> = new Set();
   private verifiedAdmin: User | null = null;
   private privateGeneration = 0;
@@ -73,7 +74,7 @@ class DatabaseService {
 
   constructor() {
     this.setVerifiedAdmin(null);
-    this.initSupabaseSync();
+    if (typeof window !== 'undefined') this.initSupabaseSync();
     if (typeof window !== 'undefined') {
       window.addEventListener('focus', () => { void this.refreshFromSupabase(); });
       window.addEventListener('online', () => { void this.refreshFromSupabase(); });
@@ -214,7 +215,7 @@ class DatabaseService {
   private load<T>(key: string, defaultValue: T): T {
     if (this.privateKeys.has(key)) return (this.verifiedAdmin ? this.privateCache.get(key) as T : undefined) ?? defaultValue;
     try {
-      const stored = localStorage.getItem(key);
+      const stored = this.initialSnapshot[key] ?? localStorage.getItem(key);
       if (stored) {
         return JSON.parse(stored);
       }
@@ -225,6 +226,7 @@ class DatabaseService {
   }
 
   private save<T>(key: string, value: T): void {
+    delete this.initialSnapshot[key];
     if (this.privateKeys.has(key)) {
       if (this.verifiedAdmin) this.privateCache.set(key, value);
       this.notify();

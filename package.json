@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "npm run generate:seo && vite build",
+    "build": "npm run generate:seo && vite build && npm run prerender",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "generate:seo": "tsx scripts/generate-seo.ts"
+    "generate:seo": "tsx scripts/generate-seo.ts",
+    "prerender": "tsx scripts/prerender.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

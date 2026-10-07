@@ -2,28 +2,8 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/sitemap.xml",
-      "destination": "/sitemap.xml"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "/robots.txt"
-    },
-    {
-      "source": "/site.webmanifest",
-      "destination": "/site.webmanifest"
-    },
-    {
-      "source": "/business-schema.json",
-      "destination": "/business-schema.json"
-    },
-    {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/admin/:path*",
+      "destination": "/admin.html"
     }
   ],
   "installCommand": "npm install",
@@ -63,6 +43,19 @@
           "value": "noindex, nofollow"
         }
       ]
+    }
+  ],
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/partners",
+      "destination": "/attorneys",
+      "permanent": true
+    },
+    {
+      "source": "/partners/:slug",
+      "destination": "/attorneys/:slug",
+      "permanent": true
     }
   ]
 }

@@ -14,3 +14,11 @@ The manifest describes browser presentation; it does not guarantee indexing or o
 After deployment, verify /sitemap.xml returns XML, /robots.txt returns text, and /site.webmanifest returns JSON. Vercel configuration explicitly serves these files. On another host, serve static files before the SPA fallback, preserve the admin noindex header, and configure the API separately.
 
 Verify your domain in Google Search Console, submit sitemap.xml, and inspect representative pages. Test business markup with Google's Rich Results Test. robots.txt is crawl guidance, not access control; admin authentication remains required. Admin URLs stay crawlable so their noindex directive can be read.
+
+## Public HTML pre-rendering
+
+npm run build now also runs npm run prerender, creating HTML for the sitemap routes plus 404.html and a separate admin.html shell. The server renderer reads public CMS data only and fails if configured CMS reads fail. Public build snapshots keep the initial browser render consistent with the delivered HTML; live CMS refresh still runs afterward. Redeploy when publishing content so search engines and visitors without JavaScript receive current HTML.
+
+Vercel clean URLs serve the generated pages; there is no general SPA catch-all. Unknown routes return 404. Admin routes use the noindex shell, and API functions remain native Vercel endpoints. Partners aliases redirect to attorneys URLs. When moving hosts, configure equivalent clean-URL, redirect, API and custom-404 behavior; do not rewrite every unknown route to index.html.
+
+Public forms become interactive when JavaScript loads. This is static pre-rendering followed by React client rendering, not a continuously running SSR server. The opening overlay is skipped on pre-rendered arrivals to keep content visible immediately.
