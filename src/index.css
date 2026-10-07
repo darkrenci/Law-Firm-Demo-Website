@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --font-playfair: 'Playfair Display', Georgia, serif;
   --font-cinzel: 'Cinzel', serif;
   --font-cormorant: 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;

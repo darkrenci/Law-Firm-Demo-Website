@@ -1,5 +1,5 @@
 import { usePageMetadata } from './lib/usePageMetadata';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { db } from './services/db';
 import { Page } from './types';
 import { ToastProvider } from './components/ui/Toast';
@@ -22,20 +22,21 @@ import { ContactView } from './components/public/ContactView';
 import { ConsultationView } from './components/public/ConsultationView';
 
 // Admin Components
-import { AdminLayout, AdminTab } from './components/admin/AdminLayout';
-import { AdminDashboard } from './components/admin/AdminDashboard';
-import { PageManager } from './components/admin/PageManager';
-import { AttorneyManager } from './components/admin/AttorneyManager';
-import { PracticeAreaManager } from './components/admin/PracticeAreaManager';
-import { ArticleManager } from './components/admin/ArticleManager';
-import { NewsManager } from './components/admin/NewsManager';
-import { FAQManager } from './components/admin/FAQManager';
-import { ConsultationManager } from './components/admin/ConsultationManager';
-import { MessageManager } from './components/admin/MessageManager';
-import { MediaLibrary } from './components/admin/MediaLibrary';
-import { SettingsManager } from './components/admin/SettingsManager';
-import { AuditLogs } from './components/admin/AuditLogs';
-import { AdminLogin } from './components/admin/AdminLogin';
+import type { AdminTab } from './components/admin/AdminLayout';
+const AdminLayout = lazy(() => import('./components/admin/AdminLayout').then(module => ({ default: module.AdminLayout })));
+const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
+const PageManager = lazy(() => import('./components/admin/PageManager').then(module => ({ default: module.PageManager })));
+const AttorneyManager = lazy(() => import('./components/admin/AttorneyManager').then(module => ({ default: module.AttorneyManager })));
+const PracticeAreaManager = lazy(() => import('./components/admin/PracticeAreaManager').then(module => ({ default: module.PracticeAreaManager })));
+const ArticleManager = lazy(() => import('./components/admin/ArticleManager').then(module => ({ default: module.ArticleManager })));
+const NewsManager = lazy(() => import('./components/admin/NewsManager').then(module => ({ default: module.NewsManager })));
+const FAQManager = lazy(() => import('./components/admin/FAQManager').then(module => ({ default: module.FAQManager })));
+const ConsultationManager = lazy(() => import('./components/admin/ConsultationManager').then(module => ({ default: module.ConsultationManager })));
+const MessageManager = lazy(() => import('./components/admin/MessageManager').then(module => ({ default: module.MessageManager })));
+const MediaLibrary = lazy(() => import('./components/admin/MediaLibrary').then(module => ({ default: module.MediaLibrary })));
+const SettingsManager = lazy(() => import('./components/admin/SettingsManager').then(module => ({ default: module.SettingsManager })));
+const AuditLogs = lazy(() => import('./components/admin/AuditLogs').then(module => ({ default: module.AuditLogs })));
+const AdminLogin = lazy(() => import('./components/admin/AdminLogin').then(module => ({ default: module.AdminLogin })));
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 
 export default function App() {
@@ -43,6 +44,24 @@ export default function App() {
     typeof window !== 'undefined' ? window.location.pathname || '/' : '/'
   );
   usePageMetadata(currentPath);
+  useEffect(() => {
+    let observer: MutationObserver;
+    const loadOptionalFont = () => {
+      if (!document.querySelector('.font-playfair')) return;
+      if (!document.getElementById('optional-playfair-font')) {
+        const link = document.createElement('link');
+        link.id = 'optional-playfair-font';
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap';
+        document.head.appendChild(link);
+      }
+      observer?.disconnect();
+    };
+    observer = new MutationObserver(loadOptionalFont);
+    observer.observe(document.getElementById('root')!, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+    loadOptionalFont();
+    return () => observer.disconnect();
+  }, []);
   const [adminTab, setAdminTab] = useState<AdminTab>('dashboard');
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
@@ -145,16 +164,19 @@ export default function App() {
     if (!isAdminAuthenticated) {
       return (
         <ToastProvider>
+        <Suspense fallback={<div role="status" className="min-h-screen bg-[#0d0d11] text-[#f7f4ee] p-8">Loading admin screen...</div>}>
           <AdminLogin
             onSuccess={() => setAuthRefresh(value => value + 1)}
             onCancel={() => handleNavigate('/')}
           />
+        </Suspense>
         </ToastProvider>
       );
     }
 
     return (
       <ToastProvider>
+        <Suspense fallback={<div role="status" className="min-h-screen bg-[#0d0d11] text-[#f7f4ee] p-8">Loading admin screen...</div>}>
         <AdminLayout
           currentTab={adminTab}
           onTabChange={(tab) => setAdminTab(tab)}
@@ -184,7 +206,8 @@ export default function App() {
           isOpen={showOpeningScreen}
           onComplete={() => setShowOpeningScreen(false)}
         />
-      </ToastProvider>
+      </Suspense>
+        </ToastProvider>
     );
   }
 

@@ -4,7 +4,7 @@ import { db } from '../../services/db';
 import { PracticeArea } from '../../types';
 import { Button } from '../ui/Buttons';
 import { Scale, ArrowLeft, ArrowRight, CheckCircle2, Shield, Users } from 'lucide-react';
-import { resolveItemTypography } from '../admin/ItemTypographyControls';
+import { resolveItemTypography } from '../../lib/itemTypography';
 
 interface PracticeAreasViewProps {
   slug?: string;

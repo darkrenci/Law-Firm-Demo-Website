@@ -4,7 +4,7 @@ import { db } from '../../services/db';
 import { NewsItem } from '../../types';
 import { Button } from '../ui/Buttons';
 import { Calendar, Tag, ArrowLeft, ArrowRight, Award, Bell } from 'lucide-react';
-import { resolveItemTypography } from '../admin/ItemTypographyControls';
+import { resolveItemTypography } from '../../lib/itemTypography';
 
 interface NewsViewProps {
   slug?: string;

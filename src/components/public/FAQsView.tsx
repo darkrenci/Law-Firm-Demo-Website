@@ -4,7 +4,7 @@ import { db } from '../../services/db';
 import { FAQItem, FAQCategory } from '../../types';
 import { Button } from '../ui/Buttons';
 import { Search, ChevronDown, HelpCircle, ArrowRight } from 'lucide-react';
-import { resolveItemTypography } from '../admin/ItemTypographyControls';
+import { resolveItemTypography } from '../../lib/itemTypography';
 
 interface FAQsViewProps {
   onNavigate: (path: string) => void;

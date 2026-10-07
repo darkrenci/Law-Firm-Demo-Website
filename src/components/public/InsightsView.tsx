@@ -5,7 +5,7 @@ import { Article } from '../../types';
 import { Button } from '../ui/Buttons';
 import { BookOpen, Calendar, Clock, User, ArrowLeft, ArrowRight, Share2, Tag } from 'lucide-react';
 import { useToast } from '../ui/Toast';
-import { resolveItemTypography } from '../admin/ItemTypographyControls';
+import { resolveItemTypography } from '../../lib/itemTypography';
 
 interface InsightsViewProps {
   slug?: string;

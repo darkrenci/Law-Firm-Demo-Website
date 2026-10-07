@@ -14,7 +14,7 @@ import {
   Search,
   ChevronRight,
 } from 'lucide-react';
-import { resolveItemTypography } from '../admin/ItemTypographyControls';
+import { resolveItemTypography } from '../../lib/itemTypography';
 
 export const getPartnerOfficialPortrait = (fullName?: string, slug?: string, id?: string) => {
   const s = `${fullName || ''} ${slug || ''} ${id || ''}`.toLowerCase();

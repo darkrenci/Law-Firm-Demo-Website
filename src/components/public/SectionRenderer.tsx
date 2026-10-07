@@ -32,7 +32,7 @@ import {
   GraduationCap,
 } from 'lucide-react';
 import { useToast } from '../ui/Toast';
-import { resolveItemTypography } from '../admin/ItemTypographyControls';
+import { resolveItemTypography } from '../../lib/itemTypography';
 
 const getPartnerOfficialPortrait = (fullName?: string, slug?: string, id?: string) => {
   const s = `${fullName || ''} ${slug || ''} ${id || ''}`.toLowerCase();
