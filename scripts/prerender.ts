@@ -20,7 +20,7 @@ try {
   // Keep a separate empty shell exclusively for the authenticated application.
   await writeFile('dist/admin.html', template.replace('</head>', '<meta name="robots" content="noindex, nofollow" /></head>'));
   const sitemap = await readFile('dist/sitemap.xml', 'utf8');
-  const paths = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(match => new URL(match[1].replace(/&amp;/g, '&')).pathname);
+  const paths: string[] = JSON.parse(await readFile('.prerender-routes.json', 'utf8'));
   const escape = (text: string) => text.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!);
   for (const path of [...new Set(['/', ...paths]), '/404']) {
     const result = entry.render(decodeURI(path));

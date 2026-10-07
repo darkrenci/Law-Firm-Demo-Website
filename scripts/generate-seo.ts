@@ -25,7 +25,8 @@ const settings = settingsRows?.[0]?.settings || initialSettings;
 if (settings.contact.address?.startsWith('110, Unit 20, Suite J, Future Point Plaza Suites')) {
   settings.contact.address = initialSettings.contact.address;
 }
-const paths = new Set<string>();
+// These routes have built-in public view fallbacks even when CMS rows are absent.
+const paths = new Set<string>(['/', '/about', '/attorneys', '/practice-areas', '/contact', '/consultation']);
 const retired = new Set(['insights', 'news', 'faqs']);
 function pagePath(slug: string) {
   return slug === 'home' || !slug ? '/' : slug === 'partners' ? '/attorneys' : '/' + slug;
@@ -36,13 +37,17 @@ for (const page of pages ?? initialPages.map(p => ({ slug: p.slug, is_published:
 for (const item of attorneys ?? initialAttorneys.map(a => ({ slug: a.slug, is_published: a.isPublished }))) {
   if (item.is_published) paths.add('/attorneys/' + item.slug);
 }
-for (const item of practices ?? initialPracticeAreas.map(a => ({ slug: a.slug, is_published: a.status === 'published' }))) {
+// Match DatabaseService.getPracticeAreas' legacy standardized-list fallback.
+const effectivePractices = !practices || practices.length < 14 || !practices.some(p => p.slug === 'criminal-and-administrative-litigation')
+  ? initialPracticeAreas.map(a => ({ slug: a.slug, is_published: a.status === 'published' })) : practices;
+for (const item of effectivePractices) {
   if (item.is_published) paths.add('/practice-areas/' + item.slug);
 }
 const escapeXml = (value: string) => value.replace(/[<>&"']/g, char => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[char]!);
 const publicPaths = settings.seo?.indexSite === false ? [] : [...paths].sort();
 const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + publicPaths.map(path => '  <url><loc>' + escapeXml(origin + path.split('/').map(encodeURIComponent).join('/')) + '</loc></url>').join('\n') + '\n</urlset>\n';
 await mkdir('public', { recursive: true });
+await writeFile('.prerender-routes.json', JSON.stringify([...paths].sort()));
 await Promise.all([
   writeFile('public/sitemap.xml', sitemap),
   // Keep admin crawlable so its noindex response can be seen; authentication protects it.
