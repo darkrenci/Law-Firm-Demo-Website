@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://lawfirmdemowebsite.vercel.app/sitemap.xml

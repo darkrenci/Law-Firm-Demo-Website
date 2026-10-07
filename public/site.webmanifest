@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "Lalusis & Partners",
+  "short_name": "Lalusis & Partners",
+  "description": "Legal counsel and representation in Quezon City.",
+  "lang": "en-PH",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#0d0d11",
+  "theme_color": "#0d0d11",
+  "icons": [
+    {
+      "src": "/assets/lalusis-logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
