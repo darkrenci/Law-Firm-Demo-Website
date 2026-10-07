@@ -320,7 +320,7 @@ const PracticeEditModal: React.FC<{
           </label>
           <textarea
             rows={5}
-            value={form.detailedDescription}
+            value={form.detailedDescription ?? form.fullDescription ?? ''}
             onChange={(e) => setForm({ ...form, detailedDescription: e.target.value })}
             className="w-full bg-[#0d0d11] border border-[#2a2a35] p-2.5 text-xs text-[#f7f4ee] focus:outline-none leading-relaxed"
           />

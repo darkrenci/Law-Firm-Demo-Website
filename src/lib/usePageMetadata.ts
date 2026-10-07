@@ -40,9 +40,10 @@ export function usePageMetadata(path: string) {
         description = attorney ? 'Meet ' + attorney.fullName + ' at ' + brand + ' in Quezon City. Read their professional biography and qualifications.' : 'The requested partner profile is unavailable.';
         noindex ||= !attorney;
       } else if (slug.startsWith('practice-areas/')) {
-        // Detail pages are disabled: describe the directory actually shown.
-        title = defaults['practice-areas'][0] + ' | ' + brand;
-        description = defaults['practice-areas'][1];
+        const area = db.getPracticeAreas(false).find(item => item.slug === slug.split('/')[1]);
+        title = area ? clean(area.seoTitle) || area.title + ' in Quezon City | ' + brand : 'Practice Area Not Found | ' + brand;
+        description = area ? clean(area.seoDescription) || clean(area.shortDescription) : 'The requested practice area is unavailable.';
+        noindex ||= !area;
       } else if (slug.startsWith('admin')) {
         title = 'Admin Portal | ' + brand;
         description = 'Authorized website administration.';

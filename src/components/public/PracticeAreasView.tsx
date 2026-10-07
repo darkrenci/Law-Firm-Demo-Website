@@ -12,15 +12,15 @@ interface PracticeAreasViewProps {
   onNavigate: (path: string) => void;
 }
 
-// Practice area popups & detail pages disabled/hidden for now per user request; preserved to easily re-enable later
-const ENABLE_PRACTICE_POPUP = false;
+// Published practices have dedicated, crawlable detail pages.
+const ENABLE_PRACTICE_DETAILS = true;
 
 export const PracticeAreasView: React.FC<PracticeAreasViewProps> = ({ slug, currentSlug, onNavigate }) => {
   const activeSlug = slug || currentSlug;
   const practiceAreas = db.getPracticeAreas(false);
 
-  if (ENABLE_PRACTICE_POPUP && activeSlug) {
-    const area = db.getPracticeAreaBySlug(activeSlug);
+  if (ENABLE_PRACTICE_DETAILS && activeSlug) {
+    const area = practiceAreas.find(item => item.slug === activeSlug);
     if (!area) {
       return (
         <div className="py-24 text-center space-y-4">
@@ -64,9 +64,9 @@ export const PracticeAreasView: React.FC<PracticeAreasViewProps> = ({ slug, curr
             return (
               <div
                 key={area.id}
-                onClick={ENABLE_PRACTICE_POPUP ? () => onNavigate(`/practice-areas/${area.slug}`) : undefined}
+                
                 className={`group bg-[#121217] border border-[#22222d] transition-all duration-300 p-8 flex flex-col justify-between select-text ${
-                  ENABLE_PRACTICE_POPUP ? 'hover:border-[#c59b63]/60 cursor-pointer' : 'cursor-default'
+                  ENABLE_PRACTICE_DETAILS ? 'hover:border-[#c59b63]/60 cursor-pointer' : 'cursor-default'
                 }`}
               >
                 <div className="space-y-4">
@@ -77,7 +77,7 @@ export const PracticeAreasView: React.FC<PracticeAreasViewProps> = ({ slug, curr
                     style={titleTypo.customStyle}
                     className={`${titleTypo.fontClass} ${titleTypo.sizeClass} ${titleTypo.colorClass} font-medium`}
                   >
-                    {area.title}
+                    <NavigationLink href={`/practice-areas/${area.slug}`} onClick={() => onNavigate(`/practice-areas/${area.slug}`)}>{area.title}</NavigationLink>
                   </h3>
                   <p
                     style={descTypo.customStyle}
@@ -88,7 +88,7 @@ export const PracticeAreasView: React.FC<PracticeAreasViewProps> = ({ slug, curr
                 </div>
 
                 {/* Explore Scope action link - hidden for now per user request, preserved to re-enable later */}
-                {ENABLE_PRACTICE_POPUP && (
+                {ENABLE_PRACTICE_DETAILS && (
                   <div className="pt-6 mt-6 border-t border-[#1d1d26] flex items-center justify-between text-xs text-[#c59b63]">
                     <span className="font-cinzel text-[10px] tracking-wider uppercase">
                       Explore Scope
@@ -112,7 +112,7 @@ const PracticeAreaDetail: React.FC<{
   const attorneys = db.getAttorneys(false);
   const relevantAttorneys = attorneys.filter(
     (a) =>
-      a.practiceAreaIds?.includes(area.id) ||
+      area.relatedAttorneyIds?.includes(a.id) || a.practiceAreaIds?.includes(area.id) ||
       a.primarySpecialization.toLowerCase().includes(area.title.toLowerCase())
   );
 
@@ -151,7 +151,7 @@ const PracticeAreaDetail: React.FC<{
               <Scale className="w-5 h-5" />
             </div>
             <span className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#c59b63] uppercase">
-              Institutional Practice Group
+              Legal Services in Quezon City
             </span>
           </div>
 
@@ -175,7 +175,7 @@ const PracticeAreaDetail: React.FC<{
               size="md"
               onClick={() => onNavigate('/consultation')}
             >
-              Retain Chamber for this Practice
+              Request a Consultation
             </NavigationLink>
           </div>
         </div>
@@ -191,14 +191,23 @@ const PracticeAreaDetail: React.FC<{
                 style={bodyTypo.customStyle}
                 className={`${bodyTypo.fontClass} ${bodyTypo.sizeClass} ${bodyTypo.colorClass} space-y-4 leading-relaxed`}
               >
-                {(area.detailedDescription || area.shortDescription)
-                  .split('\n\n')
-                  .map((p, i) => (
-                    <p key={i}>{p}</p>
-                  ))}
+                <PracticeCopy text={area.detailedDescription || area.fullDescription || area.shortDescription} />
               </div>
             </div>
 
+            <section className="bg-[#121217] border border-[#22222d] p-6 sm:p-8 space-y-4">
+              <h2 className="font-cormorant text-2xl">Discuss your {area.title.toLowerCase()} matter</h2>
+              <p className="text-sm text-[#c8c0b4] leading-relaxed">Contact our Quezon City office with a brief summary of your matter, the parties involved, and any known dates or deadlines. The initial inquiry helps the firm assess the appropriate next steps.</p>
+              <p className="text-sm text-[#c8c0b4] leading-relaxed">Prepare a timeline and a list of relevant documents for discussion. Please avoid sending confidential documents through the initial inquiry form until the firm confirms how to share them.</p>
+              <NavigationLink href="/contact" onClick={() => onNavigate('/contact')} className="inline-block text-[#c59b63] underline">Office location and contact details</NavigationLink>
+            </section>
+
+            {area.faqs && area.faqs.length > 0 && (
+              <section className="bg-[#121217] border border-[#22222d] p-6 sm:p-8 space-y-5">
+                <h2 className="font-cormorant text-2xl">Questions about {area.title.toLowerCase()}</h2>
+                {area.faqs.map((faq, index) => <div key={index} className="space-y-2"><h3 className="text-sm font-semibold text-[#f4e6d0]">{faq.question}</h3><PracticeCopy text={faq.answer} /></div>)}
+              </section>
+            )}
             {/* Core Services Breakdown */}
             {area.keyServices && area.keyServices.length > 0 && (
               <div className="bg-[#121217] border border-[#22222d] p-8 space-y-6">
@@ -279,3 +288,13 @@ const PracticeAreaDetail: React.FC<{
     </div>
   );
 };
+
+// Render the CMS's basic text formatting without injecting HTML.
+function PracticeCopy({ text }: { text: string }) {
+  const inline = (line: string) => line.split(/(\*\*[^*]+\*\*)/g).map((part, i) => part.startsWith('**') ? <strong key={i}>{part.slice(2, -2)}</strong> : part);
+  return <>{text.split(/\n\s*\n/).filter(Boolean).map((block, i) => {
+    const lines = block.split('\n');
+    if (lines.every(line => /^[-*] /.test(line))) return <ul key={i} className="list-disc pl-5 space-y-2">{lines.map((line, j) => <li key={j}>{inline(line.slice(2))}</li>)}</ul>;
+    return <div key={i} className="space-y-2 text-sm leading-relaxed text-[#c8c0b4]">{lines.map((line, j) => /^#{1,6} /.test(line) ? <h3 key={j} className="text-base font-semibold text-[#f4e6d0]">{inline(line.replace(/^#{1,6} /, ''))}</h3> : <p key={j}>{inline(line)}</p>)}</div>;
+  })}</>;
+}

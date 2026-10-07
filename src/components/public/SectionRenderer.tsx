@@ -1937,8 +1937,8 @@ const RenderSectionItem: React.FC<{
                     color: 'text-[#a8a199]',
                   });
 
-                  // Practice area popups & clicks disabled/hidden for now per user request; preserved to easily re-enable later
-                  const ENABLE_PRACTICE_POPUP = false;
+                  // Published practice cards link to dedicated service pages.
+                  const ENABLE_PRACTICE_DETAILS = true;
 
                   return (
                     <div
@@ -1946,12 +1946,10 @@ const RenderSectionItem: React.FC<{
                       onClick={
                         editMode
                           ? () => onSelectPart?.('cards')
-                          : ENABLE_PRACTICE_POPUP
-                          ? () => onNavigate(`/practice-areas/${area.slug}`)
                           : undefined
                       }
                       className={`group bg-[#111116] border border-[#22222d] p-8 transition-all duration-300 flex flex-col justify-between text-left select-text ${
-                        ENABLE_PRACTICE_POPUP
+                        ENABLE_PRACTICE_DETAILS
                           ? 'hover:border-[#c59b63]/60 cursor-pointer'
                           : 'cursor-default'
                       }`}
@@ -1964,7 +1962,7 @@ const RenderSectionItem: React.FC<{
                           style={{ ...cardsTypo.customStyle, ...itemTitleTypo.customStyle }}
                           className={`${itemTitleTypo.fontClass} ${itemTitleTypo.sizeClass} ${cardsTypo.weightClass || 'font-light'} ${itemTitleTypo.colorClass} ${cardsTypo.trackingClass} ${cardsTypo.uppercaseClass} ${cardsTypo.italicClass}`}
                         >
-                          {area.title}
+                          {editMode ? area.title : <NavigationLink href={`/practice-areas/${area.slug}`} onClick={() => onNavigate(`/practice-areas/${area.slug}`)}>{area.title}</NavigationLink>}
                         </h3>
                         <p
                           style={itemDescTypo.customStyle}
@@ -1975,9 +1973,9 @@ const RenderSectionItem: React.FC<{
                       </div>
 
                       {/* View Discipline link - hidden for now per user request; preserved for future re-enablement */}
-                      {ENABLE_PRACTICE_POPUP && (
+                      {ENABLE_PRACTICE_DETAILS && (
                         <div className="pt-6 border-t border-[#1a1a23] mt-6 flex items-center justify-between text-[11px] font-cinzel uppercase tracking-wider text-[#c59b63]">
-                          <span>View Discipline</span>
+                          {editMode ? <span>View Practice Area</span> : <NavigationLink href={`/practice-areas/${area.slug}`} onClick={() => onNavigate(`/practice-areas/${area.slug}`)}>View Practice Area</NavigationLink>}
                           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                         </div>
                       )}
