@@ -1,6 +1,6 @@
 import type { FirmSettings } from '../types';
 
-export function siteOrigin(value = 'https://lawfirmdemowebsite.vercel.app') {
+export function siteOrigin(value = 'https://lalusispartnerslaw.com') {
   const url = new URL(value);
   if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password || url.pathname !== '/' || url.search || url.hash) {
     throw new Error('VITE_SITE_URL must be a website origin, for example https://example.com');

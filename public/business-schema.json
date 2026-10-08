@@ -1,13 +1,13 @@
 {
   "@context": "https://schema.org",
   "@type": "LegalService",
-  "@id": "https://lawfirmdemowebsite.vercel.app/#law-firm",
+  "@id": "https://lalusispartnerslaw.com/#law-firm",
   "name": "Lalusis & Partners",
-  "url": "https://lawfirmdemowebsite.vercel.app/",
+  "url": "https://lalusispartnerslaw.com/",
   "telephone": "+63 917 327 5931",
   "email": "lalusispartners@gmail.com",
-  "image": "https://lawfirmdemowebsite.vercel.app/assets/founding-partners.jpg",
-  "logo": "https://lawfirmdemowebsite.vercel.app/assets/lalusis-logo.svg",
+  "image": "https://lalusispartnerslaw.com/assets/founding-partners.jpg",
+  "logo": "https://lalusispartnerslaw.com/assets/lalusis-logo.svg",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "20th flr., Suite J, Future Point Plaza Suites, 110 Panay Ave., South Triangle, Quezon City.",

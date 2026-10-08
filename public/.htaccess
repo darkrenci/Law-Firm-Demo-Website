@@ -1,0 +1,22 @@
+# Hostinger Apache/LiteSpeed: serve the pre-rendered pages at their canonical URLs.
+Options -Indexes -MultiViews
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  RewriteRule ^partners/?$ /attorneys [R=301,L]
+  RewriteRule ^partners/(.+)$ /attorneys/$1 [R=301,L]
+
+  # The admin shell still requires authentication in the application.
+  RewriteRule ^admin(?:/.*)?$ admin.html [L]
+
+  # Run before directory handling: /practice-areas is also an asset directory.
+  RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+  RewriteRule ^(.+?)/?$ $1.html [L]
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+</IfModule>

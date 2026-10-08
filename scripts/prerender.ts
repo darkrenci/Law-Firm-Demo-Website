@@ -33,6 +33,8 @@ try {
       ['name', 'description', result.description], ['property', 'og:title', result.title],
       ['property', 'og:description', result.description], ['property', 'og:url', canonical],
       ['name', 'twitter:title', result.title], ['name', 'twitter:description', result.description],
+      ['property', 'og:image', origin + '/assets/founding-partners.jpg'],
+      ['name', 'twitter:image', origin + '/assets/founding-partners.jpg'],
       ['name', 'robots', result.noindex ? 'noindex, nofollow' : 'index, follow'],
     ].map(([attr, name, content]) => `<meta ${attr}="${name}" content="${escape(content)}" />`).join('\n');
     const schema = result.noindex ? '' : '<link rel="canonical" href="' + escape(canonical) + '" /><script type="application/ld+json" id="business-schema">' + JSON.stringify(businessSchema(result.settings, origin)).replace(/</g, '\\u003c') + '</script>';
