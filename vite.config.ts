@@ -6,6 +6,10 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    // Preserve native destructuring for the existing modern-browser targets.
+    // esbuild 0.28 otherwise attempts an unsupported legacy transform.
+    esbuild: { supported: { destructuring: true } },
+    optimizeDeps: { esbuildOptions: { supported: { destructuring: true } } },
     plugins: [react(), tailwindcss(), {
       name: 'business-structured-data',
       transformIndexHtml() {
