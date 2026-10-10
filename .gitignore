@@ -8,6 +8,5 @@ coverage/
 !.env.example
 
 .prerender-routes.json
-server.mjs
 
 .prerender-content.json
