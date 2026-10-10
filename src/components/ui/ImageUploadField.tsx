@@ -1,3 +1,4 @@
+import { isMysqlBackend } from '../../lib/mysqlClient';
 import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Image as ImageIcon, X, RefreshCw, Check, Link as LinkIcon, FolderOpen, AlertCircle, AlertTriangle } from 'lucide-react';
 import { db } from '../../services/db';
@@ -141,8 +142,8 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
         .trim()
         .replace(/\b\w/g, (c) => c.toUpperCase());
 
-      if (!isSupabaseConfigured) {
-        throw new Error('Configure Supabase in your hosting environment before uploading images.');
+      if (!(isMysqlBackend || isSupabaseConfigured)) {
+        throw new Error('Configure the website backend before uploading images.');
       }
       const result = await supabaseService.uploadMediaFile(file, { customName: cleaned });
       const targetUrl = result.url;

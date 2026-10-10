@@ -1,3 +1,4 @@
+import { isMysqlBackend } from '../../lib/mysqlClient';
 import React, { useState, useEffect } from 'react';
 import { db } from '../../services/db';
 import { MediaAsset } from '../../types';
@@ -88,10 +89,10 @@ export const MediaLibrary: React.FC = () => {
             <h1 className="font-cormorant text-3xl sm:text-4xl font-light text-[#f7f4ee]">
               Media Library
             </h1>
-            {isSupabaseConfigured ? (
+            {(isMysqlBackend || isSupabaseConfigured) ? (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-mono bg-emerald-950/60 border border-emerald-500/40 text-emerald-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Supabase Storage Synced
+                {isMysqlBackend ? 'Website Media Storage' : 'Supabase Storage Synced'}
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-mono bg-amber-950/60 border border-amber-500/40 text-[#c59b63]">

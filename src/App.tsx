@@ -1,3 +1,4 @@
+import { isMysqlBackend, mysqlAuth } from './lib/mysqlClient';
 import { usePageMetadata } from './lib/usePageMetadata';
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { db } from './services/db';
@@ -100,7 +101,7 @@ export default function App({ initialPath = '/', prerender = false }: { initialP
       if (admin) void db.refreshFromSupabase();
     };
     void check();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const { data: { subscription } } = (isMysqlBackend ? mysqlAuth : supabase.auth).onAuthStateChange(() => {
       generation++;
       db.setVerifiedAdmin(null);
       setIsAdminAuthenticated(false);
@@ -133,9 +134,9 @@ export default function App({ initialPath = '/', prerender = false }: { initialP
   const handleExitAdmin = async () => {
     db.setVerifiedAdmin(null);
     setIsAdminAuthenticated(false);
-    if (isSupabaseConfigured) {
+    if (isMysqlBackend || isSupabaseConfigured) {
       try {
-        await supabase.auth.signOut();
+        await (isMysqlBackend ? mysqlAuth : supabase.auth).signOut();
       } catch (e) {
         console.warn('Sign out error:', e);
       }

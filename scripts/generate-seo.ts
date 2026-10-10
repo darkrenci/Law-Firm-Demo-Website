@@ -1,3 +1,5 @@
+import { createDatabase } from '../server/database';
+import { publicSnapshot } from '../server/public-content';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { loadEnv } from 'vite';
 import { initialPages, initialAttorneys, initialPracticeAreas, initialSettings } from '../src/services/seedData';
@@ -5,7 +7,14 @@ import { businessSchema, siteOrigin } from '../src/lib/siteSeo';
 
 const env = { ...loadEnv('production', process.cwd(), ''), ...process.env };
 const origin = siteOrigin(env.VITE_SITE_URL);
+let snapshot:Record<string,any[]>|undefined;
+if(env.VITE_BACKEND==='mysql'){
+  const db=createDatabase(env);
+  try{snapshot=await publicSnapshot(db);}finally{await db.end();}
+  await writeFile('.prerender-content.json',JSON.stringify({origin,rows:snapshot}));
+}
 async function rows(table: string, query: string): Promise<any[] | null> {
+  if(snapshot)return snapshot[table];
   if (!env.VITE_SUPABASE_URL || !env.VITE_SUPABASE_ANON_KEY) return null;
   const response = await fetch(`${env.VITE_SUPABASE_URL}/rest/v1/${table}?${query}`, {
     headers: { apikey: env.VITE_SUPABASE_ANON_KEY, Authorization: `Bearer ${env.VITE_SUPABASE_ANON_KEY}` },
@@ -38,9 +47,9 @@ for (const item of attorneys ?? initialAttorneys.map(a => ({ slug: a.slug, is_pu
   if (item.is_published) paths.add('/attorneys/' + item.slug);
 }
 // Match DatabaseService.getPracticeAreas' legacy standardized-list fallback.
-const effectivePractices = !practices || practices.length < 14 || !practices.some(p => p.slug === 'criminal-and-administrative-litigation')
+const effectivePractices = !snapshot && (!practices || practices.length < 14 || !practices.some(p => p.slug === 'criminal-and-administrative-litigation'))
   ? initialPracticeAreas.map(a => ({ slug: a.slug, is_published: a.status === 'published' })) : practices;
-for (const item of effectivePractices) {
+for (const item of effectivePractices || []) {
   if (item.is_published) paths.add('/practice-areas/' + item.slug);
 }
 const escapeXml = (value: string) => value.replace(/[<>&"']/g, char => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[char]!);

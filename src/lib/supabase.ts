@@ -1,3 +1,4 @@
+import { isMysqlBackend } from './mysqlClient';
 import { createClient } from '@supabase/supabase-js';
 
 const metaEnv = (import.meta as any).env || {};
@@ -12,6 +13,7 @@ const effectiveUrl = envUrl || storedUrl;
 const effectiveKey = envKey || storedKey;
 
 export const isSupabaseConfigured = Boolean(
+  !isMysqlBackend &&
   effectiveUrl &&
   effectiveKey &&
   effectiveUrl !== 'https://your-project-id.supabase.co' &&
@@ -24,9 +26,9 @@ const validKey = isSupabaseConfigured ? effectiveKey : 'placeholder-anon-key';
 
 export const supabase = createClient(validUrl, validKey, {
   auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
+    persistSession: !isMysqlBackend,
+    autoRefreshToken: !isMysqlBackend,
+    detectSessionInUrl: !isMysqlBackend,
   },
 });
 

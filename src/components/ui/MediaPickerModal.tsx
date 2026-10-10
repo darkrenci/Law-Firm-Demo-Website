@@ -1,3 +1,4 @@
+import { isMysqlBackend } from '../../lib/mysqlClient';
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { db } from '../../services/db';
@@ -95,7 +96,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
 
     const matchesCat =
       categoryFilter === 'all' ||
-      (categoryFilter === 'portrait' && (item.category === 'portrait' || item.category === 'portraits' || item.category === 'attorneys')) ||
+      (categoryFilter === 'portrait' && (item.category === 'portrait' || String(item.category) === 'portraits' || item.category === 'attorneys')) ||
       (categoryFilter === 'branding' && item.category === 'branding') ||
       (categoryFilter === 'offices' && (item.category === 'offices' || item.category === 'architectural')) ||
       (categoryFilter === 'insights' && (item.category === 'insights' || item.category === 'general'));
@@ -135,7 +136,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
       let finalMediaId = `med-${Date.now()}`;
 
       // 2. If Supabase is configured, attempt upload
-      if (isSupabaseConfigured) {
+      if (isMysqlBackend || isSupabaseConfigured) {
         try {
           const result = await supabaseService.uploadMediaFile(file, {
             customName: cleaned,
@@ -150,12 +151,14 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
               resolve();
             };
             img.onerror = () => {
+              if(isMysqlBackend){reject(new Error('The uploaded image could not be loaded.'));return;}
               console.warn('Supabase public URL failed to load in browser, utilizing Data URL fallback');
               resolve(); // fallback remains processed.dataUrl
             };
             img.src = result.url;
           });
         } catch (supErr: any) {
+          if(isMysqlBackend)throw supErr;
           console.warn('Supabase upload warning:', supErr);
           // Keep processed.dataUrl as seamless fallback
         }
@@ -166,7 +169,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
         id: finalMediaId,
         name: cleaned,
         url: finalUrl,
-        dataUrl: processed.dataUrl,
+        dataUrl: isMysqlBackend ? undefined : processed.dataUrl,
         fileType: 'image',
         format: file.name.split('.').pop()?.toUpperCase() || 'JPG',
         sizeBytes: file.size,

@@ -1,3 +1,4 @@
+import { isMysqlBackend } from '../lib/mysqlClient';
 import { submitInquiry } from './inquiryService';
 import {
   FirmSettings,
@@ -82,7 +83,7 @@ class DatabaseService {
   }
 
   private async initSupabaseSync() {
-    if (!isSupabaseConfigured) return;
+    if (!(isMysqlBackend || isSupabaseConfigured)) return;
     try {
       const isReady = await supabaseService.checkSchemaReady();
       if (!isReady) {
@@ -103,7 +104,7 @@ class DatabaseService {
   }
 
   public async triggerSupabaseSetupCheck(): Promise<{ ready: boolean; message: string }> {
-    if (!isSupabaseConfigured) {
+    if (!(isMysqlBackend || isSupabaseConfigured)) {
       return { ready: false, message: 'Supabase credentials are not configured.' };
     }
     const isReady = await supabaseService.checkSchemaReady();
@@ -133,7 +134,7 @@ class DatabaseService {
   }
 
   public async refreshFromSupabase(): Promise<void> {
-    if (!isSupabaseConfigured) return;
+    if (!(isMysqlBackend || isSupabaseConfigured)) return;
     const isReady = await supabaseService.checkSchemaReady();
     if (!isReady) return;
 
@@ -204,7 +205,7 @@ class DatabaseService {
   }
 
   private async requireCloudWrite(write: () => Promise<boolean>): Promise<void> {
-    if (!isSupabaseConfigured) {
+    if (!(isMysqlBackend || isSupabaseConfigured)) {
       throw new Error('Configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your hosting environment and redeploy before publishing changes.');
     }
     if (!await supabaseService.checkSchemaReady() || !await write()) {
@@ -648,7 +649,7 @@ class DatabaseService {
     }
     const coreSlugs = new Set(['', 'home', 'about', 'attorneys', 'practice-areas', 'contact']);
     const normalize = (slug: string) => slug === 'home' ? '' : slug === 'partners' ? 'attorneys' : slug;
-    const missing = initialPages.filter((page) => coreSlugs.has(page.slug) &&
+    const missing = isMysqlBackend ? [] : initialPages.filter((page) => coreSlugs.has(page.slug) &&
       !pages.some((saved) => saved.id === page.id || normalize(saved.slug) === normalize(page.slug)));
     // Restore missing core routes only; never replace saved content or sections.
     // Replace the original sample clips in existing cloud/cache records too.
@@ -954,7 +955,7 @@ class DatabaseService {
   public getPracticeAreas(includeDrafts: boolean = true): PracticeArea[] {
     let list = this.load<PracticeArea[]>(DB_KEYS.PRACTICE_AREAS, initialPracticeAreas);
     // Ensure the 14 standardized practice areas are present and updated:
-    if (!list || list.length < 14 || !list.some((p) => p.slug === 'criminal-and-administrative-litigation')) {
+    if (!isMysqlBackend && (!list || list.length < 14 || !list.some((p) => p.slug === 'criminal-and-administrative-litigation'))) {
       list = initialPracticeAreas;
       if (typeof window !== 'undefined') {
         try {
@@ -1647,7 +1648,7 @@ class DatabaseService {
   public getNavigation(): MenuItem[] {
     const stored = this.load<MenuItem[]>(DB_KEYS.NAVIGATION, initialNavigation);
     const normalize = (path: string) => path === '/partners' ? '/attorneys' : path;
-    const missing = initialNavigation.filter((item) =>
+    const missing = isMysqlBackend ? [] : initialNavigation.filter((item) =>
       !stored.some((saved) => saved.id === item.id || normalize(saved.path) === normalize(item.path)));
     const nav = [...stored, ...structuredClone(missing)].sort((a, b) => a.order - b.order);
     const removedPaths = ['/insights', '/news', '/faqs'];

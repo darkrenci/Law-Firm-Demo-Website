@@ -53,12 +53,15 @@ export default async function handler(req: Request, res: ServerResponse) {
     if (data.preferredDate && !/^\d{4}-\d{2}-\d{2}$/.test(data.preferredDate)) throw new Error('Invalid preferred date.');
   } catch (error) { return reply(400, { error: (error as Error).message }); }
 
-  const smtpUser = process.env.GMAIL_SMTP_USER?.trim();
-  const smtpPassword = process.env.GMAIL_SMTP_APP_PASSWORD?.replace(/\s/g, '');
+  const customSmtp = Boolean(process.env.SMTP_HOST);
+  const smtpUser = (customSmtp ? process.env.SMTP_USER : process.env.GMAIL_SMTP_USER)?.trim();
+  const smtpPassword = customSmtp ? process.env.SMTP_PASSWORD : process.env.GMAIL_SMTP_APP_PASSWORD?.replace(/\s/g, '');
+  const smtpPort = Number(process.env.SMTP_PORT || 465);
+  const useMysql = process.env.INQUIRY_DATABASE === 'mysql';
   const to = process.env.INQUIRY_EMAIL_TO || 'lalusispartners@gmail.com';
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
-  if (!smtpUser || !smtpPassword || !supabaseUrl || !supabaseKey) {
+  if (!smtpUser || !smtpPassword || ![465,587].includes(smtpPort) || (!useMysql && (!supabaseUrl || !supabaseKey))) {
     console.error('Inquiry endpoint configuration is incomplete.');
     return reply(503, { error: unavailable });
   }
@@ -93,6 +96,10 @@ export default async function handler(req: Request, res: ServerResponse) {
   } : { id, full_name: data.fullName, email: data.email, phone: data.phone,
     subject: data.subject || 'Chambers legal inquiry', message: details, status: 'unread' };
   try {
+    if (useMysql) {
+      const { saveMysqlInquiry } = await import('../server/inquiry-store');
+      await saveMysqlInquiry(consultation ? 'consultation_requests' : 'contact_messages', record);
+    } else {
     const saved = await fetch(`${supabaseUrl.replace(/\/$/, '')}/rest/v1/${consultation ? 'consultation_requests' : 'contact_messages'}`, {
       method: 'POST', headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
       body: JSON.stringify(record), signal: AbortSignal.timeout(10000),
@@ -105,8 +112,11 @@ export default async function handler(req: Request, res: ServerResponse) {
         return reply(502, { error: unavailable });
       }
     }
+    }
     const transport = nodemailer.createTransport({
-      host: 'smtp.gmail.com', port: 465, secure: true,
+      host: customSmtp ? process.env.SMTP_HOST : 'smtp.gmail.com',
+      port: customSmtp ? smtpPort : 465, secure: customSmtp ? smtpPort === 465 : true,
+      requireTLS: customSmtp && smtpPort === 587,
       auth: { user: smtpUser, pass: smtpPassword },
       connectionTimeout: 5000, greetingTimeout: 5000, socketTimeout: 10000,
       disableFileAccess: true, disableUrlAccess: true,
@@ -121,8 +131,8 @@ export default async function handler(req: Request, res: ServerResponse) {
       });
       if (!receipt.accepted?.length || receipt.rejected?.length) throw new Error('Recipient not accepted');
     } catch {
-      console.error('Gmail SMTP notification failed.');
-      return reply(502, { error: 'Your inquiry was recorded, but the email notification failed. Please retry or contact lalusispartners@gmail.com directly.' });
+      console.error('SMTP notification failed.');
+      return reply(502, { error: 'Your inquiry was recorded, but the email notification failed. Please retry or contact the firm directly.' });
     } finally {
       transport.close();
     }

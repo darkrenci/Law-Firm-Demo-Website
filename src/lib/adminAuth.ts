@@ -1,8 +1,13 @@
+import { isMysqlBackend, mysqlAuth } from './mysqlClient';
 import { supabase, isSupabaseConfigured } from './supabase';
 import type { User } from '../types';
 
 // The database checks a protected allowlist, not editable profile metadata.
 export async function getApprovedAdmin(): Promise<User | null> {
+  if (isMysqlBackend) {
+    const {data:{user}}=await mysqlAuth.getUser();
+    return user ? {id:user.id,email:user.email,name:user.email,role:'ADMINISTRATOR',isActive:true,createdAt:''} : null;
+  }
   if (!isSupabaseConfigured) return null;
   try {
     const { data: { user }, error } = await supabase.auth.getUser();

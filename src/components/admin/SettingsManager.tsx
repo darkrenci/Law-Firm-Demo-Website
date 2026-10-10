@@ -1,3 +1,4 @@
+import { isMysqlBackend } from '../../lib/mysqlClient';
 import React, { useState, useEffect } from 'react';
 import { db } from '../../services/db';
 import { SiteSettings, NavItem } from '../../types';
@@ -505,7 +506,7 @@ export const SettingsManager: React.FC = () => {
       {/* TAB 4: DATABASE BACKUP & RESTORE */}
       {activeTab === 'backup' && (
         <div className="space-y-6 max-w-3xl">
-          <SupabaseSetupBanner />
+          {!isMysqlBackend && <SupabaseSetupBanner />}
           <div className="bg-[#121217] border border-[#22222d] p-6 sm:p-8 space-y-6">
           <div>
             <h3 className="font-cinzel text-xs uppercase tracking-wider text-[#c59b63]">

@@ -1,3 +1,4 @@
+import { isMysqlBackend, mysqlClient, backendRequest } from '../lib/mysqlClient';
 import { optimizePhotoUpload } from '../lib/imagePerformance';
 import { supabase, isSupabaseConfigured, STORAGE_BUCKET } from '../lib/supabase';
 import {
@@ -13,6 +14,8 @@ import {
   Page,
 } from '../types';
 
+const contentClient = (isMysqlBackend ? mysqlClient : supabase) as typeof supabase;
+
 export interface UploadResult {
   url: string;
   storagePath: string;
@@ -20,7 +23,7 @@ export interface UploadResult {
 }
 
 export class SupabaseService {
-  private isConfigured: boolean = isSupabaseConfigured;
+  private isConfigured: boolean = isMysqlBackend || isSupabaseConfigured;
   private isSchemaReady: boolean = false;
   private hasCheckedSchema: boolean = false;
 
@@ -30,7 +33,7 @@ export class SupabaseService {
       isConfigured: this.isConfigured,
       isSchemaReady: this.isSchemaReady,
       hasCheckedSchema: this.hasCheckedSchema,
-      supabaseUrl: metaEnv.VITE_SUPABASE_URL || '',
+      supabaseUrl: isMysqlBackend ? 'Hostinger MySQL' : metaEnv.VITE_SUPABASE_URL || '',
     };
   }
 
@@ -43,7 +46,7 @@ export class SupabaseService {
     }
 
     try {
-      const { error } = await supabase.from('site_settings').select('id').limit(1);
+      const { error } = await contentClient.from('site_settings').select('id').limit(1);
       if (error) {
         if (
           error.code === 'PGRST205' ||
@@ -84,6 +87,14 @@ export class SupabaseService {
       altText?: string;
     } = {}
   ): Promise<UploadResult> {
+    if (isMysqlBackend) {
+      if (file.type.startsWith('image/')) file = await optimizePhotoUpload(file);
+      const query=new URLSearchParams({filename:file.name,name:options.customName||file.name,alt:options.altText||options.customName||file.name,category:options.category||'general'});
+      const response=await fetch('/api/admin/media/upload?'+query,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/octet-stream'},body:file});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||'Upload failed.');
+      return result;
+    }
     if (!this.isConfigured) {
       throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
     }
@@ -187,7 +198,7 @@ export class SupabaseService {
       uploadedAt: new Date().toISOString(),
     };
 
-    const { error: dbError } = await supabase.from('media').insert({
+    const { error: dbError } = await contentClient.from('media').insert({
       id: mediaItem.id,
       name: mediaItem.name,
       filename: file.name,
@@ -219,9 +230,10 @@ export class SupabaseService {
 
   // --- STORAGE: DELETE MEDIA ---
   public async deleteMedia(id: string, storagePath?: string): Promise<boolean> {
+    if (isMysqlBackend) { await backendRequest('/api/admin/media/'+encodeURIComponent(id)+'/delete',{}); return true; }
     if (!this.isConfigured || !this.isSchemaReady) return false;
 
-    const { data: existing, error: lookupError } = await supabase.from('media').select('storage_path').eq('id', id).maybeSingle();
+    const { data: existing, error: lookupError } = await contentClient.from('media').select('storage_path').eq('id', id).maybeSingle();
     if (lookupError) throw new Error(lookupError.message);
     if (!existing) return true;
     const path = storagePath || existing.storage_path;
@@ -229,7 +241,7 @@ export class SupabaseService {
       const { error } = await supabase.storage.from(STORAGE_BUCKET).remove([path]);
       if (error) throw new Error(error.message);
     }
-    const { data, error } = await supabase.from('media').delete().eq('id', id).select('id');
+    const { data, error } = await contentClient.from('media').delete().eq('id', id).select('id');
     if (error) throw new Error(error.message);
     if (!data?.length) throw new Error('Supabase did not allow this media deletion. Check delete permissions.');
     return true;
@@ -237,9 +249,10 @@ export class SupabaseService {
 
   // --- STORAGE: SAVE / UPDATE MEDIA ITEM METADATA ---
   public async saveMedia(item: MediaItem): Promise<boolean> {
+    if (isMysqlBackend) { await backendRequest('/api/admin/media/'+encodeURIComponent(item.id)+'/update',{name:item.name,altText:item.altText||item.name,category:item.category||'general'});return true; }
     if (!this.isConfigured || !this.isSchemaReady) return false;
     try {
-      const { error } = await supabase.from('media').upsert({
+      const { error } = await contentClient.from('media').upsert({
         id: item.id,
         name: item.name,
         url: item.url,
@@ -267,7 +280,7 @@ export class SupabaseService {
   // --- FETCH QUERIES (SINGLE SOURCE OF TRUTH) ---
   public async getMedia(): Promise<MediaItem[] | null> {
     if (!this.isConfigured || !this.isSchemaReady) return null;
-    const { data, error } = await supabase
+    const { data, error } = await contentClient
       .from('media')
       .select('*')
       .order('created_at', { ascending: false });
@@ -294,7 +307,7 @@ export class SupabaseService {
 
   public async getSettings(): Promise<FirmSettings | null> {
     if (!this.isConfigured || !this.isSchemaReady) return null;
-    const { data, error } = await supabase
+    const { data, error } = await contentClient
       .from('site_settings')
       .select('settings')
       .eq('id', 'firm_settings')
@@ -309,7 +322,7 @@ export class SupabaseService {
 
   public async saveSettings(settings: FirmSettings): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
-    const { error } = await supabase.from('site_settings').upsert({
+    const { error } = await contentClient.from('site_settings').upsert({
       id: 'firm_settings',
       settings,
       updated_at: new Date().toISOString(),
@@ -327,7 +340,7 @@ export class SupabaseService {
 
   public async getPages(): Promise<Page[] | null> {
     if (!this.isConfigured || !this.isSchemaReady) return null;
-    const { data, error } = await supabase
+    const { data, error } = await contentClient
       .from('pages')
       .select('*')
       .order('order_index', { ascending: true });
@@ -352,7 +365,7 @@ export class SupabaseService {
 
   public async savePage(page: Page): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
-    const { error } = await supabase.from('pages').upsert({
+    const { error } = await contentClient.from('pages').upsert({
       id: page.id,
       slug: page.slug,
       title: page.title,
@@ -375,7 +388,7 @@ export class SupabaseService {
 
   public async getAttorneys(): Promise<Attorney[] | null> {
     if (!this.isConfigured || !this.isSchemaReady) return null;
-    const { data, error } = await supabase
+    const { data, error } = await contentClient
       .from('attorneys')
       .select('*')
       .order('order_index', { ascending: true });
@@ -390,12 +403,12 @@ export class SupabaseService {
       slug: row.slug,
       fullName: row.full_name,
       professionalTitle: row.professional_title,
-      portraitUrl: row.portrait_url,
+      portraitUrl: row.portrait_url || '',
       homeCardImageUrl: row.home_card_image_url || row.homeCardImageUrl,
       homeModalImageUrl: row.home_modal_image_url || row.homeModalImageUrl,
       partnerPageImageUrl: row.partner_page_image_url || row.partnerPageImageUrl,
-      primarySpecialization: row.primary_specialization,
-      biography: row.biography,
+      primarySpecialization: row.primary_specialization || '',
+      biography: row.biography || '',
       email: row.email,
       directPhone: row.direct_phone,
       linkedinUrl: row.linkedin_url,
@@ -449,7 +462,7 @@ export class SupabaseService {
       partner_page_image_url: attorney.partnerPageImageUrl || null,
     };
 
-    const { error } = await supabase.from('attorneys').upsert(fullPayload);
+    const { error } = await contentClient.from('attorneys').upsert(fullPayload);
     if (error && (error.code === 'PGRST204' || error.code === '42703')) {
       throw new Error('Partner image columns are missing in Supabase. Run supabase/migrations/20260927_partner_image_placements.sql, then save again.');
     }
@@ -467,13 +480,13 @@ export class SupabaseService {
 
   public async deleteAttorney(id: string): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
-    const { error } = await supabase.from('attorneys').delete().eq('id', id);
+    const { error } = await contentClient.from('attorneys').delete().eq('id', id);
     return !error;
   }
 
   public async getPracticeAreas(): Promise<PracticeArea[] | null> {
     if (!this.isConfigured || !this.isSchemaReady) return null;
-    const { data, error } = await supabase
+    const { data, error } = await contentClient
       .from('practice_areas')
       .select('*')
       .order('order_index', { ascending: true });
@@ -498,7 +511,7 @@ export class SupabaseService {
 
   public async savePracticeArea(area: PracticeArea): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
-    const { error } = await supabase.from('practice_areas').upsert({
+    const { error } = await contentClient.from('practice_areas').upsert({
       id: area.id,
       slug: area.slug,
       title: area.title,
@@ -519,13 +532,13 @@ export class SupabaseService {
 
   public async deletePracticeArea(id: string): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
-    const { error } = await supabase.from('practice_areas').delete().eq('id', id);
+    const { error } = await contentClient.from('practice_areas').delete().eq('id', id);
     return !error;
   }
 
   public async getArticles(): Promise<Article[] | null> {
     if (!this.isConfigured || !this.isSchemaReady) return null;
-    const { data, error } = await supabase
+    const { data, error } = await contentClient
       .from('articles')
       .select('*')
       .order('created_at', { ascending: false });
@@ -556,7 +569,7 @@ export class SupabaseService {
 
   public async saveArticle(art: Article): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
-    const { error } = await supabase.from('articles').upsert({
+    const { error } = await contentClient.from('articles').upsert({
       id: art.id,
       slug: art.slug,
       title: art.title,
@@ -580,13 +593,13 @@ export class SupabaseService {
 
   public async deleteArticle(id: string): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
-    const { error } = await supabase.from('articles').delete().eq('id', id);
+    const { error } = await contentClient.from('articles').delete().eq('id', id);
     return !error;
   }
 
   public async getNews(): Promise<NewsItem[] | null> {
     if (!this.isConfigured || !this.isSchemaReady) return null;
-    const { data, error } = await supabase
+    const { data, error } = await contentClient
       .from('news')
       .select('*')
       .order('created_at', { ascending: false });
@@ -610,7 +623,7 @@ export class SupabaseService {
 
   public async saveNews(news: NewsItem): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
-    const { error } = await supabase.from('news').upsert({
+    const { error } = await contentClient.from('news').upsert({
       id: news.id,
       slug: news.slug,
       title: news.title,
@@ -631,13 +644,13 @@ export class SupabaseService {
 
   public async deleteNews(id: string): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
-    const { error } = await supabase.from('news').delete().eq('id', id);
+    const { error } = await contentClient.from('news').delete().eq('id', id);
     return !error;
   }
 
   public async getNavigation(): Promise<MenuItem[] | null> {
     if (!this.isConfigured || !this.isSchemaReady) return null;
-    const { data, error } = await supabase
+    const { data, error } = await contentClient
       .from('navigation')
       .select('*')
       .order('order_index', { ascending: true });
@@ -659,8 +672,12 @@ export class SupabaseService {
   public async saveNavigation(items: MenuItem[]): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
     try {
-      await supabase.from('navigation').delete().neq('id', '___dummy___');
-      const { error } = await supabase.from('navigation').insert(
+      if (isMysqlBackend) {
+        await backendRequest('/api/admin/navigation', {operation:'replace',rows:items.map((it,idx)=>({id:it.id,label:it.label,path:it.path,is_visible:it.isVisible,order_index:idx+1,children:it.children||[],updated_at:new Date().toISOString()}))});
+        return true;
+      }
+      await contentClient.from('navigation').delete().neq('id', '___dummy___');
+      const { error } = await contentClient.from('navigation').insert(
         items.map((it, idx) => ({
           id: it.id,
           label: it.label,
@@ -683,7 +700,7 @@ export class SupabaseService {
 
   public async getConsultations(): Promise<ConsultationRequest[] | null> {
     if (!this.isConfigured || !this.isSchemaReady) return null;
-    const { data, error } = await supabase
+    const { data, error } = await contentClient
       .from('consultation_requests')
       .select('*')
       .order('created_at', { ascending: false });
@@ -714,7 +731,7 @@ export class SupabaseService {
 
   public async saveConsultation(req: ConsultationRequest): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
-    const { error } = await supabase.from('consultation_requests').upsert({
+    const { error } = await contentClient.from('consultation_requests').upsert({
       id: req.id,
       reference_number: req.referenceNumber,
       full_name: req.fullName,
@@ -740,7 +757,7 @@ export class SupabaseService {
 
   public async getContactMessages(): Promise<ContactMessage[] | null> {
     if (!this.isConfigured || !this.isSchemaReady) return null;
-    const { data, error } = await supabase
+    const { data, error } = await contentClient
       .from('contact_messages')
       .select('*')
       .order('created_at', { ascending: false });
@@ -764,7 +781,7 @@ export class SupabaseService {
 
   public async saveContactMessage(msg: ContactMessage): Promise<boolean> {
     if (!this.isConfigured || !this.isSchemaReady) return false;
-    const { error } = await supabase.from('contact_messages').upsert({
+    const { error } = await contentClient.from('contact_messages').upsert({
       id: msg.id,
       full_name: msg.fullName,
       email: msg.email || msg.emailAddress,
@@ -808,7 +825,8 @@ export class SupabaseService {
     }
 
     try {
-      const { data: existingPages, error } = await supabase.from('pages').select('id').limit(1);
+      if (isMysqlBackend) return {migrated:false,message:'Use the reviewed MySQL seed migration.'};
+      const { data: existingPages, error } = await contentClient.from('pages').select('id').limit(1);
       if (error) {
         if (error.code === 'PGRST205') {
           this.isSchemaReady = false;
@@ -847,7 +865,7 @@ export class SupabaseService {
       await this.saveNavigation(seed.navigation);
 
       for (const m of seed.media) {
-        await supabase.from('media').upsert({
+        await contentClient.from('media').upsert({
           id: m.id,
           name: m.name,
           url: m.url,
@@ -870,7 +888,7 @@ export class SupabaseService {
 
   // --- REALTIME SUBSCRIPTIONS ---
   public subscribeToRealtimeChanges(onUpdate: (table: string) => void): () => void {
-    if (!this.isConfigured || !this.isSchemaReady) return () => {};
+    if (isMysqlBackend || !this.isConfigured || !this.isSchemaReady) return () => {};
 
     try {
       const channel = supabase

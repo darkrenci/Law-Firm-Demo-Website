@@ -1,3 +1,4 @@
+import { isMysqlBackend, setPrerenderRows } from './lib/mysqlClient';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import App from './App';
@@ -5,8 +6,9 @@ import { resolvePageMetadata } from './lib/usePageMetadata';
 import { supabaseService } from './services/supabaseService';
 import { isSupabaseConfigured } from './lib/supabase';
 
-export async function loadPublicContent() {
-  if (!isSupabaseConfigured) return;
+export async function loadPublicContent(snapshot?:Record<string,any[]>) {
+  if(isMysqlBackend){if(!snapshot)throw new Error('Missing MySQL public snapshot. Run generate:seo first.');setPrerenderRows(snapshot);}
+  if (!isMysqlBackend && !isSupabaseConfigured) return;
   if (!await supabaseService.checkSchemaReady()) throw new Error('Public CMS schema is unavailable for pre-rendering.');
   const entries = await Promise.all([
     ['settings', supabaseService.getSettings()],

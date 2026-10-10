@@ -15,7 +15,13 @@ const origin = siteOrigin(env.VITE_SITE_URL);
 const vite = await createServer({ mode: 'production', server: { middlewareMode: true }, appType: 'custom' });
 try {
   const entry = await vite.ssrLoadModule('/src/prerender.tsx');
-  await entry.loadPublicContent();
+  let snapshot;
+  if(env.VITE_BACKEND==='mysql'){
+    const saved=JSON.parse(await readFile('.prerender-content.json','utf8'));
+    if(saved.origin!==origin)throw new Error('Public snapshot origin changed; regenerate SEO.');
+    snapshot=saved.rows;
+  }
+  await entry.loadPublicContent(snapshot);
   const template = await readFile('dist/index.html', 'utf8');
   // Keep a separate empty shell exclusively for the authenticated application.
   await writeFile('dist/admin.html', template.replace('</head>', '<meta name="robots" content="noindex, nofollow" /></head>'));
