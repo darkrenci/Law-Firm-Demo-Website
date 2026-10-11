@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { db } from '../../services/db';
-import { supabaseService } from '../../services/supabaseService';
+import { supabaseService, MediaUploadProgress } from '../../services/supabaseService';
+import { UploadProgress } from './UploadProgress';
 
 export function VideoUploadField({value = '', onChange, allowMediaLibrary = true, onBusyChange}: {
   value?: string;
@@ -12,6 +13,8 @@ export function VideoUploadField({value = '', onChange, allowMediaLibrary = true
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [filename, setFilename] = useState('');
+  const [progress, setProgress] = useState<MediaUploadProgress | null>(null);
+  const [startedAt, setStartedAt] = useState(0);
   const fileInput = useRef<HTMLInputElement>(null);
   useEffect(() => db.subscribe(() => setMedia(db.getMedia())), []);
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,10 +29,12 @@ export function VideoUploadField({value = '', onChange, allowMediaLibrary = true
       setError('This video exceeds the 100 MB limit. Choose a smaller file.'); input.value = ''; return;
     }
     setFilename(file.name);
+    setStartedAt(Date.now());
+    setProgress({stage:'preparing',loaded:0,total:file.size,percent:0,bytesPerSecond:0,etaSeconds:null});
     setBusy(true);
     onBusyChange?.(true);
     try {
-      const result = await supabaseService.uploadMediaFile(file, {category:'general'});
+      const result = await supabaseService.uploadMediaFile(file, {category:'general'}, setProgress);
       await db.refreshFromSupabase();
       onChange(result.url, result.mediaItem.name, result.mediaItem.id);
     } catch (error) { setError((error as Error).message); }
@@ -44,7 +49,8 @@ export function VideoUploadField({value = '', onChange, allowMediaLibrary = true
       <p className="text-[#a8a199]">Choose a file from your Desktop, Downloads, or another folder. MP4 / WebM, maximum 100 MB.</p>
       {filename && <p className="break-all text-[#f7f4ee]">Selected file: {filename}</p>}
     </div>
-    {busy && <p role="status">Uploading video… Please wait.</p>}
+    {busy && progress && <UploadProgress progress={progress} startedAt={startedAt} />}
+    {!busy && progress?.stage === 'complete' && <p role="status" className="text-emerald-400">Upload completed successfully. You can now save it to the media library.</p>}
     {error && <p role="alert" className="text-rose-400">{error}</p>}
     {allowMediaLibrary && <label className="block">Choose video from library
       <select value={media.some(item => item.fileType === 'video' && item.url === value) ? value : ''} disabled={busy} onChange={e => {

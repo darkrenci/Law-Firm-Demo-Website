@@ -24,6 +24,15 @@ export interface UploadResult {
   mediaItem: MediaItem;
 }
 
+export interface MediaUploadProgress {
+  stage: 'preparing' | 'uploading' | 'processing' | 'complete';
+  loaded: number;
+  total: number;
+  percent: number;
+  bytesPerSecond: number;
+  etaSeconds: number | null;
+}
+
 export class SupabaseService {
   private isConfigured: boolean = isMysqlBackend || isSupabaseConfigured;
   private isSchemaReady: boolean = false;
@@ -87,15 +96,33 @@ export class SupabaseService {
       category?: 'portrait' | 'architectural' | 'branding' | 'general';
       customName?: string;
       altText?: string;
-    } = {}
+    } = {},
+    onProgress?: (progress: MediaUploadProgress) => void
   ): Promise<UploadResult> {
     if (isMysqlBackend) {
+      onProgress?.({stage:'preparing',loaded:0,total:file.size,percent:0,bytesPerSecond:0,etaSeconds:null});
       if (file.type.startsWith('image/')) file = await optimizePhotoUpload(file);
       const query=new URLSearchParams({filename:file.name,name:options.customName||file.name,alt:options.altText||options.customName||file.name,category:options.category||'general'});
-      const response=await fetch('/api/admin/media/upload?'+query,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/octet-stream'},body:file});
-      const result=await response.json();
-      if(!response.ok)throw new Error(result.error||'Upload failed.');
-      return result;
+      return await new Promise<UploadResult>((resolve,reject)=>{
+        const request=new XMLHttpRequest(),started=performance.now();
+        request.open('POST','/api/admin/media/upload?'+query);
+        request.withCredentials=true;
+        request.setRequestHeader('Content-Type','application/octet-stream');
+        request.upload.onprogress=(event)=>{
+          const elapsed=Math.max((performance.now()-started)/1000,0.1),total=event.lengthComputable?event.total:file.size;
+          const rate=event.loaded/elapsed,remaining=Math.max(total-event.loaded,0);
+          onProgress?.({stage:event.loaded>=total?'processing':'uploading',loaded:event.loaded,total,percent:Math.min(100,Math.round(event.loaded/total*100)),bytesPerSecond:rate,etaSeconds:rate>0&&remaining>0?Math.ceil(remaining/rate):null});
+        };
+        request.onerror=()=>reject(new Error('Upload connection failed. Check your internet connection and try again.'));
+        request.onabort=()=>reject(new Error('Upload was cancelled.'));
+        request.onload=()=>{
+          let result:any={};try{result=JSON.parse(request.responseText||'{}');}catch{}
+          if(request.status<200||request.status>=300)return reject(new Error(result.error||`Upload failed (${request.status}).`));
+          onProgress?.({stage:'complete',loaded:file.size,total:file.size,percent:100,bytesPerSecond:file.size/Math.max((performance.now()-started)/1000,0.1),etaSeconds:0});
+          resolve(result);
+        };
+        request.send(file);
+      });
     }
     if (!this.isConfigured) {
       throw new Error('Supabase is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');

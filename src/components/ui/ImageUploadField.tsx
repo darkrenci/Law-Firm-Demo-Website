@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Image as ImageIcon, X, RefreshCw, Check, Link as LinkIcon, FolderOpen, AlertCircle, AlertTriangle } from 'lucide-react';
 import { db } from '../../services/db';
 import { MediaAsset } from '../../types';
-import { supabaseService } from '../../services/supabaseService';
+import { supabaseService, MediaUploadProgress } from '../../services/supabaseService';
+import { UploadProgress } from './UploadProgress';
 import { isSupabaseConfigured } from '../../lib/supabase';
 import { MediaPickerModal } from './MediaPickerModal';
 
@@ -19,6 +20,7 @@ export interface ImageUploadFieldProps {
   allowUrlFallback?: boolean;
   allowMediaLibrary?: boolean;
   autoSaveToMediaLibrary?: boolean;
+  onBusyChange?: (busy: boolean) => void;
 }
 
 /**
@@ -109,6 +111,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
   compact = false,
   allowUrlFallback = false,
   allowMediaLibrary = true,
+  onBusyChange,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -118,6 +121,8 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
   const [mode, setMode] = useState<'upload' | 'url'>('upload');
   const [urlInput, setUrlInput] = useState(value && !value.startsWith('data:') ? value : '');
   const [showLibraryPicker, setShowLibraryPicker] = useState(false);
+  const [progress, setProgress] = useState<MediaUploadProgress | null>(null);
+  const [startedAt, setStartedAt] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync internal image src and reset errors whenever value prop changes
@@ -132,6 +137,9 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
     const file = files[0];
     if (!file.type.startsWith('image/')) { setError('Choose an image file for this picture placement.'); return; }
     setIsLoading(true);
+    onBusyChange?.(true);
+    setStartedAt(Date.now());
+    setProgress({stage:'preparing',loaded:0,total:file.size,percent:0,bytesPerSecond:0,etaSeconds:null});
     setError(null);
     setLoadFailed(false);
 
@@ -145,7 +153,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
       if (!(isMysqlBackend || isSupabaseConfigured)) {
         throw new Error('Configure the website backend before uploading images.');
       }
-      const result = await supabaseService.uploadMediaFile(file, { customName: cleaned });
+      const result = await supabaseService.uploadMediaFile(file, { customName: cleaned }, setProgress);
       const targetUrl = result.url;
       const mediaId = result.mediaItem.id;
 
@@ -171,6 +179,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
       setLoadFailed(true);
     } finally {
       setIsLoading(false);
+      onBusyChange?.(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -312,6 +321,7 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
         ref={fileInputRef}
         type="file"
         accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+        disabled={isLoading}
         onChange={(e) => handleFiles(e.target.files)}
         className="hidden"
       />
@@ -510,6 +520,9 @@ export const ImageUploadField: React.FC<ImageUploadFieldProps> = ({
           )}
         </div>
       )}
+
+      {isLoading && progress && <UploadProgress progress={progress} startedAt={startedAt} />}
+      {!isLoading && progress?.stage === 'complete' && <p role="status" className="text-xs text-emerald-400">Image uploaded successfully.</p>}
 
       {helperText && <p className="text-[10px] text-[#8e877e]">{helperText}</p>}
     </div>

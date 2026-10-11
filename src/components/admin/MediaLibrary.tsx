@@ -296,7 +296,7 @@ const AddMediaModal: React.FC<{
   return (
     <Modal
       isOpen={true}
-      onClose={onClose}
+      onClose={uploading || saving ? () => undefined : onClose}
       title="Add Media Asset"
       subtitle="Upload images or videos from your computer, or link an external asset. Videos support MP4 and WebM up to 100 MB."
       maxWidth="md"
@@ -315,7 +315,10 @@ const AddMediaModal: React.FC<{
           allowMediaLibrary={false}
           aspectRatio="landscape"
           helperText="Upload any picture file directly from your computer or drag & drop here."
+          onBusyChange={setUploading}
         />}
+
+        {uploading && <p className="text-[11px] text-amber-300 border-l-2 border-amber-400 pl-3">Upload in progress. Keep this window open until completion. Large videos can take several minutes depending on your connection.</p>}
 
         <div>
           <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
@@ -361,7 +364,7 @@ const AddMediaModal: React.FC<{
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#1c1c24]">
-          <Button variant="ghost" size="sm" type="button" onClick={onClose}>
+          <Button variant="ghost" size="sm" type="button" onClick={onClose} disabled={uploading || saving}>
             Cancel
           </Button>
           <Button variant="primary" size="sm" type="submit" disabled={!url || !name || saving || uploading} isLoading={saving}>
