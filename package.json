@@ -9,6 +9,7 @@
     "postinstall": "npm run build",
     "start": "node server.mjs",
     "admin:setup": "tsx server/admin-setup.ts",
+    "admin:reset": "tsx server/admin-reset.ts",
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build:web": "npm run generate:seo && vite build && npm run prerender",
     "build": "npm run build:web && npm run build:server",
