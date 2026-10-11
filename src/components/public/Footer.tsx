@@ -4,6 +4,7 @@ import { Logo } from '../brand/Logo';
 import { db } from '../../services/db';
 import { FirmSettings, PracticeArea } from '../../types';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
+import { defaultGlobalLayout } from '../../config/globalLayout';
 
 interface FooterProps {
   onNavigate: (path: string) => void;
@@ -18,6 +19,7 @@ export const Footer: React.FC<FooterProps> = ({
   const [practiceAreas, setPracticeAreas] = useState<PracticeArea[]>(
     db.getPracticeAreas(false).slice(0, 6)
   );
+  const layout = { ...defaultGlobalLayout, ...settings.layout };
 
   useEffect(() => {
     const unsub = db.subscribe(() => {
@@ -52,7 +54,7 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Col 2: Practice Areas (3 cols) */}
           <div className="lg:col-span-3 space-y-4">
             <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase border-b border-[#1c1c24] pb-2">
-              Practice Areas
+              {layout.footerPracticeAreasHeading}
             </h4>
             <ul className="space-y-2.5 text-xs">
               {practiceAreas.map((pa) => (
@@ -70,7 +72,7 @@ export const Footer: React.FC<FooterProps> = ({
                   onClick={() => onNavigate('/practice-areas')}
                   className="text-[#c59b63] hover:text-[#f7f4ee] transition-colors font-cinzel text-[11px] uppercase tracking-wider pt-1 inline-flex items-center gap-1"
                 >
-                  <span>All Practice Areas</span>
+                  <span>{layout.footerAllPracticeAreasLabel}</span>
                   <span>→</span>
                 </NavigationLink>
               </li>
@@ -80,7 +82,7 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Col 3: Quick Links & Firm Resources (2 cols) */}
           <div className="lg:col-span-2 space-y-4">
             <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase border-b border-[#1c1c24] pb-2">
-              The Firm
+              {layout.footerFirmHeading}
             </h4>
             <ul className="space-y-2.5 text-xs">
               <li>
@@ -88,7 +90,7 @@ export const Footer: React.FC<FooterProps> = ({
                   onClick={() => onNavigate('/about')}
                   className="hover:text-[#c59b63] transition-colors"
                 >
-                  About Lalusis
+                  {layout.footerAboutLabel}
                 </NavigationLink>
               </li>
               <li>
@@ -96,7 +98,7 @@ export const Footer: React.FC<FooterProps> = ({
                   onClick={() => onNavigate('/attorneys')}
                   className="hover:text-[#c59b63] transition-colors"
                 >
-                  Partners
+                  {layout.footerPartnersLabel}
                 </NavigationLink>
               </li>
               <li>
@@ -104,7 +106,7 @@ export const Footer: React.FC<FooterProps> = ({
                   onClick={() => onNavigate('/contact')}
                   className="hover:text-[#c59b63] transition-colors"
                 >
-                  Contact &amp; Chambers
+                  {layout.footerContactLabel}
                 </NavigationLink>
               </li>
               <li>
@@ -112,7 +114,7 @@ export const Footer: React.FC<FooterProps> = ({
                   onClick={() => onNavigate('/consultation')}
                   className="hover:text-[#c59b63] transition-colors"
                 >
-                  Request Consultation
+                  {layout.footerConsultationLabel}
                 </NavigationLink>
               </li>
               {/* Commented out / hidden per user request (can be uncommented to restore):
@@ -147,7 +149,7 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Col 4: Executive Chambers & Consultation (3 cols) */}
           <div className="lg:col-span-3 space-y-4">
             <h4 className="font-cinzel text-xs font-semibold tracking-[0.2em] text-[#f4e6d0] uppercase border-b border-[#1c1c24] pb-2">
-              Executive Chambers
+              {layout.footerChambersHeading}
             </h4>
             <div className="space-y-3 text-xs leading-relaxed">
               <div className="flex items-start gap-2.5">
@@ -183,7 +185,7 @@ export const Footer: React.FC<FooterProps> = ({
         {/* Bottom Bar */}
         <div className="mt-8 pt-6 border-t border-[#14141a] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7a746b]">
           <div>
-            &copy; {new Date().getFullYear()} {settings.general.firmName}, Attorneys at Law. All rights reserved.
+            &copy; {new Date().getFullYear()} {settings.general.firmName}, {layout.footerCopyrightLabel}
           </div>
 
           <div className="flex items-center gap-6">
@@ -194,7 +196,7 @@ export const Footer: React.FC<FooterProps> = ({
                   className="hover:text-[#c59b63] transition-colors cursor-pointer text-[11px]"
                   title="Replay Firm Opening Screen"
                 >
-                  Chambers Opening Screen
+                  {layout.footerOpeningScreenLabel}
                 </button>
                 <div className="h-3 w-[1px] bg-[#22222c]" />
               </>
@@ -203,7 +205,7 @@ export const Footer: React.FC<FooterProps> = ({
               onClick={() => onNavigate('/about')}
               className="hover:text-[#c59b63] transition-colors cursor-pointer"
             >
-              Privacy &amp; Privilege
+              {layout.footerPrivacyLabel}
             </NavigationLink>
           </div>
         </div>

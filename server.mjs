@@ -167,7 +167,7 @@ async function writeContent(db3, table, body) {
   }
 }
 function publicSettings(settings) {
-  const groups = { general: "firmName tagline headline subheadline logoUrl secondaryLogoUrl faviconUrl establishedYear", contact: "address suiteFloor cityStateZip country telephone emergencyLine fax email consultationEmail officeHoursWeekday officeHoursWeekend googleMapEmbedUrl", social: "linkedin facebook twitter barDirectory", branding: "primaryAccent secondaryAccent backgroundColor cardBackgroundColor headingFont bodyFont", seo: "defaultTitle defaultDescription socialPreviewImage indexSite", seoDefaults: "metaTitle metaDescription" };
+  const groups = { general: "firmName tagline headline subheadline logoUrl secondaryLogoUrl faviconUrl establishedYear", contact: "address suiteFloor cityStateZip country telephone emergencyLine fax email consultationEmail officeHoursWeekday officeHoursWeekend googleMapEmbedUrl", social: "linkedin facebook twitter barDirectory", branding: "primaryAccent secondaryAccent backgroundColor cardBackgroundColor headingFont bodyFont", seo: "defaultTitle defaultDescription socialPreviewImage indexSite", seoDefaults: "metaTitle metaDescription", layout: "headerPhoneLabel headerCtaLabel headerCtaPath footerPracticeAreasHeading footerFirmHeading footerChambersHeading footerAboutLabel footerPartnersLabel footerContactLabel footerConsultationLabel footerAllPracticeAreasLabel footerOpeningScreenLabel footerPrivacyLabel footerCopyrightLabel" };
   const result = {};
   for (const [group, keys] of Object.entries(groups)) if (settings?.[group]) result[group] = Object.fromEntries(keys.split(" ").filter((k) => ["string", "number", "boolean"].includes(typeof settings[group][k])).map((k) => [k, settings[group][k]]));
   for (const key of ["firmName", "firmTagline", "foundedYear", "jurisdiction"]) if (["string", "number"].includes(typeof settings?.[key])) result[key] = settings[key];
@@ -647,14 +647,12 @@ function createApp(db3, options) {
 }
 
 // server/index.ts
-import { fileURLToPath } from "node:url";
 if (process.env.INQUIRY_DATABASE !== "mysql") throw new Error("Set INQUIRY_DATABASE=mysql for the MySQL server.");
 var db2 = createDatabase();
 await db2.execute("SELECT 1");
 var storage = await mediaRoot(process.env.MEDIA_ROOT);
 await verifyMediaWritable(storage);
-var dist2 = fileURLToPath(new URL("./dist", import.meta.url));
-var app = createApp(db2, { dist: dist2, mediaRoot: storage, origin: process.env.SITE_URL || "https://lalusispartnerslaw.com" });
+var app = createApp(db2, { mediaRoot: storage, origin: process.env.SITE_URL || "https://lalusispartnerslaw.com" });
 var server = app.listen(Number(process.env.PORT || 3e3), "0.0.0.0", () => console.log("Website backend listening."));
 for (const signal of ["SIGTERM", "SIGINT"]) process.on(signal, () => {
   server.close(() => {

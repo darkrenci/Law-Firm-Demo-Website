@@ -14,8 +14,10 @@ import {
   ActivityLog,
   Page,
 } from '../types';
+import { defaultGlobalLayout } from '../config/globalLayout';
 
 export const initialSettings: FirmSettings = {
+  layout: defaultGlobalLayout,
   general: {
     firmName: 'Lalusis & Partners',
     tagline: 'Legal Precision.',

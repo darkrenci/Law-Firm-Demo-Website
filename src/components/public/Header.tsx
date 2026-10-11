@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { db } from '../../services/db';
 import { FirmSettings, MenuItem } from '../../types';
+import { defaultGlobalLayout } from '../../config/globalLayout';
 
 interface HeaderProps {
   currentPath: string;
@@ -31,6 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [isPracticeDropdownOpen, setIsPracticeDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isInfoPaused, setIsInfoPaused] = useState(false);
+  const layout = { ...defaultGlobalLayout, ...settings.layout };
   const menuTrigger = useRef<HTMLButtonElement>(null);
   const menuPanel = useRef<HTMLDivElement>(null);
 
@@ -107,7 +109,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center gap-2">
               <Phone className="w-3.5 h-3.5 text-[#c59b63]" />
               <span className="text-[#f7f4ee] font-medium tracking-wide">
-                Direct: {settings.contact.telephone}
+                {layout.headerPhoneLabel}: {settings.contact.telephone}
               </span>
             </div>
           </div>
@@ -122,7 +124,7 @@ export const Header: React.FC<HeaderProps> = ({
               <div key={copy} aria-hidden={copy === 1 ? true : undefined} className="utility-ticker-copy flex shrink-0 items-center gap-8 pr-8 whitespace-nowrap">
                 <span className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5 text-[#c59b63]" />{settings.contact.address}</span>
                 <span className="flex items-center gap-2"><Clock className="w-3.5 h-3.5 text-[#c59b63]" />{settings.contact.officeHoursWeekday}</span>
-                <span className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-[#c59b63]" />Direct: {settings.contact.telephone}</span>
+                <span className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-[#c59b63]" />{layout.headerPhoneLabel}: {settings.contact.telephone}</span>
               </div>
             ))}
           </div>
@@ -243,13 +245,13 @@ export const Header: React.FC<HeaderProps> = ({
               <Search className="w-4 h-4" />
             </button>
 
-            <NavigationLink href={'/consultation'}
+            <NavigationLink href={layout.headerCtaPath}
               variant="primary"
               size="sm"
-              onClick={() => handleLinkClick('/consultation')}
+              onClick={() => handleLinkClick(layout.headerCtaPath)}
               className="whitespace-nowrap px-3.5 2xl:px-5 py-2 text-xs"
             >
-              Request Consultation
+              {layout.headerCtaLabel}
             </NavigationLink>
           </div>
 
@@ -313,13 +315,13 @@ export const Header: React.FC<HeaderProps> = ({
               ))}
 
             <div className="pt-4">
-              <NavigationLink href={'/consultation'}
+              <NavigationLink href={layout.headerCtaPath}
                 variant="primary"
                 size="lg"
                 className="w-full"
-                onClick={() => handleLinkClick('/consultation')}
+                onClick={() => handleLinkClick(layout.headerCtaPath)}
               >
-                Request Consultation
+                {layout.headerCtaLabel}
               </NavigationLink>
             </div>
           </div>

@@ -1,7 +1,8 @@
 import { isMysqlBackend } from '../../lib/mysqlClient';
 import React, { useState, useEffect } from 'react';
 import { db } from '../../services/db';
-import { SiteSettings, NavItem } from '../../types';
+import { SiteSettings, NavItem, GlobalLayoutSettings } from '../../types';
+import { defaultGlobalLayout } from '../../config/globalLayout';
 import { Button } from '../ui/Buttons';
 import { Badge } from '../ui/Badge';
 import { useToast } from '../ui/Toast';
@@ -25,7 +26,15 @@ import {
 export const SettingsManager: React.FC = () => {
   const toast = useToast();
   const [settings, setSettings] = useState<SiteSettings>(db.getSettings());
-  const [activeTab, setActiveTab] = useState<'general' | 'contact' | 'nav' | 'backup'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'contact' | 'nav' | 'layout' | 'backup'>('general');
+  const layout = { ...defaultGlobalLayout, ...settings.layout };
+
+  const updateLayout = (field: keyof GlobalLayoutSettings, value: string) => {
+    setSettings(current => ({
+      ...current,
+      layout: { ...defaultGlobalLayout, ...current.layout, [field]: value },
+    }));
+  };
 
   useEffect(() => {
     const unsub = db.subscribe(() => {
@@ -153,6 +162,7 @@ export const SettingsManager: React.FC = () => {
           { id: 'general', label: 'Firm Identity & SEO' },
           { id: 'contact', label: 'Chambers & Telephony' },
           { id: 'nav', label: 'Navigation Menu Builder' },
+          { id: 'layout', label: 'Global Header & Footer' },
           { id: 'backup', label: 'Database Backup & Restore' },
         ].map((t) => (
           <button
@@ -504,6 +514,69 @@ export const SettingsManager: React.FC = () => {
       )}
 
       {/* TAB 4: DATABASE BACKUP & RESTORE */}
+      {activeTab === 'layout' && (
+        <form onSubmit={handleSaveGeneral} className="space-y-7 max-w-5xl bg-[#121217] border border-[#22222d] p-6 sm:p-8">
+          <div className="border-b border-[#22222d] pb-4">
+            <h3 className="font-cinzel text-xs uppercase tracking-wider text-[#f4e6d0]">Global Header</h3>
+            <p className="text-xs text-[#8e877e] mt-1">These values appear on every public page. Main menu items remain in the Navigation Menu Builder.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {([
+              ['headerPhoneLabel', 'Telephone Prefix', 'Direct'],
+              ['headerCtaLabel', 'CTA Button Label', 'Request Consultation'],
+              ['headerCtaPath', 'CTA Destination', '/consultation'],
+            ] as [keyof GlobalLayoutSettings, string, string][]).map(([field,label,placeholder]) => (
+              <label key={field} className="block">
+                <span className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">{label}</span>
+                <input type="text" value={layout[field]} placeholder={placeholder} onChange={event => updateLayout(field,event.target.value)} className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none" />
+              </label>
+            ))}
+          </div>
+
+          <div className="border border-[#2a2a35] bg-[#0a0a0d] p-4 flex flex-wrap items-center justify-between gap-4">
+            <span className="text-xs text-[#d8cebe]">{layout.headerPhoneLabel}: {settings.contact.telephone}</span>
+            <span className="px-5 py-2 bg-[#c59b63] text-[#0d0d11] font-cinzel text-xs uppercase tracking-wider">{layout.headerCtaLabel}</span>
+          </div>
+
+          <div className="border-b border-[#22222d] pb-4 pt-2">
+            <h3 className="font-cinzel text-xs uppercase tracking-wider text-[#f4e6d0]">Global Footer</h3>
+            <p className="text-xs text-[#8e877e] mt-1">Edit shared column headings, public link labels, and copyright wording.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {([
+              ['footerPracticeAreasHeading', 'Practice Areas Heading'],
+              ['footerFirmHeading', 'Firm Links Heading'],
+              ['footerChambersHeading', 'Contact Column Heading'],
+              ['footerAllPracticeAreasLabel', 'All Practice Areas Link'],
+              ['footerAboutLabel', 'About Link'],
+              ['footerPartnersLabel', 'Partners Link'],
+              ['footerContactLabel', 'Contact Link'],
+              ['footerConsultationLabel', 'Consultation Link'],
+              ['footerOpeningScreenLabel', 'Opening Screen Link'],
+              ['footerPrivacyLabel', 'Privacy Link'],
+              ['footerCopyrightLabel', 'Copyright Text'],
+            ] as [keyof GlobalLayoutSettings, string][]).map(([field,label]) => (
+              <label key={field} className={field === 'footerCopyrightLabel' ? 'block md:col-span-2' : 'block'}>
+                <span className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">{label}</span>
+                <input type="text" value={layout[field]} onChange={event => updateLayout(field,event.target.value)} className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none" />
+              </label>
+            ))}
+          </div>
+
+          <div className="border border-[#2a2a35] bg-[#070709] p-5 grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs">
+            <div><strong className="font-cinzel text-[#f4e6d0] uppercase tracking-wider">{layout.footerPracticeAreasHeading}</strong><p className="text-[#c59b63] mt-3">{layout.footerAllPracticeAreasLabel} →</p></div>
+            <div><strong className="font-cinzel text-[#f4e6d0] uppercase tracking-wider">{layout.footerFirmHeading}</strong><p className="text-[#a8a199] mt-3">{layout.footerAboutLabel}</p><p className="text-[#a8a199] mt-2">{layout.footerPartnersLabel}</p></div>
+            <div><strong className="font-cinzel text-[#f4e6d0] uppercase tracking-wider">{layout.footerChambersHeading}</strong><p className="text-[#a8a199] mt-3">{settings.contact.email}</p></div>
+          </div>
+
+          <div className="pt-2 flex justify-end">
+            <Button type="submit" variant="primary" size="md"><Save className="w-3.5 h-3.5" /><span>Save Global Layout</span></Button>
+          </div>
+        </form>
+      )}
+
       {activeTab === 'backup' && (
         <div className="space-y-6 max-w-3xl">
           {!isMysqlBackend && <SupabaseSetupBanner />}

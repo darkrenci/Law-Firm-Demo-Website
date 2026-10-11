@@ -39,6 +39,23 @@ export interface User {
   lastLogin?: string;
 }
 
+export interface GlobalLayoutSettings {
+  headerPhoneLabel: string;
+  headerCtaLabel: string;
+  headerCtaPath: string;
+  footerPracticeAreasHeading: string;
+  footerFirmHeading: string;
+  footerChambersHeading: string;
+  footerAboutLabel: string;
+  footerPartnersLabel: string;
+  footerContactLabel: string;
+  footerConsultationLabel: string;
+  footerAllPracticeAreasLabel: string;
+  footerOpeningScreenLabel: string;
+  footerPrivacyLabel: string;
+  footerCopyrightLabel: string;
+}
+
 export interface FirmSettings {
   general: {
     firmName: string;
@@ -84,6 +101,7 @@ export interface FirmSettings {
     socialPreviewImage: string;
     indexSite: boolean;
   };
+  layout?: GlobalLayoutSettings;
   // Compatibility properties for simplified settings views
   firmName?: string;
   firmTagline?: string;
@@ -143,12 +161,15 @@ export type SectionBlockType =
   | 'attorneys'
   | 'practiceAreas'
   | 'articles'
+  | 'insights'
   | 'news'
   | 'faq'
+  | 'faqs'
   | 'testimonials'
   | 'awards'
   | 'cta'
   | 'contactInfo'
+  | 'contact'
   | 'contactForm'
   | 'consultationForm'
   | 'divider'
@@ -404,7 +425,7 @@ export interface MediaItem {
   format?: string;
   sizeBytes?: number;
   size?: string;
-  category: 'branding' | 'attorneys' | 'offices' | 'insights' | 'general' | 'portrait' | 'architectural' | 'video';
+  category: 'branding' | 'attorneys' | 'offices' | 'insights' | 'general' | 'portrait' | 'portraits' | 'architectural' | 'video';
   altText: string;
   dataUrl?: string;
   createdAt?: string;
