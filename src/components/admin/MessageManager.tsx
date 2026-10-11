@@ -21,6 +21,8 @@ export const MessageManager: React.FC = () => {
   }, []);
 
   const handleMarkStatus = async (id: string, status: 'unread' | 'read' | 'replied' | 'archived') => {
+    const message = messages.find(item => item.id === id);
+    if (!confirm(`Mark the message from "${message?.fullName || 'this sender'}" as ${status}?`)) return;
     try {
     await db.updateMessageStatus(id, status);
     toast.success('Message Status Updated', `Marked as ${status}`);

@@ -200,6 +200,9 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
   // Add new section from Catalog
   const handleInsertSection = (type: SectionType) => {
     const defaultContents: Record<SectionType, any> = {
+      insights: { headline: 'Legal Insights', limit: 6 },
+      faqs: { headline: 'Frequently Asked Questions', limit: 5 },
+      contact: { headline: 'Executive Chambers' },
       hero: {
         headline: 'Corporate Counsel & Strategic Advocacy',
         subheadline: 'Trusted trial representation and high-stakes corporate advisory for discerning institutions.',
@@ -315,9 +318,6 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
       },
       divider: {},
       spacer: {},
-      insights: { headline: 'Legal Insights', limit: 6 },
-      faqs: { headline: 'Frequently Asked Questions', limit: 5 },
-      contact: { headline: 'Executive Chambers' },
     };
 
     const newSection: PageSection = {
@@ -360,6 +360,8 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
 
   // Save & Publish changes to DB
   const handleSaveAndPublish = async () => {
+    if (!isDirty) return toast.info('No Changes', 'This page already matches the published version.');
+    if (!confirm(`Publish changes to "${workingPage.title}" now?\n\n${workingPage.sections?.length || 0} page sections will be saved to MySQL and shown on the public website.`)) return;
     setIsSaving(true);
     try {
       await db.savePage(workingPage, `Updated via Live Visual Builder (${workingPage.sections?.length || 0} sections)`);
@@ -1037,6 +1039,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
           page={workingPage}
           onClose={() => setIsPageSettingsOpen(false)}
           onSave={async (updates) => {
+            if (!confirm(`Update the page settings and SEO for "${workingPage.title}" now?`)) return;
             try {
             setWorkingPage((prev) => ({ ...prev, ...updates }));
             await db.savePage({ ...workingPage, ...updates });

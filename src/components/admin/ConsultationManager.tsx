@@ -40,6 +40,8 @@ export const ConsultationManager: React.FC = () => {
   }, []);
 
   const handleUpdateStatus = async (id: string, status: ConsultationStatus) => {
+    const request = consultations.find(item => item.id === id);
+    if (!confirm(`Change ${request?.referenceNumber || 'this consultation'} to "${status.replace('_', ' ')}"?`)) return;
     try {
     await db.updateConsultationStatus(id, status);
     toast.success('Status Transitioned', `Case moved to ${status.replace('_', ' ')}`);
@@ -50,6 +52,7 @@ export const ConsultationManager: React.FC = () => {
   };
 
   const handleAddNotes = async (id: string, notes: string) => {
+    if (!confirm('Save these private consultation notes now?')) return;
     try {
     await db.updateConsultationStatus(id, selectedCase?.status || 'under_review', notes);
     toast.success('Internal Notes Recorded');

@@ -61,6 +61,8 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
   };
 
   const handleTogglePublish = async (atty: Attorney) => {
+    const nextState = !atty.isPublished ? 'publish' : 'hide';
+    if (!confirm(`${nextState === 'publish' ? 'Publish' : 'Hide'} "${atty.fullName}" on the public website?`)) return;
     try {
     await db.saveAttorney({ ...atty, isPublished: !atty.isPublished });
     toast.info('Status Updated', `${atty.fullName} is now ${!atty.isPublished ? 'Published' : 'Hidden'}`);
@@ -287,6 +289,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
           isNew={isNew}
           onClose={() => setEditingAttorney(null)}
           onSave={async (saved) => {
+            if (!confirm(`${isNew ? 'Create' : 'Update'} the partner profile for "${saved.fullName}" now?`)) return;
             try {
             await db.saveAttorney(saved);
             toast.success('Roster Updated', `Saved partner ${saved.fullName}`);

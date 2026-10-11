@@ -53,6 +53,7 @@ export const PracticeAreaManager: React.FC<PracticeAreaManagerProps> = ({ onOpen
 
   const handleToggleStatus = async (pa: PracticeArea) => {
     const nextStatus = pa.status === 'published' ? 'draft' : 'published';
+    if (!confirm(`${nextStatus === 'published' ? 'Publish' : 'Hide'} the practice area "${pa.title}" on the public website?`)) return;
     try { await db.savePracticeArea({ ...pa, status: nextStatus }); toast.info('Status Changed', `${pa.title} marked as ${nextStatus}`); }
     catch (error) { toast.error('Save Failed', (error as Error).message); }
   };
@@ -206,6 +207,7 @@ export const PracticeAreaManager: React.FC<PracticeAreaManagerProps> = ({ onOpen
           isNew={isNew}
           onClose={() => setEditingArea(null)}
           onSave={async (saved) => {
+            if (!confirm(`${isNew ? 'Create' : 'Update'} the practice area "${saved.title}" now?`)) return;
             try { await db.savePracticeArea(saved); toast.success('Practice Area Saved', saved.title); setEditingArea(null); }
             catch (error) { toast.error('Save Failed', (error as Error).message); }
           }}

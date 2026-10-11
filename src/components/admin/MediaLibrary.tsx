@@ -63,6 +63,7 @@ export const MediaLibrary: React.FC = () => {
   };
 
   const handleSaveEdit = async (updatedItem: MediaAsset) => {
+    if (!confirm(`Update the media details for "${updatedItem.name}" now?`)) return;
     if (!await supabaseService.saveMedia(updatedItem)) throw new Error('Could not save the asset. Check your connection and permissions.');
     await db.refreshFromSupabase();
     toast.success('Media Asset Updated', updatedItem.name);
