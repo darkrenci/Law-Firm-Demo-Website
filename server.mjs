@@ -600,7 +600,7 @@ function createApp(db3, options) {
     if (typeof currentPassword !== "string" || typeof newPassword !== "string" || newPassword.length < 12 || newPassword.length > 256) return res.status(400).json({ error: "Use a new password with at least 12 characters." });
     const [rows] = await db3.execute("SELECT password_hash FROM app_admins WHERE id=? AND active=1", [req.admin.id]);
     if (!rows[0] || !verifyPassword(currentPassword, rows[0].password_hash)) return res.status(401).json({ error: "Current password is incorrect." });
-    await db3.execute("UPDATE app_admins SET password_hash=?,updated_at=UTC_TIMESTAMP(6) WHERE id=?", [hashPassword(newPassword), req.admin.id]);
+    await db3.execute("UPDATE app_admins SET password_hash=? WHERE id=?", [hashPassword(newPassword), req.admin.id]);
     await db3.execute("DELETE FROM app_sessions WHERE admin_id=? AND token_hash<>?", [req.admin.id, tokenHash(cookieToken(req.headers.cookie))]);
     res.json({ ok: true });
   }));
