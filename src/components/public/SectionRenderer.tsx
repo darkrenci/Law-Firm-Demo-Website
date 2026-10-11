@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '../ui/Toast';
 import { resolveItemTypography } from '../../lib/itemTypography';
+import { RichTextContent } from './RichTextContent';
 
 const getPartnerOfficialPortrait = (fullName?: string, slug?: string, id?: string) => {
   const s = `${fullName || ''} ${slug || ''} ${id || ''}`.toLowerCase();
@@ -1110,16 +1111,11 @@ const RenderSectionItem: React.FC<{
               activeElementPart={activeElementPart}
               onSelectPart={onSelectPart}
             >
-              <div
+              <RichTextContent
                 style={bodyTypo.customStyle}
                 className={`${bodyTypo.fontClass} ${bodyTypo.sizeClass || 'text-base sm:text-lg'} ${bodyTypo.weightClass} ${bodyTypo.trackingClass} ${bodyTypo.bodyColorClass || bodyTypo.colorClass} ${bodyTypo.uppercaseClass} ${bodyTypo.italicClass} ${bodyTypo.dropCapClass} leading-relaxed space-y-4`}
-              >
-                {(content.body || 'Legal jurisprudence and strategic counsel...').split('\n\n').map((paragraph: string, idx: number) => (
-                  <p key={idx} className="leading-relaxed">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
+                value={content.body || 'Legal jurisprudence and strategic counsel...'}
+              />
             </EditablePartWrapper>
           </div>
         </section>
@@ -1173,12 +1169,11 @@ const RenderSectionItem: React.FC<{
                   activeElementPart={activeElementPart}
                   onSelectPart={onSelectPart}
                 >
-                  <p
+                  <RichTextContent
                     style={bodyTypo.customStyle}
                     className={`${bodyTypo.fontClass} ${bodyTypo.sizeClass || 'text-sm sm:text-base'} ${bodyTypo.bodyColorClass || 'text-[#b8b0a5]'} ${bodyTypo.weightClass} ${bodyTypo.trackingClass} ${bodyTypo.uppercaseClass} ${bodyTypo.italicClass} leading-relaxed max-w-3xl mx-auto`}
-                  >
-                    {content.body}
-                  </p>
+                    value={content.body}
+                  />
                 </EditablePartWrapper>
               )}
 
@@ -1618,23 +1613,11 @@ const RenderSectionItem: React.FC<{
               onSelectPart={onSelectPart}
               className="w-full"
             >
-              <div
+              <RichTextContent
                 style={bodyTypo.customStyle}
                 className={`space-y-4 sm:space-y-5 ${bodyTypo.fontClass} ${bodyTypo.sizeClass || 'text-sm sm:text-base'} ${bodyTypo.bodyColorClass || bodyTypo.colorClass} leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] hyphens-auto ${bodyTypo.italicClass} ${bodyTypo.trackingClass} ${bodyTypo.dropCapClass}`}
-              >
-                {(content.body || '')
-                  .split(/\n\s*\n/)
-                  .map((p: string) => p.trim())
-                  .filter(Boolean)
-                  .map((para: string, i: number) => (
-                    <p
-                      key={i}
-                      className="leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] text-[#ded6c9] mb-6 sm:mb-8 last:mb-0"
-                    >
-                      {para}
-                    </p>
-                  ))}
-              </div>
+                value={content.body || ''}
+              />
             </EditablePartWrapper>
 
             {/* Optional Stats */}
@@ -1820,18 +1803,11 @@ const RenderSectionItem: React.FC<{
                 activeElementPart={activeElementPart}
                 onSelectPart={onSelectPart}
               >
-                <div
+                <RichTextContent
                   style={bodyTypo.customStyle}
                   className={`space-y-4 ${bodyTypo.fontClass} ${bodyTypo.sizeClass || 'text-sm'} ${bodyTypo.bodyColorClass || bodyTypo.colorClass} ${bodyTypo.weightClass} ${bodyTypo.trackingClass} ${bodyTypo.uppercaseClass} ${bodyTypo.italicClass} ${bodyTypo.dropCapClass} leading-relaxed`}
-                >
-                  {(content.body || '')
-                    .split(/\n\s*\n/)
-                    .map((p: string) => p.trim())
-                    .filter(Boolean)
-                    .map((para: string, i: number) => (
-                      <p key={i} className="mb-5 last:mb-0 leading-relaxed text-[#ded6c9]">{para}</p>
-                    ))}
-                </div>
+                  value={content.body || ''}
+                />
 
                 {content.points && content.points.length > 0 && (
                   <ul className="space-y-3 pt-4">
@@ -2842,12 +2818,11 @@ const RenderSectionItem: React.FC<{
                 activeElementPart={activeElementPart}
                 onSelectPart={onSelectPart}
               >
-                <p
+                <RichTextContent
                   style={subTypo.customStyle}
                   className={`${subTypo.fontClass} ${subTypo.sizeClass || 'text-sm sm:text-base'} ${subTypo.bodyColorClass || subTypo.colorClass} max-w-2xl ${subTypo.marginClass} leading-relaxed ${subTypo.weightClass} ${subTypo.trackingClass} ${subTypo.uppercaseClass} ${subTypo.italicClass}`}
-                >
-                  {content.subheadline || content.body}
-                </p>
+                  value={content.subheadline || content.body}
+                />
               </EditablePartWrapper>
             )}
 

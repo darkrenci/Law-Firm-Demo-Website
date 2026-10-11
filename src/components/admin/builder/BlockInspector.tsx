@@ -30,6 +30,7 @@ import {
   LayoutGrid,
 } from 'lucide-react';
 import { ImageUploadField } from '../../ui/ImageUploadField';
+import { RichTextEditor } from '../../ui/RichTextEditor';
 import { PartnerContentEditor } from './PartnerContentEditor';
 import { chamberFields, partnerLabelFields } from './editableContentFields';
 
@@ -788,12 +789,10 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
               <label className="block font-cinzel text-[10px] font-semibold tracking-wider text-[#d4af7a] uppercase">
                 Editorial Body Text
               </label>
-              <textarea
-                rows={5}
+              <RichTextEditor
                 value={content.body || ''}
-                onChange={(e) => handleContentChange('body', e.target.value)}
+                onChange={(value) => handleContentChange('body', value)}
                 placeholder="Enter editorial narrative text..."
-                className="w-full bg-[#09090d] border border-[#242430] p-2.5 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none leading-relaxed font-sans"
               />
             </div>
 
@@ -1667,13 +1666,11 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                     <label className="block text-[10px] text-[#8e877e] uppercase mb-1">
                       Editorial Introduction Text (Paragraphs)
                     </label>
-                    <textarea
-                      rows={10}
+                    <RichTextEditor
                       value={content.body ?? content.introduction ?? "The FIRM was founded by brothers Atty. Leo Anselmo L.V. Lalusis and Atty. Levy John L.V. Lalusis, under the guidance of their senior partner and uncle, Atty. Diosdado Anselmo Q. Lalusis, LPT.\n\nThe brothers Atty. Leo and Atty. Levy are the sons of the late Chief Danielito Q. Lalusis, who served the National Bureau of Investigation (NBI) with utmost integrity and excellence for almost 30 years prior to his untimely passing.\n\nWith their combined training and experience, the brothers, Atty. Leo and Atty. Levy bring proactive, adaptive, and client-centered legal representation tailored to each client's distinct needs and circumstances. Guided by the principle of LEGAL PRECISION, the firm delivers legal representation grounded in rigorous preparation and a steadfast commitment to achieving results that serve its clients' best interests."}
                       onFocus={() => onSelectPart?.('body')}
-                      onChange={(e) => handleContentChange('body', e.target.value)}
+                      onChange={(value) => handleContentChange('body', value)}
                       placeholder="The FIRM was founded by brothers Atty. Leo Anselmo L.V. Lalusis and Atty. Levy John L.V. Lalusis..."
-                      className="w-full bg-[#09090d] border border-[#242430] p-2.5 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none leading-relaxed font-sans"
                     />
                   </div>
 
@@ -1879,12 +1876,10 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                   <label className="block font-cinzel text-[10px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
                     Body Text &amp; Editorial Content
                   </label>
-                  <textarea
-                    rows={5}
+                  <RichTextEditor
                     value={content.body || ''}
-                    onChange={(e) => handleContentChange('body', e.target.value)}
+                    onChange={(value) => handleContentChange('body', value)}
                     placeholder="Enter detailed editorial text..."
-                    className="w-full bg-[#09090d] border border-[#242430] p-2.5 text-xs text-[#f7f4ee] focus:border-[#c59b63] focus:outline-none leading-relaxed font-sans"
                   />
                 </div>
 
