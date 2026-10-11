@@ -64,6 +64,11 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
     const p = all.find((item) => item.id === 'page-home') || all[0];
     return JSON.parse(JSON.stringify(p || { sections: [] }));
   });
+  const workingPageRef = useRef(workingPage);
+
+  useEffect(() => {
+    workingPageRef.current = workingPage;
+  }, [workingPage]);
 
   useEffect(() => {
     if (initialPageSlug) {
@@ -136,15 +141,16 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
 
   // Real-time section update handler
   const handleUpdateSection = (sectionId: string, updates: Partial<PageSection>) => {
-    setWorkingPage((prev) => {
-      const nextSections = (prev.sections || []).map((sec) => {
-        if (sec.id === sectionId) {
-          return { ...sec, ...updates };
-        }
-        return sec;
-      });
-      return { ...prev, sections: nextSections };
+    const current = workingPageRef.current;
+    const nextSections = (current.sections || []).map((sec) => {
+      if (sec.id === sectionId) {
+        return { ...sec, ...updates };
+      }
+      return sec;
     });
+    const nextPage = { ...current, sections: nextSections };
+    workingPageRef.current = nextPage;
+    setWorkingPage(nextPage);
     setIsDirty(true);
   };
 
@@ -361,13 +367,21 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
   // Save & Publish changes to DB
   const handleSaveAndPublish = async () => {
     if (!isDirty) return toast.info('No Changes', 'This page already matches the published version.');
-    if (!confirm(`Publish changes to "${workingPage.title}" now?\n\n${workingPage.sections?.length || 0} page sections will be saved to MySQL and shown on the public website.`)) return;
+    const pageToSave = JSON.parse(JSON.stringify(workingPageRef.current)) as Page;
+    if (!confirm(`Publish changes to "${pageToSave.title}" now?\n\n${pageToSave.sections?.length || 0} page sections will be saved to MySQL and shown on the public website.`)) return;
     setIsSaving(true);
     try {
-      await db.savePage(workingPage, `Updated via Live Visual Builder (${workingPage.sections?.length || 0} sections)`);
+      await db.savePage(pageToSave, `Updated via Live Visual Builder (${pageToSave.sections?.length || 0} sections)`);
+      await db.refreshFromSupabase();
+      const persisted = db.getPageById(pageToSave.id);
+      if (!persisted || JSON.stringify(persisted.sections) !== JSON.stringify(pageToSave.sections)) {
+        throw new Error('The database did not return the latest page content. Please try saving again.');
+      }
+      workingPageRef.current = JSON.parse(JSON.stringify(persisted));
+      setWorkingPage(workingPageRef.current);
       setIsDirty(false);
       setIsSaving(false);
-      toast.success('Page Saved & Published', 'All changes are now live on the public website.');
+      toast.success('Page Saved & Published', 'MySQL confirmed the formatted page content. It is now live on the public website.');
     } catch (err) {
       setIsSaving(false);
       toast.error('Failed to Save Page', (err as Error).message);

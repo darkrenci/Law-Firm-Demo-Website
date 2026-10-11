@@ -731,23 +731,11 @@ const RenderSectionItem: React.FC<{
               onSelectPart={onSelectPart}
               className="w-full max-w-4xl mx-auto"
             >
-              <div
+              <RichTextContent
                 style={bodyTypo.customStyle}
                 className={`space-y-6 sm:space-y-8 ${bodyTypo.fontClass} ${bodyTypo.sizeClass || 'text-sm sm:text-base'} ${bodyTypo.bodyColorClass || bodyTypo.colorClass} leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] hyphens-auto ${bodyTypo.italicClass} ${bodyTypo.trackingClass}`}
-              >
-                {introductionBody
-                  .split(/\n\s*\n/)
-                  .map((p: string) => p.trim())
-                  .filter(Boolean)
-                  .map((para: string, i: number) => (
-                    <p
-                      key={i}
-                      className="leading-relaxed sm:leading-loose text-justify [text-align-last:left] [text-justify:inter-word] text-[#ded6c9] mb-6 sm:mb-8 last:mb-0"
-                    >
-                      {para}
-                    </p>
-                  ))}
-              </div>
+                value={introductionBody}
+              />
             </EditablePartWrapper>
 
             {/* Watch Introduction Video Player */}
