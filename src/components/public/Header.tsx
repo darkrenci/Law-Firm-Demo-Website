@@ -2,7 +2,6 @@ import { NavigationLink } from '../ui/NavigationLink';
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Logo } from '../brand/Logo';
-import { Button } from '../ui/Buttons';
 import {
   Phone,
   Clock,
@@ -11,8 +10,6 @@ import {
   Menu,
   X,
   ChevronDown,
-  Shield,
-  ExternalLink,
 } from 'lucide-react';
 import { db } from '../../services/db';
 import { FirmSettings, MenuItem } from '../../types';
@@ -21,14 +18,12 @@ interface HeaderProps {
   currentPath: string;
   onNavigate: (path: string) => void;
   onOpenSearch: () => void;
-  onOpenAdmin: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   currentPath,
   onNavigate,
   onOpenSearch,
-  onOpenAdmin,
 }) => {
   const [settings, setSettings] = useState<FirmSettings>(db.getSettings());
   const [navigation, setNavigation] = useState<MenuItem[]>(db.getNavigation());
@@ -115,17 +110,6 @@ export const Header: React.FC<HeaderProps> = ({
                 Direct: {settings.contact.telephone}
               </span>
             </div>
-            <div className="h-3 w-[1px] bg-[#2a2a35]" />
-            <button
-              onClick={onOpenAdmin}
-              className="flex items-center gap-1.5 text-[#c59b63] hover:text-[#f4e6d0] transition-colors cursor-pointer"
-              title="Access Content Management System"
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span className="font-cinzel tracking-wider uppercase text-[10px]">
-                Admin CMS
-              </span>
-            </button>
           </div>
         </div>
       </div>
@@ -248,7 +232,7 @@ export const Header: React.FC<HeaderProps> = ({
               })}
           </nav>
 
-          {/* Actions: Search, Admin Switcher & CTA */}
+          {/* Actions: Search & CTA */}
           <div className="hidden xl:flex items-center gap-2.5 2xl:gap-3 flex-shrink-0 ml-2">
             <button
               onClick={onOpenSearch}
@@ -257,16 +241,6 @@ export const Header: React.FC<HeaderProps> = ({
               aria-label="Search"
             >
               <Search className="w-4 h-4" />
-            </button>
-
-            {/* Admin CMS button in navbar (visible on extra wide screens; also permanently accessible in top utility bar) */}
-            <button
-              onClick={onOpenAdmin}
-              className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-cinzel font-semibold uppercase tracking-wider text-[#c59b63] border border-[#c59b63]/50 hover:bg-[#c59b63] hover:text-[#0d0d11] transition-all cursor-pointer whitespace-nowrap"
-              title="Access Admin CMS Portal"
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Admin CMS</span>
             </button>
 
             <NavigationLink href={'/consultation'}
@@ -353,16 +327,6 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="pt-8 border-t border-[#1c1c24] mt-8 text-center space-y-3">
             <p className="text-xs text-[#a8a199]">{settings.contact.telephone}</p>
             <p className="text-xs text-[#a8a199] break-all">{settings.contact.email}</p>
-            <button
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                onOpenAdmin();
-              }}
-              className="inline-flex items-center gap-1.5 text-xs text-[#c59b63] uppercase tracking-wider font-cinzel pt-2"
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Admin CMS Portal</span>
-            </button>
           </div>
         </div>, document.body
       )}

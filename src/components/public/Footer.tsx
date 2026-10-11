@@ -3,17 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { Logo } from '../brand/Logo';
 import { db } from '../../services/db';
 import { FirmSettings, PracticeArea } from '../../types';
-import { MapPin, Phone, Mail, Clock, Shield, ExternalLink } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 
 interface FooterProps {
   onNavigate: (path: string) => void;
-  onOpenAdmin: () => void;
   onReplayOpeningScreen?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onNavigate,
-  onOpenAdmin,
   onReplayOpeningScreen,
 }) => {
   const [settings, setSettings] = useState<FirmSettings>(db.getSettings());
@@ -182,7 +180,7 @@ export const Footer: React.FC<FooterProps> = ({
 
         {/* Legal disclaimer box hidden. */}
 
-        {/* Bottom Bar: Copyright & Admin Portal */}
+        {/* Bottom Bar */}
         <div className="mt-8 pt-6 border-t border-[#14141a] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7a746b]">
           <div>
             &copy; {new Date().getFullYear()} {settings.general.firmName}, Attorneys at Law. All rights reserved.
@@ -207,14 +205,6 @@ export const Footer: React.FC<FooterProps> = ({
             >
               Privacy &amp; Privilege
             </NavigationLink>
-            <div className="h-3 w-[1px] bg-[#22222c]" />
-            <button
-              onClick={onOpenAdmin}
-              className="flex items-center gap-1.5 text-[#c59b63] hover:text-[#f4e6d0] transition-colors font-cinzel uppercase tracking-wider text-[11px] cursor-pointer"
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>CMS Administration</span>
-            </button>
           </div>
         </div>
       </div>

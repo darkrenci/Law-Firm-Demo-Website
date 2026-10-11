@@ -346,7 +346,6 @@ export default function App({ initialPath = '/', prerender = false }: { initialP
           currentPath={currentPath}
           onNavigate={handleNavigate}
           onOpenSearch={() => setIsSearchOpen(true)}
-          onOpenAdmin={() => handleNavigate('/admin')}
         />
 
         {/* Main Content */}
@@ -355,7 +354,6 @@ export default function App({ initialPath = '/', prerender = false }: { initialP
         {/* Public Footer */}
         <Footer
           onNavigate={handleNavigate}
-          onOpenAdmin={() => handleNavigate('/admin')}
           onReplayOpeningScreen={() => setShowOpeningScreen(true)}
         />
 
