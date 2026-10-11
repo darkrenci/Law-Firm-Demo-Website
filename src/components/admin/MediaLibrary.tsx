@@ -63,11 +63,9 @@ export const MediaLibrary: React.FC = () => {
   };
 
   const handleSaveEdit = async (updatedItem: MediaAsset) => {
-    if (!confirm(`Update the media details for "${updatedItem.name}" now?`)) return;
     if (!await supabaseService.saveMedia(updatedItem)) throw new Error('Could not save the asset. Check your connection and permissions.');
     await db.refreshFromSupabase();
     toast.success('Media Asset Updated', updatedItem.name);
-    setEditingItem(null);
   };
 
   const filtered = media.filter((item) => {
@@ -226,7 +224,6 @@ export const MediaLibrary: React.FC = () => {
             if (!await supabaseService.checkSchemaReady() || !await supabaseService.saveMedia(saved)) throw new Error('Could not save the asset. Check your connection and permissions.');
             await db.refreshFromSupabase();
             toast.success('Media Asset Added', asset.name);
-            setIsAddOpen(false);
           }}
         />
       )}
@@ -248,6 +245,7 @@ const AddMediaModal: React.FC<{
 }> = ({ onClose, onAdd }) => {
   const toast = useToast();
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [assetType, setAssetType] = useState<'image' | 'video'>('image');
   const [uploading, setUploading] = useState(false);
   const [name, setName] = useState('');
@@ -263,7 +261,8 @@ const AddMediaModal: React.FC<{
     if (!url) {
       return;
     }
-    if (saving || uploading) return;
+    if (saving || uploading || saved) return;
+    if (!confirm(`Save "${name.trim() || 'Visual Asset'}" to the media library now?`)) return;
     setSaving(true);
     try { await onAdd({
       id: uploadedMediaId || undefined,
@@ -273,7 +272,7 @@ const AddMediaModal: React.FC<{
       category,
       altText: altText || name || 'Chamber media asset',
       size: url.startsWith('data:') ? 'uploaded-file' : 'web-optimized',
-    }); } catch (error) { toast.error('Save Failed', (error as Error).message); }
+    }); setSaved(true); } catch (error) { toast.error('Save Failed', (error as Error).message); }
     finally { setSaving(false); }
   };
 
@@ -303,11 +302,11 @@ const AddMediaModal: React.FC<{
     >
       <form onSubmit={handleSubmit} className="space-y-4 pt-2 text-left">
         <label className="block text-xs text-[#d4af7a]">Asset type
-          <select value={assetType} disabled={uploading || saving} onChange={e => { setAssetType(e.target.value as 'image' | 'video'); setUrl(''); setUploadedMediaId(null); }} className="ml-3 bg-[#0d0d11] border border-[#2a2a35] p-2">
+          <select value={assetType} disabled={uploading || saving || saved} onChange={e => { setAssetType(e.target.value as 'image' | 'video'); setUrl(''); setUploadedMediaId(null); }} className="ml-3 bg-[#0d0d11] border border-[#2a2a35] p-2">
             <option value="image">Image</option><option value="video">Video</option>
           </select>
         </label>
-        {assetType === 'video' ? <VideoUploadField value={url} onChange={handleImageUploaded} allowMediaLibrary={false} onBusyChange={setUploading} /> : <ImageUploadField
+        {!saved && (assetType === 'video' ? <VideoUploadField value={url} onChange={handleImageUploaded} allowMediaLibrary={false} onBusyChange={setUploading} /> : <ImageUploadField
           label="Upload Picture File"
           value={url}
           onChange={handleImageUploaded}
@@ -316,9 +315,11 @@ const AddMediaModal: React.FC<{
           aspectRatio="landscape"
           helperText="Upload any picture file directly from your computer or drag & drop here."
           onBusyChange={setUploading}
-        />}
+        />)}
 
         {uploading && <p className="text-[11px] text-amber-300 border-l-2 border-amber-400 pl-3">Upload in progress. Keep this window open until completion. Large videos can take several minutes depending on your connection.</p>}
+        {saving && <div role="status" className="border border-amber-500/40 bg-amber-950/20 p-3"><p className="font-cinzel text-xs uppercase tracking-wider text-amber-300">Saving to MySQL</p><p className="text-[11px] text-[#b8afa3] mt-1">The file is uploaded. Its title, category, and media-library record are now being confirmed.</p></div>}
+        {saved && <div role="status" className="border border-emerald-500/40 bg-emerald-950/20 p-3"><p className="font-cinzel text-xs uppercase tracking-wider text-emerald-300">Saved to Media Library</p><p className="text-[11px] text-[#c8d8cd] mt-1">MySQL confirmed the record. This media is ready to use across the website.</p></div>}
 
         <div>
           <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
@@ -327,6 +328,7 @@ const AddMediaModal: React.FC<{
           <input
             type="text"
             required
+            disabled={saving || saved}
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Atty. Levy John L.V. Lalusis – Founding Partner"
@@ -339,6 +341,7 @@ const AddMediaModal: React.FC<{
             Category
           </label>
           <select
+            disabled={saving || saved}
             value={category}
             onChange={(e) => setCategory(e.target.value as any)}
             className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none focus:border-[#c59b63]"
@@ -356,6 +359,7 @@ const AddMediaModal: React.FC<{
           </label>
           <input
             type="text"
+            disabled={saving || saved}
             value={altText}
             onChange={(e) => setAltText(e.target.value)}
             placeholder="Descriptive text for accessibility & SEO..."
@@ -364,12 +368,10 @@ const AddMediaModal: React.FC<{
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#1c1c24]">
-          <Button variant="ghost" size="sm" type="button" onClick={onClose} disabled={uploading || saving}>
-            Cancel
-          </Button>
-          <Button variant="primary" size="sm" type="submit" disabled={!url || !name || saving || uploading} isLoading={saving}>
-            Save to Media Library
-          </Button>
+          {saved ? <Button variant="primary" size="sm" type="button" onClick={onClose}>Done</Button> : <>
+            <Button variant="ghost" size="sm" type="button" onClick={onClose} disabled={uploading || saving}>Cancel</Button>
+            <Button variant="primary" size="sm" type="submit" disabled={!url || !name || saving || uploading} isLoading={saving}>{saving ? 'Saving to MySQL…' : 'Save to Media Library'}</Button>
+          </>}
         </div>
       </form>
     </Modal>
@@ -383,6 +385,7 @@ const EditMediaModal: React.FC<{
 }> = ({ item, onClose, onSave }) => {
   const toast = useToast();
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const [name, setName] = useState(item.name);
   const [category, setCategory] = useState<'portrait' | 'architectural' | 'branding' | 'general'>(
     (item.category as any) || 'branding'
@@ -391,26 +394,29 @@ const EditMediaModal: React.FC<{
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (saving) return;
+    if (saving || saved) return;
+    if (!confirm(`Update the media details for "${name.trim() || item.name}" now?`)) return;
     setSaving(true);
     try { await onSave({
       ...item,
       name: name.trim() || 'Visual Asset',
       category,
       altText: altText.trim() || name.trim(),
-    }); } catch (error) { toast.error('Save Failed', (error as Error).message); }
+    }); setSaved(true); } catch (error) { toast.error('Save Failed', (error as Error).message); }
     finally { setSaving(false); }
   };
 
   return (
     <Modal
       isOpen={true}
-      onClose={onClose}
+      onClose={saving ? () => undefined : onClose}
       title="Edit Media Asset Details"
       subtitle="Update the title, category, and SEO alt text for this asset across all devices."
       maxWidth="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4 pt-2 text-left">
+        {saving && <div role="status" className="border border-amber-500/40 bg-amber-950/20 p-3"><p className="font-cinzel text-xs uppercase tracking-wider text-amber-300">Saving media changes</p><p className="text-[11px] text-[#b8afa3] mt-1">Waiting for confirmation from MySQL…</p></div>}
+        {saved && <div role="status" className="border border-emerald-500/40 bg-emerald-950/20 p-3"><p className="font-cinzel text-xs uppercase tracking-wider text-emerald-300">Media changes saved</p><p className="text-[11px] text-[#c8d8cd] mt-1">MySQL confirmed the updated title, category, and alternative text.</p></div>}
         {/* Preview */}
         <div className="aspect-[16/9] max-h-48 bg-[#0a0a0d] border border-[#242433] overflow-hidden flex items-center justify-center">
           {item.fileType === 'video' ? <VideoPreview url={item.url} /> : <img src={item.url} alt={name} className="w-full h-full object-contain" />}
@@ -423,6 +429,7 @@ const EditMediaModal: React.FC<{
           <input
             type="text"
             required
+            disabled={saving || saved}
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Atty. Levy John L.V. Lalusis – Founding Partner"
@@ -435,6 +442,7 @@ const EditMediaModal: React.FC<{
             Category
           </label>
           <select
+            disabled={saving || saved}
             value={category}
             onChange={(e) => setCategory(e.target.value as any)}
             className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none focus:border-[#c59b63]"
@@ -452,6 +460,7 @@ const EditMediaModal: React.FC<{
           </label>
           <input
             type="text"
+            disabled={saving || saved}
             value={altText}
             onChange={(e) => setAltText(e.target.value)}
             placeholder="Descriptive alt text for accessibility..."
@@ -460,12 +469,10 @@ const EditMediaModal: React.FC<{
         </div>
 
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#1c1c24]">
-          <Button variant="ghost" size="sm" type="button" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button variant="primary" size="sm" type="submit" disabled={!name.trim() || saving} isLoading={saving}>
-            Save Changes to Cloud
-          </Button>
+          {saved ? <Button variant="primary" size="sm" type="button" onClick={onClose}>Done</Button> : <>
+            <Button variant="ghost" size="sm" type="button" onClick={onClose} disabled={saving}>Cancel</Button>
+            <Button variant="primary" size="sm" type="submit" disabled={!name.trim() || saving} isLoading={saving}>{saving ? 'Saving to MySQL…' : 'Save Media Changes'}</Button>
+          </>}
         </div>
       </form>
     </Modal>
