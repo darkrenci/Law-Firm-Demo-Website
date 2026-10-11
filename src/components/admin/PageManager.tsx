@@ -43,16 +43,6 @@ interface PageManagerProps {
   initialPageSlug?: string;
 }
 
-const stableJson = (value: unknown): string => JSON.stringify(value, (_key, item) => {
-  if (!item || typeof item !== 'object' || Array.isArray(item)) return item;
-  return Object.keys(item)
-    .sort()
-    .reduce<Record<string, unknown>>((sorted, key) => {
-      sorted[key] = item[key];
-      return sorted;
-    }, {});
-});
-
 export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initialPageSlug }) => {
   const toast = useToast();
   const [pages, setPages] = useState<Page[]>(db.getPages());
@@ -384,8 +374,16 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
       await db.savePage(pageToSave, `Updated via Live Visual Builder (${pageToSave.sections?.length || 0} sections)`);
       await db.refreshFromSupabase();
       const persisted = db.getPageById(pageToSave.id);
-      if (!persisted || stableJson(persisted.sections) !== stableJson(pageToSave.sections)) {
-        throw new Error('The database did not return the latest page content. Please try saving again.');
+      if (!persisted) {
+        throw new Error('The saved page could not be read back from MySQL. Please try again.');
+      }
+      const persistedSections = new Map((persisted.sections || []).map((section) => [section.id, section]));
+      const bodyMismatch = (pageToSave.sections || []).find((section) => {
+        if (typeof section.content?.body !== 'string') return false;
+        return persistedSections.get(section.id)?.content?.body !== section.content.body;
+      });
+      if (bodyMismatch) {
+        throw new Error(`MySQL did not return the latest formatted text for "${bodyMismatch.title || bodyMismatch.id}". Please try again.`);
       }
       workingPageRef.current = JSON.parse(JSON.stringify(persisted));
       setWorkingPage(workingPageRef.current);
