@@ -422,9 +422,8 @@ class DatabaseService {
 
         const hero = mod.sections.find(s => s.id === 'sec-hero' || s.type === 'hero');
         const hasDuplicateIntro = mod.sections.some(s => s.id === 'sec-intro');
-        const isNotExactBody = hero?.content?.body !== bodyText;
         const hasEyebrow = Boolean(hero?.content?.eyebrow);
-        if (hero && (!hero.content?.body || hero.content?.subheadline || hasDuplicateIntro || isNotExactBody || hasEyebrow)) {
+        if (hero && (!hero.content?.body || hero.content?.subheadline || hasDuplicateIntro || hasEyebrow)) {
           cleaned = true;
           mod = {
             ...mod,
@@ -440,7 +439,7 @@ class DatabaseService {
                       imageUrl: restContent.imageUrl || '/assets/founding-partners.jpg',
                       imageAlt: restContent.imageAlt || 'Lalusis & Partners Founding Partners',
                       imageCaption: restContent.imageCaption || 'Partners of Lalusis & Partners · Atty. Levy John L.V. Lalusis · Senior Partner Atty. Diosdado Anselmo Q. Lalusis · Atty. Leo Anselmo L.V. Lalusis',
-                      body: bodyText,
+                      body: restContent.body || bodyText,
                       introVideoUrl: restContent.introVideoUrl || '/videos/introduction.mp4',
                       introPosterUrl: restContent.introPosterUrl || '/videos/introduction.jpg',
                     },
@@ -453,7 +452,7 @@ class DatabaseService {
       }
       if (mod.id === 'page-about' || mod.slug === 'about') {
         const aboutStory = mod.sections.find(s => s.id === 'sec-about-story' || (s.type === 'imageText' && s.title?.includes('Heritage')));
-        if (aboutStory && aboutStory.content?.body !== bodyText) {
+        if (aboutStory && !aboutStory.content?.body) {
           cleaned = true;
           mod = {
             ...mod,
