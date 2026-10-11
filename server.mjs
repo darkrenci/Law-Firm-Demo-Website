@@ -647,12 +647,14 @@ function createApp(db3, options) {
 }
 
 // server/index.ts
+import { fileURLToPath } from "node:url";
 if (process.env.INQUIRY_DATABASE !== "mysql") throw new Error("Set INQUIRY_DATABASE=mysql for the MySQL server.");
 var db2 = createDatabase();
 await db2.execute("SELECT 1");
 var storage = await mediaRoot(process.env.MEDIA_ROOT);
 await verifyMediaWritable(storage);
-var app = createApp(db2, { mediaRoot: storage, origin: process.env.SITE_URL || "https://lalusispartnerslaw.com" });
+var dist2 = fileURLToPath(new URL("./dist", import.meta.url));
+var app = createApp(db2, { dist: dist2, mediaRoot: storage, origin: process.env.SITE_URL || "https://lalusispartnerslaw.com" });
 var server = app.listen(Number(process.env.PORT || 3e3), "0.0.0.0", () => console.log("Website backend listening."));
 for (const signal of ["SIGTERM", "SIGINT"]) process.on(signal, () => {
   server.close(() => {

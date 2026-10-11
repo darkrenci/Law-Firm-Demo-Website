@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { fileURLToPath } from 'node:url';
 import { createDatabase } from './database';
 import { createApp } from './app';
 import { mediaRoot, verifyMediaWritable } from './media';
@@ -8,6 +9,7 @@ const db=createDatabase();
 await db.execute('SELECT 1');
 const storage=await mediaRoot(process.env.MEDIA_ROOT);
 await verifyMediaWritable(storage);
-const app=createApp(db,{mediaRoot:storage,origin:process.env.SITE_URL || 'https://lalusispartnerslaw.com'});
+const dist=fileURLToPath(new URL('./dist',import.meta.url));
+const app=createApp(db,{dist,mediaRoot:storage,origin:process.env.SITE_URL || 'https://lalusispartnerslaw.com'});
 const server=app.listen(Number(process.env.PORT || 3000),'0.0.0.0',()=>console.log('Website backend listening.'));
 for(const signal of ['SIGTERM','SIGINT']) process.on(signal,()=>{server.close(()=>{db.end().finally(()=>process.exit(0));});});

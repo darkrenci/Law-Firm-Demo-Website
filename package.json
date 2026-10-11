@@ -6,6 +6,7 @@
   "scripts": {
     "build:server": "esbuild server/index.ts --bundle --platform=node --packages=external --format=esm --outfile=server.mjs",
     "build:hostinger": "npm run build",
+    "postinstall": "npm run build",
     "start": "node server.mjs",
     "admin:setup": "tsx server/admin-setup.ts",
     "dev": "vite --port=3000 --host=0.0.0.0",
@@ -33,15 +34,15 @@
     "nodemailer": "^10.0.11",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
-    "vite": "^6.2.3"
+    "vite": "^6.2.3",
+    "esbuild": "0.28.2",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
     "autoprefixer": "^10.4.21",
-    "esbuild": "0.28.2",
     "tailwindcss": "^4.1.14",
-    "tsx": "^4.21.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.3"
   },
