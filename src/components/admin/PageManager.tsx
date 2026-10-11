@@ -43,6 +43,16 @@ interface PageManagerProps {
   initialPageSlug?: string;
 }
 
+const stableJson = (value: unknown): string => JSON.stringify(value, (_key, item) => {
+  if (!item || typeof item !== 'object' || Array.isArray(item)) return item;
+  return Object.keys(item)
+    .sort()
+    .reduce<Record<string, unknown>>((sorted, key) => {
+      sorted[key] = item[key];
+      return sorted;
+    }, {});
+});
+
 export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initialPageSlug }) => {
   const toast = useToast();
   const [pages, setPages] = useState<Page[]>(db.getPages());
@@ -374,7 +384,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
       await db.savePage(pageToSave, `Updated via Live Visual Builder (${pageToSave.sections?.length || 0} sections)`);
       await db.refreshFromSupabase();
       const persisted = db.getPageById(pageToSave.id);
-      if (!persisted || JSON.stringify(persisted.sections) !== JSON.stringify(pageToSave.sections)) {
+      if (!persisted || stableJson(persisted.sections) !== stableJson(pageToSave.sections)) {
         throw new Error('The database did not return the latest page content. Please try saving again.');
       }
       workingPageRef.current = JSON.parse(JSON.stringify(persisted));
