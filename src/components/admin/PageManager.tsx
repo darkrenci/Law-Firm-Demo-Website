@@ -315,6 +315,9 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
       },
       divider: {},
       spacer: {},
+      insights: { headline: 'Legal Insights', limit: 6 },
+      faqs: { headline: 'Frequently Asked Questions', limit: 5 },
+      contact: { headline: 'Executive Chambers' },
     };
 
     const newSection: PageSection = {

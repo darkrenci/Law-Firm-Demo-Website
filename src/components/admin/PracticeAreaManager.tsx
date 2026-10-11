@@ -44,17 +44,17 @@ export const PracticeAreaManager: React.FC<PracticeAreaManagerProps> = ({ onOpen
     setIsNew(true);
   };
 
-  const handleDelete = (id: string, title: string) => {
+  const handleDelete = async (id: string, title: string) => {
     if (confirm(`Delete practice area "${title}"?`)) {
-      db.deletePracticeArea(id);
-      toast.success('Practice Area Deleted');
+      try { await db.deletePracticeArea(id); toast.success('Practice Area Deleted'); }
+      catch (error) { toast.error('Delete Failed', (error as Error).message); }
     }
   };
 
-  const handleToggleStatus = (pa: PracticeArea) => {
+  const handleToggleStatus = async (pa: PracticeArea) => {
     const nextStatus = pa.status === 'published' ? 'draft' : 'published';
-    db.savePracticeArea({ ...pa, status: nextStatus });
-    toast.info('Status Changed', `${pa.title} marked as ${nextStatus}`);
+    try { await db.savePracticeArea({ ...pa, status: nextStatus }); toast.info('Status Changed', `${pa.title} marked as ${nextStatus}`); }
+    catch (error) { toast.error('Save Failed', (error as Error).message); }
   };
 
   const filtered = practices.filter(
@@ -205,10 +205,9 @@ export const PracticeAreaManager: React.FC<PracticeAreaManagerProps> = ({ onOpen
           area={editingArea}
           isNew={isNew}
           onClose={() => setEditingArea(null)}
-          onSave={(saved) => {
-            db.savePracticeArea(saved);
-            toast.success('Practice Area Saved', saved.title);
-            setEditingArea(null);
+          onSave={async (saved) => {
+            try { await db.savePracticeArea(saved); toast.success('Practice Area Saved', saved.title); setEditingArea(null); }
+            catch (error) { toast.error('Save Failed', (error as Error).message); }
           }}
         />
       )}

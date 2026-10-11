@@ -53,10 +53,10 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
     setIsNew(true);
   };
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (confirm(`Remove practitioner "${name}" from chamber roster?`)) {
-      db.deleteAttorney(id);
-      toast.success('Partner Removed');
+      try { await db.deleteAttorney(id); toast.success('Partner Removed'); }
+      catch (error) { toast.error('Delete Failed', (error as Error).message); }
     }
   };
 

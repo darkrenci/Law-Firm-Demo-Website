@@ -39,20 +39,24 @@ export const ConsultationManager: React.FC = () => {
     return unsub;
   }, []);
 
-  const handleUpdateStatus = (id: string, status: ConsultationStatus) => {
-    db.updateConsultationStatus(id, status);
+  const handleUpdateStatus = async (id: string, status: ConsultationStatus) => {
+    try {
+    await db.updateConsultationStatus(id, status);
     toast.success('Status Transitioned', `Case moved to ${status.replace('_', ' ')}`);
     if (selectedCase && selectedCase.id === id) {
       setSelectedCase((prev) => (prev ? { ...prev, status } : null));
     }
+    } catch (error) { toast.error('Update Failed', (error as Error).message); }
   };
 
-  const handleAddNotes = (id: string, notes: string) => {
-    db.updateConsultationStatus(id, selectedCase?.status || 'under_review', notes);
+  const handleAddNotes = async (id: string, notes: string) => {
+    try {
+    await db.updateConsultationStatus(id, selectedCase?.status || 'under_review', notes);
     toast.success('Internal Notes Recorded');
     if (selectedCase) {
       setSelectedCase((prev) => (prev ? { ...prev, internalNotes: notes } : null));
     }
+    } catch (error) { toast.error('Update Failed', (error as Error).message); }
   };
 
   const exportCSV = () => {

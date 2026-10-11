@@ -73,11 +73,14 @@ var init_inquiry_store = __esm({
 // server/index.ts
 init_database();
 import "dotenv/config";
+import { fileURLToPath } from "node:url";
 
 // server/app.ts
 import express from "express";
 import path2 from "node:path";
 import { existsSync } from "node:fs";
+import { access } from "node:fs/promises";
+import { constants as fsConstants } from "node:fs";
 
 // server/auth.ts
 import { randomBytes, scryptSync, timingSafeEqual, createHash } from "node:crypto";
@@ -109,9 +112,11 @@ var fields = {
   faqs: "category_id question answer order_index is_published",
   faq_categories: "name slug description order_index",
   consultation_requests: "reference_number full_name email_address contact_number company_name preferred_consultation_type practice_area_id preferred_date preferred_time brief_concern privacy_consent status internal_notes",
-  contact_messages: "full_name email phone subject message status notes"
+  contact_messages: "full_name email phone subject message status notes",
+  page_versions: "page_id version snapshot note created_by",
+  activity_logs: "user_id user_name user_role action module record_id details timestamp"
 };
-var json = new Set("sections settings children author key_capabilities practice_area_ids education bar_admissions professional_experience memberships awards selected_publications".split(" "));
+var json = new Set("sections settings children author key_capabilities practice_area_ids education bar_admissions professional_experience memberships awards selected_publications snapshot".split(" "));
 function invalid(message = "Invalid content.") {
   return Object.assign(new Error(message), { status: 400 });
 }
@@ -590,11 +595,41 @@ function createApp(db3, options) {
     res.clearCookie("lp_session", { httpOnly: true, secure, sameSite: "strict", path: "/" });
     res.json({ ok: true });
   }));
+  app2.post("/api/auth/change-password", requireAdmin, asyncRoute(async (req, res) => {
+    const { currentPassword, newPassword } = req.body || {};
+    if (typeof currentPassword !== "string" || typeof newPassword !== "string" || newPassword.length < 12 || newPassword.length > 256) return res.status(400).json({ error: "Use a new password with at least 12 characters." });
+    const [rows] = await db3.execute("SELECT password_hash FROM app_admins WHERE id=? AND active=1", [req.admin.id]);
+    if (!rows[0] || !verifyPassword(currentPassword, rows[0].password_hash)) return res.status(401).json({ error: "Current password is incorrect." });
+    await db3.execute("UPDATE app_admins SET password_hash=?,updated_at=UTC_TIMESTAMP(6) WHERE id=?", [hashPassword(newPassword), req.admin.id]);
+    await db3.execute("DELETE FROM app_sessions WHERE admin_id=? AND token_hash<>?", [req.admin.id, tokenHash(cookieToken(req.headers.cookie))]);
+    res.json({ ok: true });
+  }));
   app2.get("/api/content/:table", asyncRoute(async (req, res) => {
     const filter = Object.prototype.hasOwnProperty.call(publicTables, req.params.table) ? publicTables[req.params.table] : null;
     if (!filter) return res.status(404).json({ error: "Not found." });
     const [rows] = await db3.query("SELECT * FROM `" + req.params.table + "` WHERE " + filter + " LIMIT 1000");
     res.json({ data: sanitizePublicRows(req.params.table, rows) });
+  }));
+  app2.get("/api/admin/system-status", requireAdmin, asyncRoute(async (_req, res) => {
+    await db3.execute("SELECT 1");
+    let mediaWritable = false;
+    if (options.mediaRoot) {
+      try {
+        await access(options.mediaRoot, fsConstants.R_OK | fsConstants.W_OK);
+        mediaWritable = true;
+      } catch {
+      }
+    }
+    res.json({ database: true, mediaConfigured: Boolean(options.mediaRoot), mediaWritable, smtpConfigured: Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD), checkedAt: (/* @__PURE__ */ new Date()).toISOString() });
+  }));
+  app2.get("/api/admin/backup", requireAdmin, asyncRoute(async (_req, res) => {
+    const tables = ["site_settings", "pages", "page_versions", "attorneys", "practice_areas", "articles", "news", "faqs", "faq_categories", "navigation", "consultation_requests", "contact_messages", "media", "activity_logs"];
+    const data = {};
+    for (const table of tables) {
+      const [rows] = await db3.query("SELECT * FROM `" + table + "` LIMIT 10000");
+      data[table] = normalize(rows);
+    }
+    res.json({ format: "lalusis-cms-mysql-backup-v1", createdAt: (/* @__PURE__ */ new Date()).toISOString(), data });
   }));
   app2.get("/api/admin/:table", requireAdmin, asyncRoute(async (req, res) => {
     if (!adminTables.has(req.params.table)) return res.status(404).json({ error: "Not found." });
@@ -625,17 +660,17 @@ function createApp(db3, options) {
     return Promise.resolve(inquiry(req, res)).catch(next);
   });
   app2.use("/api", (_req, res) => res.status(404).json({ error: "Not found." }));
-  const dist = path2.resolve(options.dist || "dist");
+  const dist2 = path2.resolve(options.dist || "dist");
   app2.get(/^\/partners(?:\/(.*))?$/, (req, res) => res.redirect(301, "/attorneys" + (req.params[0] ? "/" + encodeURIComponent(req.params[0]) : "")));
   app2.get(/^\/admin(?:\/.*)?$/, (_req, res) => {
     res.setHeader("X-Robots-Tag", "noindex, nofollow");
-    res.sendFile(path2.join(dist, "admin.html"));
+    res.sendFile(path2.join(dist2, "admin.html"));
   });
-  app2.use(express.static(dist, { extensions: ["html"], redirect: false, dotfiles: "deny" }));
+  app2.use(express.static(dist2, { extensions: ["html"], redirect: false, dotfiles: "deny" }));
   app2.use((_req, res) => {
     res.status(404);
     res.setHeader("X-Robots-Tag", "noindex");
-    const file = path2.join(dist, "404.html");
+    const file = path2.join(dist2, "404.html");
     existsSync(file) ? res.sendFile(file) : res.send("Not found");
   });
   app2.use((err, _req, res, _next) => {
@@ -652,7 +687,8 @@ var db2 = createDatabase();
 await db2.execute("SELECT 1");
 var storage = await mediaRoot(process.env.MEDIA_ROOT);
 await verifyMediaWritable(storage);
-var app = createApp(db2, { mediaRoot: storage, origin: process.env.SITE_URL || "https://lalusispartnerslaw.com" });
+var dist = fileURLToPath(new URL("./dist", import.meta.url));
+var app = createApp(db2, { dist, mediaRoot: storage, origin: process.env.SITE_URL || "https://lalusispartnerslaw.com" });
 var server = app.listen(Number(process.env.PORT || 3e3), "0.0.0.0", () => console.log("Website backend listening."));
 for (const signal of ["SIGTERM", "SIGINT"]) process.on(signal, () => {
   server.close(() => {

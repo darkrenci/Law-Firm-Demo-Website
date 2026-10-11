@@ -1,4 +1,5 @@
 import { isMysqlBackend } from '../../lib/mysqlClient';
+import { backendRequest } from '../../lib/mysqlClient';
 import React, { useState, useEffect } from 'react';
 import { db } from '../../services/db';
 import { SiteSettings, NavItem, GlobalLayoutSettings } from '../../types';
@@ -21,12 +22,17 @@ import {
   Phone,
   Search,
   Shield,
+  RefreshCw,
+  KeyRound,
 } from 'lucide-react';
 
 export const SettingsManager: React.FC = () => {
   const toast = useToast();
-  const [settings, setSettings] = useState<SiteSettings>(db.getSettings());
-  const [activeTab, setActiveTab] = useState<'general' | 'contact' | 'nav' | 'layout' | 'backup'>('general');
+  const [settings, setSettings] = useState<SiteSettings>(() => ({ ...db.getSettings(), navigation: db.getNavigation() }));
+  const [activeTab, setActiveTab] = useState<'general' | 'contact' | 'nav' | 'layout' | 'system' | 'backup'>('general');
+  const [systemStatus, setSystemStatus] = useState<any>(null);
+  const [checkingSystem, setCheckingSystem] = useState(false);
+  const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const layout = { ...defaultGlobalLayout, ...settings.layout };
 
   const updateLayout = (field: keyof GlobalLayoutSettings, value: string) => {
@@ -38,15 +44,29 @@ export const SettingsManager: React.FC = () => {
 
   useEffect(() => {
     const unsub = db.subscribe(() => {
-      setSettings(db.getSettings());
+      setSettings({ ...db.getSettings(), navigation: db.getNavigation() });
     });
     return unsub;
   }, []);
 
-  const handleSaveGeneral = (e: React.FormEvent) => {
+  const handleSaveGeneral = async (e: React.FormEvent) => {
     e.preventDefault();
-    db.saveSettings(settings);
-    toast.success('Settings Saved', 'Firm configuration committed to database.');
+    try {
+      await db.saveSettings(settings);
+      toast.success('Settings Saved', 'Firm configuration committed to database.');
+    } catch (error) { toast.error('Save Failed', (error as Error).message); }
+  };
+
+  const persistNavigation = async (nav: NavItem[], successMessage?: string) => {
+    const updated = { ...settings, navigation: nav };
+    setSettings(updated);
+    try {
+      await db.saveNavigation(nav);
+      if (successMessage) toast.success(successMessage);
+    } catch (error) {
+      setSettings(current => ({ ...current, navigation: db.getNavigation() }));
+      toast.error('Navigation Save Failed', (error as Error).message);
+    }
   };
 
   // NAVIGATION BUILDER HANDLERS
@@ -57,10 +77,7 @@ export const SettingsManager: React.FC = () => {
     const temp = nav[index];
     nav[index] = nav[targetIdx];
     nav[targetIdx] = temp;
-    const updated = { ...settings, navigation: nav };
-    setSettings(updated);
-    db.saveSettings(updated);
-    toast.info('Navigation Reordered');
+    void persistNavigation(nav, 'Navigation Reordered');
   };
 
   const handleAddNavItem = () => {
@@ -70,31 +87,26 @@ export const SettingsManager: React.FC = () => {
       path: '/new-page',
       order: settings.navigation.length + 1,
     };
-    const updated = { ...settings, navigation: [...settings.navigation, newNav] };
-    setSettings(updated);
-    db.saveSettings(updated);
-    toast.success('Nav Item Added');
+    void persistNavigation([...settings.navigation, newNav], 'Nav Item Added');
   };
 
   const handleDeleteNavItem = (id: string) => {
-    const updated = { ...settings, navigation: settings.navigation.filter((n) => n.id !== id) };
-    setSettings(updated);
-    db.saveSettings(updated);
-    toast.success('Nav Item Removed');
+    void persistNavigation(settings.navigation.filter((n) => n.id !== id), 'Nav Item Removed');
   };
 
   const handleUpdateNavItem = (id: string, field: 'label' | 'path', value: string) => {
     const updatedNav = settings.navigation.map((item) =>
       item.id === id ? { ...item, [field]: value } : item
     );
-    const updated = { ...settings, navigation: updatedNav };
-    setSettings(updated);
-    db.saveSettings(updated);
+    setSettings({ ...settings, navigation: updatedNav });
   };
 
   // BACKUP & RESTORE
-  const handleExportJSON = () => {
-    const jsonStr = db.exportDatabaseBackup();
+  const handleExportJSON = async () => {
+    let jsonStr: string;
+    try {
+      jsonStr = isMysqlBackend ? JSON.stringify(await backendRequest('/api/admin/backup'), null, 2) : db.exportDatabaseBackup();
+    } catch (error) { toast.error('Backup Failed', (error as Error).message); return; }
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -102,7 +114,24 @@ export const SettingsManager: React.FC = () => {
     a.download = `lalusis_partners_cms_backup_${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('Backup Exported', 'Full CMS database snapshot downloaded.');
+    toast.success('Backup Exported', isMysqlBackend ? 'MySQL CMS snapshot downloaded.' : 'CMS snapshot downloaded.');
+  };
+
+  const checkSystem = async () => {
+    setCheckingSystem(true);
+    try { setSystemStatus(await backendRequest('/api/admin/system-status')); }
+    catch (error) { toast.error('System Check Failed', (error as Error).message); }
+    finally { setCheckingSystem(false); }
+  };
+
+  const changePassword = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (passwords.newPassword !== passwords.confirmPassword) return toast.error('Password Mismatch', 'The new passwords do not match.');
+    try {
+      await backendRequest('/api/auth/change-password', { currentPassword: passwords.currentPassword, newPassword: passwords.newPassword });
+      setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      toast.success('Password Changed', 'Other administrator sessions were signed out.');
+    } catch (error) { toast.error('Password Change Failed', (error as Error).message); }
   };
 
   const handleImportJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,6 +192,7 @@ export const SettingsManager: React.FC = () => {
           { id: 'contact', label: 'Chambers & Telephony' },
           { id: 'nav', label: 'Navigation Menu Builder' },
           { id: 'layout', label: 'Global Header & Footer' },
+          ...(isMysqlBackend ? [{ id: 'system', label: 'System & Security' }] : []),
           { id: 'backup', label: 'Database Backup & Restore' },
         ].map((t) => (
           <button
@@ -488,6 +518,7 @@ export const SettingsManager: React.FC = () => {
                     type="text"
                     value={item.label}
                     onChange={(e) => handleUpdateNavItem(item.id, 'label', e.target.value)}
+                    onBlur={() => void persistNavigation(settings.navigation)}
                     placeholder="Link Label"
                     className="bg-[#0d0d11] border border-[#2a2a35] px-3 py-1.5 text-xs text-[#f7f4ee] focus:outline-none"
                   />
@@ -495,6 +526,7 @@ export const SettingsManager: React.FC = () => {
                     type="text"
                     value={item.path}
                     onChange={(e) => handleUpdateNavItem(item.id, 'path', e.target.value)}
+                    onBlur={() => void persistNavigation(settings.navigation)}
                     placeholder="/path"
                     className="bg-[#0d0d11] border border-[#2a2a35] px-3 py-1.5 text-xs text-[#f7f4ee] focus:outline-none font-mono"
                   />
@@ -585,13 +617,13 @@ export const SettingsManager: React.FC = () => {
             <h3 className="font-cinzel text-xs uppercase tracking-wider text-[#c59b63]">
               Persistence Engine &amp; Backup
             </h3>
-            <p className="text-xs text-[#a8a199] mt-1 leading-relaxed">
-              Export a complete JSON snapshot containing all website pages, visual sections, attorneys, practice disciplines, articles, and consultation logs.
+              <p className="text-xs text-[#a8a199] mt-1 leading-relaxed">
+              {isMysqlBackend ? 'Download a server-generated snapshot of the CMS records currently stored in MySQL. Uploaded media files require a separate filesystem backup.' : 'Export a JSON snapshot of the local CMS state.'}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-[#22222d]">
-            <div className="bg-[#171720] border border-[#262633] p-5 space-y-3">
+            {!isMysqlBackend && <div className="bg-[#171720] border border-[#262633] p-5 space-y-3">
               <h4 className="font-cinzel text-xs uppercase text-[#f7f4ee] font-semibold">
                 Export Current State
               </h4>
@@ -602,7 +634,7 @@ export const SettingsManager: React.FC = () => {
                 <Download className="w-3.5 h-3.5" />
                 <span>Download Database JSON</span>
               </Button>
-            </div>
+            </div>}
 
             <div className="bg-[#171720] border border-[#262633] p-5 space-y-3">
               <h4 className="font-cinzel text-xs uppercase text-[#f7f4ee] font-semibold">
@@ -624,7 +656,7 @@ export const SettingsManager: React.FC = () => {
             </div>
           </div>
 
-          <div className="pt-6 border-t border-rose-900/30">
+          {!isMysqlBackend && <div className="pt-6 border-t border-rose-900/30">
             <div className="bg-rose-950/20 border border-rose-900/40 p-4 flex items-center justify-between gap-4">
               <div>
                 <h5 className="font-cinzel text-xs uppercase text-rose-300 font-semibold">
@@ -640,9 +672,28 @@ export const SettingsManager: React.FC = () => {
                 <span>Reset to Defaults</span>
               </Button>
             </div>
-          </div>
+          </div>}
         </div>
       </div>
+      )}
+
+      {activeTab === 'system' && isMysqlBackend && (
+        <div className="space-y-6 max-w-3xl">
+          <div className="bg-[#121217] border border-[#22222d] p-6 sm:p-8 space-y-5">
+            <div className="flex items-center justify-between gap-4">
+              <div><h3 className="font-cinzel text-xs uppercase tracking-wider text-[#c59b63]">Application Health</h3><p className="text-xs text-[#8e877e] mt-1">Checks connections without exposing passwords or hosting secrets.</p></div>
+              <Button variant="gold-outline" size="sm" onClick={() => void checkSystem()}><RefreshCw className={`w-3.5 h-3.5 ${checkingSystem ? 'animate-spin' : ''}`} /><span>Run Check</span></Button>
+            </div>
+            {systemStatus ? <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[['MySQL',systemStatus.database],['Private media',systemStatus.mediaConfigured && systemStatus.mediaWritable],['SMTP configuration',systemStatus.smtpConfigured]].map(([label,ok]) => <div key={String(label)} className="border border-[#292934] bg-[#0d0d11] p-4"><div className={`text-xs font-cinzel uppercase ${ok ? 'text-emerald-400' : 'text-rose-400'}`}>{ok ? 'Operational' : 'Needs attention'}</div><div className="text-xs text-[#d8cebe] mt-2">{label}</div></div>)}
+            </div> : <p className="text-xs text-[#8e877e]">Run the check to verify the production services.</p>}
+          </div>
+          <form onSubmit={changePassword} className="bg-[#121217] border border-[#22222d] p-6 sm:p-8 space-y-4">
+            <div><h3 className="font-cinzel text-xs uppercase tracking-wider text-[#c59b63] flex items-center gap-2"><KeyRound className="w-4 h-4" />Change Administrator Password</h3><p className="text-xs text-[#8e877e] mt-1">At least 12 characters. Other active sessions will be signed out.</p></div>
+            {([['currentPassword','Current password'],['newPassword','New password'],['confirmPassword','Confirm new password']] as const).map(([field,label]) => <label key={field} className="block"><span className="block text-xs text-[#d8cebe] mb-1">{label}</span><input required minLength={field === 'currentPassword' ? undefined : 12} type="password" autoComplete={field === 'currentPassword' ? 'current-password' : 'new-password'} value={passwords[field]} onChange={event => setPasswords({...passwords,[field]:event.target.value})} className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-sm text-[#f7f4ee] focus:outline-none" /></label>)}
+            <div className="flex justify-end"><Button type="submit" variant="primary" size="md"><Shield className="w-3.5 h-3.5" /><span>Update Password</span></Button></div>
+          </form>
+        </div>
       )}
     </div>
   );

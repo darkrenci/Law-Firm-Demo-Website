@@ -12,6 +12,8 @@ import {
   MediaItem,
   MenuItem,
   Page,
+  PageVersion,
+  ActivityLog,
 } from '../types';
 
 const contentClient = (isMysqlBackend ? mysqlClient : supabase) as typeof supabase;
@@ -386,6 +388,54 @@ export class SupabaseService {
     return true;
   }
 
+  public async deletePage(id: string): Promise<boolean> {
+    if (!this.isConfigured || !this.isSchemaReady) return false;
+    const { error } = await contentClient.from('pages').delete().eq('id', id);
+    return !error;
+  }
+
+  public async getPageVersions(): Promise<PageVersion[] | null> {
+    if (!this.isConfigured || !this.isSchemaReady) return null;
+    const { data, error } = await contentClient.from('page_versions').select('*').order('created_at', { ascending: false });
+    if (error) return null;
+    return (data || []).map((row) => ({
+      id: row.id,
+      pageId: row.page_id,
+      versionNumber: row.version,
+      modifiedBy: row.created_by || 'Administrator',
+      timestamp: row.created_at,
+      changeSummary: row.note || 'Page updated',
+      sectionsSnapshot: row.snapshot || [],
+    }));
+  }
+
+  public async savePageVersion(version: PageVersion): Promise<boolean> {
+    if (!this.isConfigured || !this.isSchemaReady) return false;
+    const { error } = await contentClient.from('page_versions').upsert({
+      id: version.id,
+      page_id: version.pageId,
+      version: version.versionNumber,
+      snapshot: version.sectionsSnapshot,
+      note: version.changeSummary,
+      created_by: version.modifiedBy,
+      created_at: version.timestamp,
+    });
+    return !error;
+  }
+
+  public async getActivityLogs(): Promise<ActivityLog[] | null> {
+    if (!this.isConfigured || !this.isSchemaReady) return null;
+    const { data, error } = await contentClient.from('activity_logs').select('*').order('timestamp', { ascending: false }).limit(500);
+    if (error) return null;
+    return (data || []).map((row) => ({ id: row.id, userId: row.user_id || '', userName: row.user_name || 'Administrator', userRole: row.user_role || 'ADMINISTRATOR', action: row.action, module: row.module, recordId: row.record_id, details: row.details, timestamp: row.timestamp }));
+  }
+
+  public async saveActivityLog(log: ActivityLog): Promise<boolean> {
+    if (!this.isConfigured || !this.isSchemaReady) return false;
+    const { error } = await contentClient.from('activity_logs').insert({ id: log.id, user_id: log.userId, user_name: log.userName, user_role: log.userRole, action: log.action, module: log.module, record_id: log.recordId ?? null, details: log.details ?? null, timestamp: log.timestamp });
+    return !error;
+  }
+
   public async getAttorneys(): Promise<Attorney[] | null> {
     if (!this.isConfigured || !this.isSchemaReady) return null;
     const { data, error } = await contentClient
@@ -737,15 +787,15 @@ export class SupabaseService {
       full_name: req.fullName,
       email_address: req.emailAddress || req.email,
       contact_number: req.contactNumber || req.phone,
-      company_name: req.company,
+      company_name: req.company ?? null,
       preferred_consultation_type: req.preferredConsultationType || 'online',
-      practice_area_id: req.practiceAreaId,
-      preferred_date: req.preferredDate,
-      preferred_time: req.preferredTime,
+      practice_area_id: req.practiceAreaId ?? null,
+      preferred_date: req.preferredDate ?? null,
+      preferred_time: req.preferredTime ?? null,
       brief_concern: req.briefConcern || req.caseSummary || 'General Legal Consultation',
       privacy_consent: req.privacyConsent ?? true,
       status: req.status,
-      internal_notes: req.internalNotes,
+      internal_notes: req.internalNotes ?? null,
       updated_at: new Date().toISOString(),
     });
     if (error) {
@@ -785,11 +835,11 @@ export class SupabaseService {
       id: msg.id,
       full_name: msg.fullName,
       email: msg.email || msg.emailAddress,
-      phone: msg.phone || msg.contactNumber,
+      phone: msg.phone || msg.contactNumber || null,
       subject: msg.subject,
       message: msg.message,
       status: msg.status,
-      notes: msg.internalNotes,
+      notes: msg.internalNotes ?? null,
       updated_at: new Date().toISOString(),
     });
     if (error) {

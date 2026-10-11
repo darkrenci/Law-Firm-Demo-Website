@@ -657,7 +657,7 @@ const RenderSectionItem: React.FC<{
     return null;
   }
 
-  switch (type) {
+  switch (type as import('../../types').SectionBlockType) {
     case 'hero': {
       const isLeft = headTypo.alignment === 'left';
       const isRight = headTypo.alignment === 'right';

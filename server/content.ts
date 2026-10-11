@@ -13,8 +13,10 @@ const fields: Record<string,string> = {
   faq_categories: 'name slug description order_index',
   consultation_requests: 'reference_number full_name email_address contact_number company_name preferred_consultation_type practice_area_id preferred_date preferred_time brief_concern privacy_consent status internal_notes',
   contact_messages: 'full_name email phone subject message status notes',
+  page_versions: 'page_id version snapshot note created_by',
+  activity_logs: 'user_id user_name user_role action module record_id details timestamp',
 };
-const json = new Set('sections settings children author key_capabilities practice_area_ids education bar_admissions professional_experience memberships awards selected_publications'.split(' '));
+const json = new Set('sections settings children author key_capabilities practice_area_ids education bar_admissions professional_experience memberships awards selected_publications snapshot'.split(' '));
 export function invalid(message='Invalid content.') { return Object.assign(new Error(message),{status:400}); }
 function record(table:string, value:any) {
   if(!Object.hasOwn(fields,table)) throw invalid('This table cannot be edited.');

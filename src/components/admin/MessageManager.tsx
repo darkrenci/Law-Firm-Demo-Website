@@ -20,12 +20,14 @@ export const MessageManager: React.FC = () => {
     return unsub;
   }, []);
 
-  const handleMarkStatus = (id: string, status: 'unread' | 'read' | 'replied' | 'archived') => {
-    db.updateMessageStatus(id, status);
+  const handleMarkStatus = async (id: string, status: 'unread' | 'read' | 'replied' | 'archived') => {
+    try {
+    await db.updateMessageStatus(id, status);
     toast.success('Message Status Updated', `Marked as ${status}`);
     if (selectedMsg && selectedMsg.id === id) {
       setSelectedMsg((prev) => (prev ? { ...prev, status } : null));
     }
+    } catch (error) { toast.error('Update Failed', (error as Error).message); }
   };
 
   const filtered = messages.filter(

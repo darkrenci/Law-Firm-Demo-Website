@@ -1,6 +1,8 @@
 import express from 'express';
 import path from 'node:path';
 import { existsSync } from 'node:fs';
+import { access } from 'node:fs/promises';
+import { constants as fsConstants } from 'node:fs';
 import type { Pool } from 'mysql2/promise';
 import { cookieToken, hashPassword, newToken, tokenHash, verifyPassword } from './auth';
 import { writeContent } from './content';
@@ -60,11 +62,32 @@ export function createApp(db: Pool, options: { origin: string; mediaRoot?: strin
     await db.execute('DELETE FROM app_sessions WHERE token_hash=?',[tokenHash(cookieToken(req.headers.cookie))]);
     res.clearCookie('lp_session',{httpOnly:true,secure,sameSite:'strict',path:'/'});res.json({ok:true});
   }));
+  app.post('/api/auth/change-password',requireAdmin,asyncRoute(async(req:any,res:any)=>{
+    const {currentPassword,newPassword}=req.body || {};
+    if(typeof currentPassword!=='string'||typeof newPassword!=='string'||newPassword.length<12||newPassword.length>256) return res.status(400).json({error:'Use a new password with at least 12 characters.'});
+    const [rows]:any=await db.execute('SELECT password_hash FROM app_admins WHERE id=? AND active=1',[req.admin.id]);
+    if(!rows[0]||!verifyPassword(currentPassword,rows[0].password_hash))return res.status(401).json({error:'Current password is incorrect.'});
+    await db.execute('UPDATE app_admins SET password_hash=?,updated_at=UTC_TIMESTAMP(6) WHERE id=?',[hashPassword(newPassword),req.admin.id]);
+    await db.execute('DELETE FROM app_sessions WHERE admin_id=? AND token_hash<>?',[req.admin.id,tokenHash(cookieToken(req.headers.cookie))]);
+    res.json({ok:true});
+  }));
   app.get('/api/content/:table',asyncRoute(async(req:any,res:any)=>{
     const filter=Object.prototype.hasOwnProperty.call(publicTables,req.params.table)?publicTables[req.params.table]:null;
     if(!filter)return res.status(404).json({error:'Not found.'});
     const [rows]:any=await db.query('SELECT * FROM `'+req.params.table+'` WHERE '+filter+' LIMIT 1000');
     res.json({data:sanitizePublicRows(req.params.table,rows)});
+  }));
+  app.get('/api/admin/system-status',requireAdmin,asyncRoute(async(_req:any,res:any)=>{
+    await db.execute('SELECT 1');
+    let mediaWritable=false;
+    if(options.mediaRoot){try{await access(options.mediaRoot,fsConstants.R_OK|fsConstants.W_OK);mediaWritable=true;}catch{}}
+    res.json({database:true,mediaConfigured:Boolean(options.mediaRoot),mediaWritable,smtpConfigured:Boolean(process.env.SMTP_HOST&&process.env.SMTP_USER&&process.env.SMTP_PASSWORD),checkedAt:new Date().toISOString()});
+  }));
+  app.get('/api/admin/backup',requireAdmin,asyncRoute(async(_req:any,res:any)=>{
+    const tables=['site_settings','pages','page_versions','attorneys','practice_areas','articles','news','faqs','faq_categories','navigation','consultation_requests','contact_messages','media','activity_logs'];
+    const data:Record<string,unknown>={};
+    for(const table of tables){const [rows]:any=await db.query('SELECT * FROM `'+table+'` LIMIT 10000');data[table]=normalize(rows);}
+    res.json({format:'lalusis-cms-mysql-backup-v1',createdAt:new Date().toISOString(),data});
   }));
   app.get('/api/admin/:table',requireAdmin,asyncRoute(async(req:any,res:any)=>{
     if(!adminTables.has(req.params.table))return res.status(404).json({error:'Not found.'});

@@ -140,7 +140,7 @@ class DatabaseService {
 
     try {
       const privateGeneration = this.privateGeneration;
-      const [settings, pages, attorneys, practiceAreas, articles, news, media, navigation, consultations, messages] =
+      const [settings, pages, attorneys, practiceAreas, articles, news, media, navigation, consultations, messages, pageVersions, activityLogs] =
         await Promise.all([
           supabaseService.getSettings(),
           supabaseService.getPages(),
@@ -152,6 +152,8 @@ class DatabaseService {
           supabaseService.getNavigation(),
           this.verifiedAdmin ? supabaseService.getConsultations() : Promise.resolve(null),
           this.verifiedAdmin ? supabaseService.getContactMessages() : Promise.resolve(null),
+          this.verifiedAdmin ? supabaseService.getPageVersions() : Promise.resolve(null),
+          this.verifiedAdmin ? supabaseService.getActivityLogs() : Promise.resolve(null),
         ]);
 
       let hasChanges = false;
@@ -193,6 +195,14 @@ class DatabaseService {
       }
       if (messages !== null && this.verifiedAdmin && privateGeneration === this.privateGeneration) {
         this.save(DB_KEYS.MESSAGES, messages);
+        hasChanges = true;
+      }
+      if (pageVersions !== null && this.verifiedAdmin && privateGeneration === this.privateGeneration) {
+        this.save(DB_KEYS.PAGE_VERSIONS, pageVersions);
+        hasChanges = true;
+      }
+      if (activityLogs !== null && this.verifiedAdmin && privateGeneration === this.privateGeneration) {
+        this.save(DB_KEYS.ACTIVITY_LOGS, activityLogs);
         hasChanges = true;
       }
 
@@ -306,6 +316,7 @@ class DatabaseService {
     };
     const logs = this.getActivityLogs();
     this.save(DB_KEYS.ACTIVITY_LOGS, [log, ...logs.slice(0, 199)]);
+    void supabaseService.saveActivityLog(log).catch((error) => console.warn('Audit log save failed:', error));
   }
 
   // --- SETTINGS ---
@@ -375,9 +386,9 @@ class DatabaseService {
     this.logActivity('Updated Website Settings', 'Website Settings', 'settings', 'Modified firm metadata, contact, or branding');
   }
 
-  public saveSettings(settings: any): void {
+  public async saveSettings(settings: any): Promise<void> {
+    await this.requireCloudWrite(() => supabaseService.saveSettings(settings));
     this.save(DB_KEYS.SETTINGS, settings);
-    supabaseService.saveSettings(settings).catch((e) => console.warn('Supabase saveSettings:', e));
     this.logActivity('Updated Website Settings', 'Website Settings', 'settings', 'Saved full settings payload');
   }
 
@@ -694,10 +705,10 @@ class DatabaseService {
     if (idx >= 0) {
       updated = [...pages];
       updated[idx] = updatedPage;
-      this.createPageVersion(page.id, updatedPage.sections, summary);
+      await this.createPageVersion(page.id, updatedPage.sections, summary);
     } else {
       updated = [updatedPage, ...pages];
-      this.createPageVersion(page.id, updatedPage.sections, 'Initial page creation');
+      await this.createPageVersion(page.id, updatedPage.sections, 'Initial page creation');
     }
 
     this.save(DB_KEYS.PAGES, updated);
@@ -724,9 +735,10 @@ class DatabaseService {
     return newPage;
   }
 
-  public deletePage(id: string): boolean {
+  public async deletePage(id: string): Promise<boolean> {
     const pages = this.getPages();
     if (id === 'page-home') return false; // Prevent deleting home page
+    await this.requireCloudWrite(() => supabaseService.deletePage(id));
     const filtered = pages.filter((p) => p.id !== id);
     this.save(DB_KEYS.PAGES, filtered);
     this.logActivity('Deleted Page', 'Pages', id, `Deleted page with ID: ${id}`);
@@ -812,7 +824,7 @@ class DatabaseService {
     return allVersions.filter((v) => v.pageId === pageId).sort((a, b) => b.versionNumber - a.versionNumber);
   }
 
-  private createPageVersion(pageId: string, sections: PageSection[], summary: string): void {
+  private async createPageVersion(pageId: string, sections: PageSection[], summary: string): Promise<void> {
     const allVersions = this.load<PageVersion[]>(DB_KEYS.PAGE_VERSIONS, []);
     const existing = allVersions.filter((v) => v.pageId === pageId);
     const nextVersion = existing.length > 0 ? Math.max(...existing.map((v) => v.versionNumber)) + 1 : 1;
@@ -826,6 +838,7 @@ class DatabaseService {
       changeSummary: summary,
       sectionsSnapshot: JSON.parse(JSON.stringify(sections)),
     };
+    await this.requireCloudWrite(() => supabaseService.savePageVersion(newVersion));
     this.save(DB_KEYS.PAGE_VERSIONS, [newVersion, ...allVersions.slice(0, 150)]);
   }
 
@@ -942,11 +955,11 @@ class DatabaseService {
     this.logActivity(idx >= 0 ? 'Updated Attorney' : 'Created Attorney', 'Attorneys', attorney.id, `Attorney: ${attorney.fullName}`);
   }
 
-  public deleteAttorney(id: string): boolean {
+  public async deleteAttorney(id: string): Promise<boolean> {
     const list = this.getAttorneys(true);
+    await this.requireCloudWrite(() => supabaseService.deleteAttorney(id));
     const filtered = list.filter((a) => a.id !== id);
     this.save(DB_KEYS.ATTORNEYS, filtered);
-    supabaseService.deleteAttorney(id).catch((e) => console.warn('Supabase deleteAttorney:', e));
     this.logActivity('Deleted Attorney', 'Attorneys', id, `Deleted attorney with ID: ${id}`);
     return true;
   }
@@ -975,7 +988,8 @@ class DatabaseService {
     );
   }
 
-  public savePracticeArea(area: PracticeArea): void {
+  public async savePracticeArea(area: PracticeArea): Promise<void> {
+    await this.requireCloudWrite(() => supabaseService.savePracticeArea(area));
     const list = this.getPracticeAreas(true);
     const idx = list.findIndex((pa) => pa.id === area.id);
     let updated: PracticeArea[];
@@ -986,15 +1000,14 @@ class DatabaseService {
       updated = [...list, area];
     }
     this.save(DB_KEYS.PRACTICE_AREAS, updated);
-    supabaseService.savePracticeArea(area).catch((e) => console.warn('Supabase savePracticeArea:', e));
     this.logActivity(idx >= 0 ? 'Updated Practice Area' : 'Created Practice Area', 'Practice Areas', area.id, `Practice Area: ${area.title}`);
   }
 
-  public deletePracticeArea(id: string): boolean {
+  public async deletePracticeArea(id: string): Promise<boolean> {
     const list = this.getPracticeAreas(true);
+    await this.requireCloudWrite(() => supabaseService.deletePracticeArea(id));
     const filtered = list.filter((pa) => pa.id !== id);
     this.save(DB_KEYS.PRACTICE_AREAS, filtered);
-    supabaseService.deletePracticeArea(id).catch((e) => console.warn('Supabase deletePracticeArea:', e));
     this.logActivity('Deleted Practice Area', 'Practice Areas', id, `Deleted practice area: ${id}`);
     return true;
   }
@@ -1183,21 +1196,23 @@ class DatabaseService {
     return req;
   }
 
-  public updateConsultationStatus(
+  public async updateConsultationStatus(
     id: string,
     status: ConsultationStatus,
     notes?: string
-  ): boolean {
+  ): Promise<boolean> {
     const list = this.getConsultationRequests();
     const idx = list.findIndex((c) => c.id === id);
     if (idx === -1) return false;
     const current = list[idx];
-    list[idx] = {
+    const updated = {
       ...current,
       status,
       internalNotes: notes !== undefined ? notes : current.internalNotes,
       updatedAt: new Date().toISOString(),
     };
+    await this.requireCloudWrite(() => supabaseService.saveConsultation(updated));
+    list[idx] = updated;
     this.save(DB_KEYS.CONSULTATIONS, list);
     this.logActivity('Updated Consultation Status', 'Consultations', id, `Reference ${current.referenceNumber} status changed to ${status}`);
     return true;
@@ -1226,19 +1241,21 @@ class DatabaseService {
     return msg;
   }
 
-  public updateContactMessageStatus(
+  public async updateContactMessageStatus(
     id: string,
     status: 'unread' | 'read' | 'replied' | 'archived',
     notes?: string
-  ): boolean {
+  ): Promise<boolean> {
     const list = this.getContactMessages();
     const idx = list.findIndex((m) => m.id === id);
     if (idx === -1) return false;
-    list[idx] = {
+    const updated = {
       ...list[idx],
       status,
       internalNotes: notes !== undefined ? notes : list[idx].internalNotes,
     };
+    await this.requireCloudWrite(() => supabaseService.saveContactMessage(updated));
+    list[idx] = updated;
     this.save(DB_KEYS.MESSAGES, list);
     return true;
   }
@@ -1247,7 +1264,7 @@ class DatabaseService {
     id: string,
     status: 'unread' | 'read' | 'replied' | 'archived',
     notes?: string
-  ): boolean {
+  ): Promise<boolean> {
     return this.updateContactMessageStatus(id, status, notes);
   }
 
@@ -1692,9 +1709,9 @@ class DatabaseService {
     } : item);
   }
 
-  public saveNavigation(nav: MenuItem[]): void {
+  public async saveNavigation(nav: MenuItem[]): Promise<void> {
+    await this.requireCloudWrite(() => supabaseService.saveNavigation(nav));
     this.save(DB_KEYS.NAVIGATION, nav);
-    supabaseService.saveNavigation(nav).catch((e) => console.warn('Supabase saveNavigation:', e));
     this.logActivity('Updated Navigation Menu', 'Website', 'navigation', 'Modified website header navigation hierarchy');
   }
 
