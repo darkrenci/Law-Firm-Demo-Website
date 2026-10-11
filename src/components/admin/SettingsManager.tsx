@@ -28,12 +28,17 @@ import {
 
 export const SettingsManager: React.FC = () => {
   const toast = useToast();
-  const [settings, setSettings] = useState<SiteSettings>(() => ({ ...db.getSettings(), navigation: db.getNavigation() }));
+  const initialState = () => ({ ...db.getSettings(), navigation: db.getNavigation() });
+  const [settings, setSettings] = useState<SiteSettings>(initialState);
+  const [savedSettings, setSavedSettings] = useState<SiteSettings>(initialState);
+  const [navigationDirty, setNavigationDirty] = useState(false);
   const [activeTab, setActiveTab] = useState<'general' | 'contact' | 'nav' | 'layout' | 'system' | 'backup'>('general');
   const [systemStatus, setSystemStatus] = useState<any>(null);
   const [checkingSystem, setCheckingSystem] = useState(false);
   const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const layout = { ...defaultGlobalLayout, ...settings.layout };
+  const settingsWithoutNavigation = (value: SiteSettings) => ({ ...value, navigation: [] });
+  const settingsDirty = JSON.stringify(settingsWithoutNavigation(settings)) !== JSON.stringify(settingsWithoutNavigation(savedSettings));
 
   const updateLayout = (field: keyof GlobalLayoutSettings, value: string) => {
     setSettings(current => ({
@@ -44,27 +49,36 @@ export const SettingsManager: React.FC = () => {
 
   useEffect(() => {
     const unsub = db.subscribe(() => {
-      setSettings({ ...db.getSettings(), navigation: db.getNavigation() });
+      const fresh = { ...db.getSettings(), navigation: db.getNavigation() };
+      setSettings(fresh);
+      setSavedSettings(fresh);
+      setNavigationDirty(false);
     });
     return unsub;
   }, []);
 
   const handleSaveGeneral = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!settingsDirty) return toast.info('No Changes', 'There is nothing new to update.');
+    if (!window.confirm('Update these website settings now? The changes will be visible on the public website.')) return;
     try {
       await db.saveSettings(settings);
+      setSavedSettings(current => ({ ...settings, navigation: current.navigation }));
       toast.success('Settings Saved', 'Firm configuration committed to database.');
     } catch (error) { toast.error('Save Failed', (error as Error).message); }
   };
 
-  const persistNavigation = async (nav: NavItem[], successMessage?: string) => {
-    const updated = { ...settings, navigation: nav };
-    setSettings(updated);
+  const saveNavigation = async () => {
+    if (!navigationDirty) return toast.info('No Changes', 'There is nothing new to update.');
+    if (!window.confirm('Publish these navigation changes now? This will update the public website menu.')) return;
     try {
-      await db.saveNavigation(nav);
-      if (successMessage) toast.success(successMessage);
+      await db.saveNavigation(settings.navigation);
+      setSavedSettings(current => ({ ...current, navigation: settings.navigation }));
+      setNavigationDirty(false);
+      toast.success('Navigation Updated', 'The public website menu was updated successfully.');
     } catch (error) {
       setSettings(current => ({ ...current, navigation: db.getNavigation() }));
+      setNavigationDirty(false);
       toast.error('Navigation Save Failed', (error as Error).message);
     }
   };
@@ -77,7 +91,8 @@ export const SettingsManager: React.FC = () => {
     const temp = nav[index];
     nav[index] = nav[targetIdx];
     nav[targetIdx] = temp;
-    void persistNavigation(nav, 'Navigation Reordered');
+    setSettings({ ...settings, navigation: nav });
+    setNavigationDirty(true);
   };
 
   const handleAddNavItem = () => {
@@ -87,11 +102,13 @@ export const SettingsManager: React.FC = () => {
       path: '/new-page',
       order: settings.navigation.length + 1,
     };
-    void persistNavigation([...settings.navigation, newNav], 'Nav Item Added');
+    setSettings({ ...settings, navigation: [...settings.navigation, newNav] });
+    setNavigationDirty(true);
   };
 
   const handleDeleteNavItem = (id: string) => {
-    void persistNavigation(settings.navigation.filter((n) => n.id !== id), 'Nav Item Removed');
+    setSettings({ ...settings, navigation: settings.navigation.filter((n) => n.id !== id) });
+    setNavigationDirty(true);
   };
 
   const handleUpdateNavItem = (id: string, field: 'label' | 'path', value: string) => {
@@ -99,6 +116,7 @@ export const SettingsManager: React.FC = () => {
       item.id === id ? { ...item, [field]: value } : item
     );
     setSettings({ ...settings, navigation: updatedNav });
+    setNavigationDirty(true);
   };
 
   // BACKUP & RESTORE
@@ -127,6 +145,7 @@ export const SettingsManager: React.FC = () => {
   const changePassword = async (event: React.FormEvent) => {
     event.preventDefault();
     if (passwords.newPassword !== passwords.confirmPassword) return toast.error('Password Mismatch', 'The new passwords do not match.');
+    if (!window.confirm('Change the administrator password now? Other active sessions will be signed out.')) return;
     try {
       await backendRequest('/api/auth/change-password', { currentPassword: passwords.currentPassword, newPassword: passwords.newPassword });
       setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -208,6 +227,13 @@ export const SettingsManager: React.FC = () => {
           </button>
         ))}
       </div>
+
+      {(settingsDirty || navigationDirty) && (
+        <div className="max-w-5xl border border-amber-500/40 bg-amber-950/20 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+          <div><p className="font-cinzel text-xs uppercase tracking-wider text-amber-300">Unsaved changes</p><p className="text-[11px] text-[#b8afa3] mt-1">Review the changes and use the save button in this section. You will be asked to confirm before anything is written to MySQL.</p></div>
+          <button type="button" onClick={() => { setSettings(savedSettings); setNavigationDirty(false); }} className="text-xs text-[#d8cebe] underline underline-offset-4 cursor-pointer">Discard changes</button>
+        </div>
+      )}
 
       {/* TAB 1: GENERAL & SEO */}
       {activeTab === 'general' && (
@@ -306,9 +332,9 @@ export const SettingsManager: React.FC = () => {
           </div>
 
           <div className="pt-4 flex justify-end">
-            <Button type="submit" variant="primary" size="md">
+            <Button type="submit" variant="primary" size="md" disabled={!settingsDirty}>
               <Save className="w-3.5 h-3.5" />
-              <span>Save General Settings</span>
+              <span>Review &amp; Save Settings</span>
             </Button>
           </div>
         </form>
@@ -460,9 +486,9 @@ export const SettingsManager: React.FC = () => {
           </div>
 
           <div className="pt-4 flex justify-end">
-            <Button type="submit" variant="primary" size="md">
+            <Button type="submit" variant="primary" size="md" disabled={!settingsDirty}>
               <Save className="w-3.5 h-3.5" />
-              <span>Save Contact Parameters</span>
+              <span>Review &amp; Save Contact</span>
             </Button>
           </div>
         </form>
@@ -518,7 +544,6 @@ export const SettingsManager: React.FC = () => {
                     type="text"
                     value={item.label}
                     onChange={(e) => handleUpdateNavItem(item.id, 'label', e.target.value)}
-                    onBlur={() => void persistNavigation(settings.navigation)}
                     placeholder="Link Label"
                     className="bg-[#0d0d11] border border-[#2a2a35] px-3 py-1.5 text-xs text-[#f7f4ee] focus:outline-none"
                   />
@@ -526,7 +551,6 @@ export const SettingsManager: React.FC = () => {
                     type="text"
                     value={item.path}
                     onChange={(e) => handleUpdateNavItem(item.id, 'path', e.target.value)}
-                    onBlur={() => void persistNavigation(settings.navigation)}
                     placeholder="/path"
                     className="bg-[#0d0d11] border border-[#2a2a35] px-3 py-1.5 text-xs text-[#f7f4ee] focus:outline-none font-mono"
                   />
@@ -541,6 +565,10 @@ export const SettingsManager: React.FC = () => {
                 </button>
               </div>
             ))}
+          </div>
+          <div className="pt-4 border-t border-[#22222d] flex items-center justify-between gap-4">
+            <span className={`text-[11px] font-cinzel uppercase tracking-wider ${navigationDirty ? 'text-amber-300' : 'text-emerald-400'}`}>{navigationDirty ? 'Changes awaiting confirmation' : 'Navigation is up to date'}</span>
+            <Button variant="primary" size="md" disabled={!navigationDirty} onClick={() => void saveNavigation()}><Save className="w-3.5 h-3.5" /><span>Review &amp; Save Navigation</span></Button>
           </div>
         </div>
       )}
@@ -604,7 +632,7 @@ export const SettingsManager: React.FC = () => {
           </div>
 
           <div className="pt-2 flex justify-end">
-            <Button type="submit" variant="primary" size="md"><Save className="w-3.5 h-3.5" /><span>Save Global Layout</span></Button>
+            <Button type="submit" variant="primary" size="md" disabled={!settingsDirty}><Save className="w-3.5 h-3.5" /><span>Review &amp; Save Layout</span></Button>
           </div>
         </form>
       )}
