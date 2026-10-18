@@ -17,6 +17,9 @@ import {
 import { defaultGlobalLayout } from '../config/globalLayout';
 
 export const initialSettings: FirmSettings = {
+  maintenance: {
+    enabled: false,
+  },
   layout: defaultGlobalLayout,
   general: {
     firmName: 'Lalusis & Partners',

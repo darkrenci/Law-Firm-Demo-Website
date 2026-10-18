@@ -57,6 +57,9 @@ export interface GlobalLayoutSettings {
 }
 
 export interface FirmSettings {
+  maintenance?: {
+    enabled: boolean;
+  };
   general: {
     firmName: string;
     tagline: string;

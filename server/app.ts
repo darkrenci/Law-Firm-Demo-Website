@@ -27,6 +27,16 @@ export function createApp(db: Pool, options: { origin: string; mediaRoot?: strin
     buckets.set(key,entry); return true;
   }
   const asyncRoute = (fn: any) => (req: any,res: any,next: any) => Promise.resolve(fn(req,res,next)).catch(next);
+  let maintenanceCache = { enabled: false, expires: 0 };
+  const maintenanceEnabled = async () => {
+    if (Date.now() < maintenanceCache.expires) return maintenanceCache.enabled;
+    const [rows]: any = await db.execute('SELECT settings FROM site_settings WHERE id=? LIMIT 1', ['firm_settings']);
+    const settings = rows[0]?.settings;
+    const parsed = typeof settings === 'string' ? JSON.parse(settings) : settings;
+    maintenanceCache = { enabled: parsed?.maintenance?.enabled === true, expires: Date.now() + 5000 };
+    return maintenanceCache.enabled;
+  };
+  const maintenancePage = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Maintenance | Lalusis &amp; Partners</title><style>body{margin:0;background:#0d0d11;color:#f7f4ee;font-family:Arial,sans-serif}.wrap{min-height:100vh;display:flex;align-items:center;padding:2rem;box-sizing:border-box}.content{max-width:48rem}.brand{color:#c59b63;letter-spacing:.16em;text-transform:uppercase;font-size:.75rem}h1{font-family:Georgia,serif;font-size:clamp(3rem,9vw,6rem);font-weight:400;line-height:.9;margin:1.75rem 0}p{max-width:38rem;line-height:1.6;color:#d8cebe;font-size:1.1rem}</style></head><body><main class="wrap"><div class="content"><div class="brand">Lalusis &amp; Partners</div><h1>We’ll be back shortly.</h1><p>Our website is undergoing scheduled maintenance. Please check back soon.</p></div></main></body></html>';
   app.use((_req,res,next) => {res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');next();});
   app.use('/api', (_req,res,next) => {res.setHeader('Cache-Control','no-store');next();});
   app.use('/api', (req,res,next) => {
@@ -72,6 +82,7 @@ export function createApp(db: Pool, options: { origin: string; mediaRoot?: strin
     res.json({ok:true});
   }));
   app.get('/api/content/:table',asyncRoute(async(req:any,res:any)=>{
+    if (req.params.table !== 'site_settings' && await maintenanceEnabled()) return res.status(503).json({error:'The website is temporarily undergoing maintenance.'});
     const filter=Object.prototype.hasOwnProperty.call(publicTables,req.params.table)?publicTables[req.params.table]:null;
     if(!filter)return res.status(404).json({error:'Not found.'});
     const [rows]:any=await db.query('SELECT * FROM `'+req.params.table+'` WHERE '+filter+' LIMIT 1000');
@@ -104,7 +115,9 @@ export function createApp(db: Pool, options: { origin: string; mediaRoot?: strin
   app.get('/media/:id',asyncRoute((req:any,res:any)=>serveMedia(db,options.mediaRoot,req,res)));
   app.post('/api/admin/:table',requireAdmin,asyncRoute(async(req:any,res:any)=>{
     if(!adminTables.has(req.params.table))return res.status(404).json({error:'Not found.'});
-    res.json({data:await writeContent(db,req.params.table,req.body)});
+    const data = await writeContent(db,req.params.table,req.body);
+    if (req.params.table === 'site_settings') maintenanceCache.expires = 0;
+    res.json({data});
   }));
   const inquiry=options.inquiry || inquiryHandler;
   app.all('/api/inquiry', (req,res,next)=>{
@@ -117,6 +130,16 @@ export function createApp(db: Pool, options: { origin: string; mediaRoot?: strin
   const dist=path.resolve(options.dist || 'dist');
   app.get(/^\/partners(?:\/(.*))?$/, (req,res)=>res.redirect(301,'/attorneys'+(req.params[0]?'/'+encodeURIComponent(req.params[0]):'')));
   app.get(/^\/admin(?:\/.*)?$/,(_req,res)=>{res.setHeader('X-Robots-Tag','noindex, nofollow');res.sendFile(path.join(dist,'admin.html'));});
+  app.use(asyncRoute(async(req:any,res:any,next:any)=>{
+    if (req.method === 'GET' || req.method === 'HEAD') {
+      const acceptsHtml = String(req.headers.accept || '').includes('text/html');
+      if (acceptsHtml && await maintenanceEnabled()) {
+        res.status(503).setHeader('Retry-After','3600').setHeader('Cache-Control','no-store').send(maintenancePage);
+        return;
+      }
+    }
+    next();
+  }));
   app.use(express.static(dist,{extensions:['html'],redirect:false,dotfiles:'deny'}));
   app.use((_req,res)=>{res.status(404);res.setHeader('X-Robots-Tag','noindex');const file=path.join(dist,'404.html');existsSync(file)?res.sendFile(file):res.send('Not found');});
   app.use((err:any,_req:any,res:any,_next:any)=>{const status=[400,404,413,415,503].includes(err.status)?err.status:err.code==='ER_DUP_ENTRY'?409:err.type==='entity.too.large'?413:err.type==='entity.parse.failed'?400:500;console.error('Backend request failed:',err.code || err.type || 'internal');res.status(status).json({error:err.expose?err.message:status===500?'Service temporarily unavailable.':'Invalid request.'});});

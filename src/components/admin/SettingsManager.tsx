@@ -24,6 +24,7 @@ import {
   Shield,
   RefreshCw,
   KeyRound,
+  Wrench,
 } from 'lucide-react';
 
 export const SettingsManager: React.FC = () => {
@@ -32,7 +33,7 @@ export const SettingsManager: React.FC = () => {
   const [settings, setSettings] = useState<SiteSettings>(initialState);
   const [savedSettings, setSavedSettings] = useState<SiteSettings>(initialState);
   const [navigationDirty, setNavigationDirty] = useState(false);
-  const [activeTab, setActiveTab] = useState<'general' | 'contact' | 'nav' | 'layout' | 'system' | 'backup'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'contact' | 'nav' | 'layout' | 'maintenance' | 'system' | 'backup'>('general');
   const [systemStatus, setSystemStatus] = useState<any>(null);
   const [checkingSystem, setCheckingSystem] = useState(false);
   const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -211,6 +212,7 @@ export const SettingsManager: React.FC = () => {
           { id: 'contact', label: 'Chambers & Telephony' },
           { id: 'nav', label: 'Navigation Menu Builder' },
           { id: 'layout', label: 'Global Header & Footer' },
+          { id: 'maintenance', label: 'Maintenance Mode' },
           ...(isMysqlBackend ? [{ id: 'system', label: 'System & Security' }] : []),
           { id: 'backup', label: 'Database Backup & Restore' },
         ].map((t) => (
@@ -634,6 +636,23 @@ export const SettingsManager: React.FC = () => {
           <div className="pt-2 flex justify-end">
             <Button type="submit" variant="primary" size="md" disabled={!settingsDirty}><Save className="w-3.5 h-3.5" /><span>Review &amp; Save Layout</span></Button>
           </div>
+        </form>
+      )}
+
+      {activeTab === 'maintenance' && (
+        <form onSubmit={handleSaveGeneral} className="space-y-6 max-w-3xl bg-[#121217] border border-[#22222d] p-6 sm:p-8">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-[#1d1d25] text-[#c59b63]"><Wrench className="w-5 h-5" /></div>
+            <div>
+              <h3 className="font-cinzel text-sm text-[#f7f4ee] uppercase tracking-wider">Public website maintenance</h3>
+              <p className="text-sm text-[#a8a199] mt-2 leading-relaxed max-w-xl">When enabled, every public page is replaced by the maintenance notice. The administrator portal at <strong className="text-[#d8cebe]">/admin</strong> remains available so you can turn it off.</p>
+            </div>
+          </div>
+          <label className="flex items-center justify-between gap-5 bg-[#0d0d11] border border-[#2a2a35] p-5 cursor-pointer">
+            <span><span className="block text-sm text-[#f7f4ee]">Enable maintenance mode</span><span className="block text-xs text-[#8e877e] mt-1">The public site will no longer show its normal pages.</span></span>
+            <input type="checkbox" checked={settings.maintenance?.enabled === true} onChange={(event) => setSettings({ ...settings, maintenance: { enabled: event.target.checked } })} className="w-5 h-5 accent-[#c59b63] cursor-pointer" />
+          </label>
+          <div className="flex justify-end"><Button type="submit" variant="primary" size="md" disabled={!settingsDirty}><Save className="w-3.5 h-3.5" /><span>Save Maintenance Setting</span></Button></div>
         </form>
       )}
 

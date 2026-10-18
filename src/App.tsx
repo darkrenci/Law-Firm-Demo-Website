@@ -2,7 +2,7 @@ import { isMysqlBackend, mysqlAuth } from './lib/mysqlClient';
 import { usePageMetadata } from './lib/usePageMetadata';
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { db } from './services/db';
-import { Page } from './types';
+import { FirmSettings, Page } from './types';
 import { ToastProvider } from './components/ui/Toast';
 import { SearchModal } from './components/ui/SearchModal';
 import { getApprovedAdmin } from './lib/adminAuth';
@@ -69,6 +69,7 @@ export default function App({ initialPath = '/', prerender = false }: { initialP
   const [authRefresh, setAuthRefresh] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [pages, setPages] = useState<Page[]>(db.getPages());
+  const [siteSettings, setSiteSettings] = useState<FirmSettings>(db.getSettings());
   const [showOpeningScreen, setShowOpeningScreen] = useState<boolean>(() => {
     if (prerender || (typeof document !== 'undefined' && document.getElementById('root')?.hasChildNodes())) return false;
     // If directly loading admin dashboard, don't show the public site opening screen
@@ -119,6 +120,7 @@ export default function App({ initialPath = '/', prerender = false }: { initialP
   useEffect(() => {
     const unsub = db.subscribe(() => {
       setPages(db.getPages());
+      setSiteSettings(db.getSettings());
     });
     return unsub;
   }, []);
@@ -214,6 +216,25 @@ export default function App({ initialPath = '/', prerender = false }: { initialP
   }
 
   // PUBLIC SITE ROUTING
+  const isMaintenanceMode = siteSettings.maintenance?.enabled === true;
+
+  if (isMaintenanceMode) {
+    return (
+      <div className="min-h-screen bg-[#0d0d11] text-[#f7f4ee] flex items-center justify-center p-6 sm:p-10">
+        <main className="w-full max-w-3xl">
+          <p className="font-cinzel text-xs tracking-[0.18em] text-[#c59b63] uppercase">Lalusis &amp; Partners</p>
+          <h1 className="font-cormorant text-5xl sm:text-7xl leading-[0.9] font-light mt-6">We’ll be back shortly.</h1>
+          <p className="max-w-xl mt-8 text-base sm:text-lg leading-relaxed text-[#d8cebe]">
+            Our website is undergoing scheduled maintenance. Please check back soon.
+          </p>
+          <p className="mt-10 text-sm text-[#a8a199]">
+            For urgent matters, please contact the firm directly at {siteSettings.contact?.telephone || '+63 917 327 5931'}.
+          </p>
+        </main>
+      </div>
+    );
+  }
+
   const renderPublicView = () => {
     // 1. Deep Detail: Practice area individual page
     if (currentPath.startsWith('/practice-areas/') && currentPath !== '/practice-areas') {
