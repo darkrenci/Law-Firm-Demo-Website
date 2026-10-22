@@ -1,7 +1,9 @@
 import { NavigationLink } from '../ui/NavigationLink';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { db } from '../../services/db';
 import { Attorney } from '../../types';
+import { isMysqlBackend } from '../../lib/mysqlClient';
+import { isSupabaseConfigured } from '../../lib/supabase';
 import { Button } from '../ui/Buttons';
 import {
   Mail,
@@ -32,12 +34,35 @@ interface AttorneysViewProps {
 
 export const AttorneysView: React.FC<AttorneysViewProps> = ({ slug, currentSlug, onNavigate }) => {
   const activeSlug = slug || currentSlug;
+  const usesCloudContent = isMysqlBackend || isSupabaseConfigured;
+  const [isLoadingProfile, setIsLoadingProfile] = useState(Boolean(activeSlug && usesCloudContent));
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!activeSlug || !usesCloudContent) {
+      setIsLoadingProfile(false);
+      return;
+    }
+    setIsLoadingProfile(true);
+    void db.refreshFromSupabase().finally(() => {
+      if (!cancelled) setIsLoadingProfile(false);
+    });
+    return () => { cancelled = true; };
+  }, [activeSlug, usesCloudContent]);
+
   const attorneys = db.getAttorneys(false);
 
   // If a specific attorney slug is passed, render deep profile
   if (activeSlug) {
     const attorney = db.getAttorneyBySlug(activeSlug);
     if (!attorney) {
+      if (isLoadingProfile) {
+        return (
+          <div className="py-24 text-center" role="status">
+            <p className="font-cinzel text-xs tracking-[0.2em] uppercase text-[#c59b63]">Loading partner profile</p>
+          </div>
+        );
+      }
       return (
         <div className="py-24 text-center space-y-4">
           <h2 className="font-cinzel text-xl text-[#f4e6d0]">Partner Not Found</h2>
