@@ -857,6 +857,11 @@ class DatabaseService {
   public getAttorneys(includeUnpublished: boolean = true): Attorney[] {
     let list = this.load<Attorney[]>(DB_KEYS.ATTORNEYS, initialAttorneys);
     let changed = false;
+    /*
+     * Retained only as migration history. These legacy defaults must never run
+     * against CMS data: they overwrite administrator edits after every load.
+     */
+    /*
     list = list.map((a) => {
       // Senior Partner Atty. Diosdado
       if (
@@ -919,6 +924,7 @@ class DatabaseService {
       }
       return a;
     });
+    */
 
     if (changed && typeof window !== 'undefined') {
       try {
