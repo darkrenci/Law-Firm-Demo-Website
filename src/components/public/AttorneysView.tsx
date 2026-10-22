@@ -314,7 +314,7 @@ const AttorneyProfileDetail: React.FC<{
                 className={`space-y-4 ${bioTypo.fontClass} ${bioTypo.sizeClass} ${bioTypo.colorClass}`}
               >
                 {(attorney.biography || '')
-                  .split(/\n\s*\n/)
+                  .split(/\r?\n+/)
                   .map((p) => p.trim())
                   .filter(Boolean)
                   .map((para, i) => (

@@ -2263,7 +2263,7 @@ const RenderSectionItem: React.FC<{
                         </h4>
                         <div className="space-y-4 text-xs sm:text-sm text-[#c8c0b4] leading-relaxed font-sans text-justify">
                           {(selectedPartnerModal.biography || '')
-                            .split(/\n\s*\n/)
+                            .split(/\r?\n+/)
                             .map((p) => p.trim())
                             .filter(Boolean)
                             .map((para, i) => (
