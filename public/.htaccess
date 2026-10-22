@@ -9,6 +9,10 @@ ErrorDocument 404 /404.html
   RewriteRule ^partners/?$ /attorneys [R=301,L]
   RewriteRule ^partners/(.+)$ /attorneys/$1 [R=301,L]
 
+  # Attorney profiles are client-rendered from the CMS, including new profiles
+  # that do not have a pre-rendered HTML file yet.
+  RewriteRule ^attorneys/.+$ /attorneys.html [L]
+
   # The admin shell still requires authentication in the application.
   RewriteRule ^admin(?:/.*)?$ admin.html [L]
 

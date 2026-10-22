@@ -906,8 +906,7 @@ class DatabaseService {
 
         if (
           a.professionalTitle !== expected ||
-          a.primarySpecialization?.includes('Litigant Lawyer') ||
-          a.biography !== expectedBio
+          a.primarySpecialization?.includes('Litigant Lawyer')
         ) {
           changed = true;
           return {
@@ -915,7 +914,6 @@ class DatabaseService {
             professionalTitle: expected,
             primarySpecialization:
               'High-Profile Criminal Defense, Congressional Inquiries, DOJ/Ombudsman/Sandiganbayan Advocacy, and Data Privacy',
-            biography: expectedBio,
           };
         }
       }
