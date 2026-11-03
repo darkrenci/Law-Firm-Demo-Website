@@ -396,6 +396,65 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
     }
   };
 
+  // A page is useful only when visitors can reach it. Creating the page and its
+  // header item from one action keeps the Page Builder and public navigation in sync.
+  const handleCreatePage = async (details: { title: string; slug: string; isPublished: boolean }) => {
+    const slug = details.slug.trim().replace(/^\/+|\/+$/g, '');
+    const normalizedSlug = slug.toLowerCase();
+    const path = `/${slug}`;
+    const slugTaken = pages.some((page) => page.slug.toLowerCase() === normalizedSlug);
+    const pathTaken = db.getNavigation().some((item) => item.path.toLowerCase() === path.toLowerCase());
+
+    if (!slug || slugTaken || pathTaken) {
+      toast.error('Choose a different URL', slugTaken || pathTaken
+        ? 'A page or menu item already uses that URL.'
+        : 'Every page needs a URL slug.');
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const pageId = `page-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const newPage: Page = {
+      id: pageId,
+      title: details.title.trim(),
+      slug,
+      isPublished: details.isPublished,
+      seo: { metaTitle: details.title.trim(), metaDescription: '' },
+      sections: [],
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const navigation = db.getNavigation();
+    const newMenuItem = {
+      id: `nav-${pageId}`,
+      label: details.title.trim().toUpperCase(),
+      path,
+      isVisible: details.isPublished,
+      order: navigation.length + 1,
+    };
+
+    setIsSaving(true);
+    try {
+      await db.savePage(newPage, 'Created new page from Page Builder');
+      await db.saveNavigation([...navigation, newMenuItem]);
+      setPages(db.getPages());
+      setSelectedPageId(pageId);
+      workingPageRef.current = JSON.parse(JSON.stringify(newPage));
+      setWorkingPage(workingPageRef.current);
+      setSelectedSectionId(null);
+      setIsDirty(false);
+      setIsCreatePageOpen(false);
+      toast.success('Page Created', `${newPage.title} is now in the public menu. Add blocks to begin customizing it.`);
+    } catch (error) {
+      // Best-effort rollback prevents an unreachable page when adding its menu item fails.
+      try { await db.deletePage(pageId); } catch {}
+      toast.error('Could not create page', (error as Error).message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // Discard changes
   const handleDiscardChanges = () => {
     if (!confirm('Discard all unsaved changes and reload from database?')) return;
@@ -549,6 +608,16 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
 
         {/* Right: Actions, Version History, SEO & Save Button */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          <Button
+            variant="gold-outline"
+            size="sm"
+            onClick={() => setIsCreatePageOpen(true)}
+            title="Create a page and add it to the menu"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">New Page</span>
+          </Button>
+
           {isDirty && (
             <Button
               variant="secondary"
@@ -1054,6 +1123,13 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         insertPosition={insertAtIndex}
       />
 
+      <CreatePageModal
+        isOpen={isCreatePageOpen}
+        onClose={() => setIsCreatePageOpen(false)}
+        onCreate={handleCreatePage}
+        isSaving={isSaving}
+      />
+
       {/* MODAL: PAGE SETTINGS & SEO */}
       {workingPage && (
         <PageSettingsModal
@@ -1063,8 +1139,24 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
           onSave={async (updates) => {
             if (!confirm(`Update the page settings and SEO for "${workingPage.title}" now?`)) return;
             try {
-            setWorkingPage((prev) => ({ ...prev, ...updates }));
-            await db.savePage({ ...workingPage, ...updates });
+            const updatedPage = { ...workingPage, ...updates };
+            workingPageRef.current = updatedPage;
+            setWorkingPage(updatedPage);
+            await db.savePage(updatedPage);
+            // Pages created here own a matching nav item. Keep its label, URL and
+            // visibility aligned when the administrator later changes page settings.
+            const navigation = db.getNavigation();
+            const menuIndex = navigation.findIndex((item) => item.id === `nav-${workingPage.id}`);
+            if (menuIndex >= 0) {
+              const updatedNavigation = [...navigation];
+              updatedNavigation[menuIndex] = {
+                ...updatedNavigation[menuIndex],
+                label: updatedPage.title.toUpperCase(),
+                path: `/${updatedPage.slug}`,
+                isVisible: updatedPage.isPublished,
+              };
+              await db.saveNavigation(updatedNavigation);
+            }
             toast.success('Page Settings Saved');
             setIsPageSettingsOpen(false);
             } catch (error) { toast.error('Save Failed', (error as Error).message); }
@@ -1093,6 +1185,112 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         />
       )}
     </div>
+  );
+};
+
+const pageSlugFromTitle = (value: string) => value
+  .toLowerCase()
+  .trim()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
+
+// SUB-COMPONENT: NEW PAGE
+const CreatePageModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onCreate: (details: { title: string; slug: string; isPublished: boolean }) => void;
+  isSaving: boolean;
+}> = ({ isOpen, onClose, onCreate, isSaving }) => {
+  const [title, setTitle] = useState('');
+  const [slug, setSlug] = useState('');
+  const [hasEditedSlug, setHasEditedSlug] = useState(false);
+  const [isPublished, setIsPublished] = useState(true);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setTitle('');
+    setSlug('');
+    setHasEditedSlug(false);
+    setIsPublished(true);
+  }, [isOpen]);
+
+  const handleTitleChange = (value: string) => {
+    setTitle(value);
+    if (!hasEditedSlug) setSlug(pageSlugFromTitle(value));
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    onCreate({ title, slug: pageSlugFromTitle(slug), isPublished });
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Create a New Page"
+      subtitle="A visible menu link will be created automatically. You can then add and edit blocks in the Page Builder."
+      maxWidth="md"
+    >
+      <form onSubmit={handleSubmit} className="space-y-5 text-left">
+        <div>
+          <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1.5">
+            Page title *
+          </label>
+          <input
+            autoFocus
+            required
+            maxLength={100}
+            value={title}
+            onChange={(event) => handleTitleChange(event.target.value)}
+            placeholder="e.g. Careers"
+            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2.5 text-sm text-[#f7f4ee] placeholder:text-[#64616a] focus:border-[#c59b63] focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1.5">
+            Page URL *
+          </label>
+          <div className="flex items-center bg-[#0d0d11] border border-[#2a2a35] focus-within:border-[#c59b63]">
+            <span className="pl-3 text-sm text-[#8e877e]">/</span>
+            <input
+              required
+              maxLength={100}
+              value={slug}
+              onChange={(event) => {
+                setHasEditedSlug(true);
+                setSlug(event.target.value);
+              }}
+              placeholder="careers"
+              className="min-w-0 flex-1 bg-transparent px-1.5 py-2.5 text-sm text-[#f7f4ee] placeholder:text-[#64616a] focus:outline-none"
+            />
+          </div>
+          <p className="mt-1.5 text-[11px] text-[#8e877e]">Use a short, unique address. Spaces and special characters are converted to hyphens.</p>
+        </div>
+
+        <label className="flex items-start gap-3 border border-[#292934] bg-[#15151c] p-3.5 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isPublished}
+            onChange={(event) => setIsPublished(event.target.checked)}
+            className="mt-0.5 accent-[#c59b63]"
+          />
+          <span>
+            <span className="block text-sm text-[#f7f4ee]">Publish and show in the menu</span>
+            <span className="block mt-0.5 text-[11px] leading-relaxed text-[#8e877e]">Turn this off to prepare the page privately. You can publish it later in Page Settings.</span>
+          </span>
+        </label>
+
+        <div className="pt-1 flex justify-end gap-3">
+          <Button type="button" variant="secondary" size="md" onClick={onClose} disabled={isSaving}>Cancel</Button>
+          <Button type="submit" variant="primary" size="md" isLoading={isSaving}>
+            <Plus className="w-3.5 h-3.5" />
+            <span>Create &amp; Open Builder</span>
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 };
 
