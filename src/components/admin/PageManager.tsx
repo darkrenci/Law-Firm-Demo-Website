@@ -455,6 +455,47 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
     }
   };
 
+  const handleDeletePage = async () => {
+    if (workingPage.id === 'page-home') {
+      toast.error('Homepage protected', 'The homepage cannot be deleted.');
+      return;
+    }
+    if (!confirm(`Delete "${workingPage.title}" permanently?\n\nIts page content and menu link will be removed. This cannot be undone.`)) return;
+
+    const pageToDelete = workingPage;
+    const navigation = db.getNavigation();
+    const pagePath = `/${pageToDelete.slug}`.toLowerCase();
+    const navigationAfterDelete = navigation
+      .filter((item) => item.id !== `nav-${pageToDelete.id}` && item.path.toLowerCase() !== pagePath)
+      .map((item, index) => ({ ...item, order: index + 1 }));
+
+    setIsSaving(true);
+    try {
+      // Remove the public route first. If removing the page then fails, restore
+      // the original menu so an existing page is never left unreachable.
+      await db.saveNavigation(navigationAfterDelete);
+      const deleted = await db.deletePage(pageToDelete.id);
+      if (!deleted) throw new Error('This page could not be deleted.');
+
+      const remainingPages = db.getPages();
+      const fallbackPage = remainingPages.find((page) => page.id === 'page-home') || remainingPages[0];
+      if (fallbackPage) {
+        workingPageRef.current = JSON.parse(JSON.stringify(fallbackPage));
+        setWorkingPage(workingPageRef.current);
+        setSelectedPageId(fallbackPage.id);
+      }
+      setPages(remainingPages);
+      setSelectedSectionId(null);
+      setIsDirty(false);
+      toast.success('Page Deleted', `${pageToDelete.title} and its menu link have been removed.`);
+    } catch (error) {
+      try { await db.saveNavigation(navigation); } catch {}
+      toast.error('Could not delete page', (error as Error).message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // Discard changes
   const handleDiscardChanges = () => {
     if (!confirm('Discard all unsaved changes and reload from database?')) return;
@@ -661,6 +702,19 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
             <Eye className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Preview</span>
           </Button>
+
+          {workingPage.id !== 'page-home' && (
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => void handleDeletePage()}
+              isLoading={isSaving}
+              title="Delete this page and its menu link"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">Delete Page</span>
+            </Button>
+          )}
 
           <Button
             variant="primary"
