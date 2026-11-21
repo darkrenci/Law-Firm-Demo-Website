@@ -387,7 +387,7 @@ export const AttorneyEditModal: React.FC<{
               value={form.professionalTitle}
               onChange={(e) => setForm({ ...form, professionalTitle: e.target.value })}
               placeholder="e.g. Senior Partner / Managing Partner"
-              className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
+              
             />
           </div>
         </div>
