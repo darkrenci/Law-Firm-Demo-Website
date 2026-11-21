@@ -384,7 +384,6 @@ export const AttorneyEditModal: React.FC<{
             </label>
             <input
               type="text"
-              required
               value={form.professionalTitle}
               onChange={(e) => setForm({ ...form, professionalTitle: e.target.value })}
               placeholder="e.g. Senior Partner / Managing Partner"
