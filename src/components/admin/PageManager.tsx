@@ -1057,8 +1057,9 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
                         pageSlug={workingPage.slug}
                         onNavigate={() => {}}
                         isAdmin={true}
-                        editMode={selectedSectionId === sec.id}
-                        activeElementPart={selectedSectionId === sec.id ? activeElementPart : null}
+                        editMode={Boolean(findBlock([sec], selectedSectionId))}
+                        activeElementPart={findBlock([sec], selectedSectionId) ? activeElementPart : null}
+                        selectedBlockId={selectedSectionId}
                         onSelectPart={(part) => {
                           setSelectedSectionId(sec.id);
                           setActiveElementPart(part);
@@ -1071,9 +1072,9 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
                           setInsertAtIndex(null);
                           setIsAddSectionOpen(true);
                         }}
-                        onSelectNestedBlock={(blockId) => {
+                        onSelectNestedBlock={(blockId, part) => {
                           setSelectedSectionId(blockId);
-                          setActiveElementPart(null);
+                          setActiveElementPart(part ?? null);
                         }}
                         onMoveNestedBlock={(blockId, containerId, columnId) => {
                           const moving = findBlock(workingPageRef.current.sections || [], blockId);
