@@ -296,16 +296,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         eyebrow: 'Distinctions',
         headline: 'Chamber Ratings & Recognitions',
       },
-      container: {
-        eyebrow: 'Institutional Division',
-        headline: 'Corporate Advisory & Transactional Chambers',
-        body: 'Providing structured legal counsel for sovereign capital and global enterprises across complex jurisdictions.',
-        buttonText: 'Schedule In-Chamber Briefing',
-        buttonLink: '/consultation',
-        buttonVariant: 'primary',
-        maxWidth: 'lg',
-        borderStyle: 'gold',
-      },
+      container: {},
       button: {
         buttonText: 'Request Retainer Consultation',
         buttonLink: '/consultation',
@@ -322,11 +313,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         caption: 'Lalusis & Partners — Institutional Retainer & Trial Documentary',
         aspectRatio: '16:9',
       },
-      videoGrid: {
-        eyebrow: 'Video Briefings',
-        headline: 'Executive Video Briefings',
-        videos: [],
-      },
+      videoGrid: { videos: [] },
       videoCard: {
         title: 'Video Briefing',
         subtitle: 'Lalusis & Partners',

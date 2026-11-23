@@ -581,35 +581,6 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
         return 'Chamber Photography & Media';
       case 'quote':
         return 'Featured Quote & Attribution';
-      case 'videos': {
-        const videos = Array.isArray(content.videos) ? content.videos : [];
-        const updateVideo = (index: number, field: string, value: string) => {
-          const next = [...videos];
-          next[index] = { ...next[index], [field]: value };
-          handleContentChange('videos', next);
-        };
-        return (
-          <div id="part-card-videos" className="p-3.5 bg-[#121218] border border-[#c59b63]/60 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#222230] pb-2">
-              <div className="flex items-center gap-2"><Video className="w-4 h-4 text-[#c59b63]" /><span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase tracking-wider">Video Embedded Grid</span></div>
-              <span className="text-[9px] font-mono text-[#c59b63]">{videos.length}/4 CARDS</span>
-            </div>
-            <p className="text-[10px] text-[#a8a199]">Each card below has its own content and video source. Direct video previews use the first frame automatically.</p>
-            {videos.map((video: any, index: number) => (
-              <div key={video.id || index} className="space-y-2 border border-[#272738] bg-[#0d0d11] p-3">
-                <div className="flex items-center justify-between"><span className="font-cinzel text-[10px] text-[#c59b63] uppercase">Video Card {index + 1}</span><button type="button" onClick={() => handleContentChange('videos', videos.filter((_: any, itemIndex: number) => itemIndex !== index))} className="text-[10px] text-rose-400 hover:text-rose-300">Remove</button></div>
-                <input value={video.title || ''} onChange={e => updateVideo(index, 'title', e.target.value)} placeholder="Card title" className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1.5 text-xs text-[#f7f4ee]" />
-                <textarea rows={2} value={video.description || video.subtitle || ''} onChange={e => updateVideo(index, 'description', e.target.value)} placeholder="Card description" className="w-full bg-[#121218] border border-[#2b2b3b] p-2 text-xs text-[#f7f4ee]" />
-                <VideoUploadField value={video.videoUrl || ''} onChange={url => {
-                  const next = [...videos]; next[index] = { ...next[index], videoUrl: url, thumbnailUrl: '' }; handleContentChange('videos', next);
-                }} />
-              </div>
-            ))}
-            {videos.length < 4 && <button type="button" onClick={() => handleContentChange('videos', [...videos, { id: `video-${Date.now()}`, title: 'New Video Briefing', description: '', videoUrl: '', tag: 'Briefing' }])} className="w-full border border-dashed border-[#c59b63]/60 px-3 py-2 text-[10px] font-cinzel uppercase tracking-wider text-[#c59b63] hover:bg-[#c59b63]/10">+ Add Video Individual Card</button>}
-          </div>
-        );
-      }
-
       case 'video':
         return 'Video Stream & Media';
       default:
@@ -1333,6 +1304,25 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
             />
           </div>
         );
+
+      case 'videos': {
+        const videos = Array.isArray(content.videos) ? content.videos : [];
+        const update = (index: number, values: Record<string, string>) => {
+          const next = [...videos];
+          next[index] = { ...next[index], ...values };
+          handleContentChange('videos', next);
+        };
+        return <div id="part-card-videos" className="p-3.5 bg-[#121218] border border-[#c59b63]/60 space-y-3">
+          <div className="flex justify-between border-b border-[#222230] pb-2"><span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase">Video Embedded Grid</span><span className="text-[9px] text-[#c59b63]">{videos.length}/4 cards</span></div>
+          {videos.map((video: any, index: number) => <div key={video.id || index} className="space-y-2 border border-[#272738] bg-[#0d0d11] p-3">
+            <div className="flex justify-between"><span className="text-[10px] font-cinzel text-[#c59b63]">VIDEO CARD {index + 1}</span><button type="button" onClick={() => handleContentChange('videos', videos.filter((_: any, i: number) => i !== index))} className="text-[10px] text-rose-400">Remove</button></div>
+            <input value={video.title || ''} onChange={e => update(index, { title: e.target.value })} placeholder="Card title" className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1.5 text-xs text-[#f7f4ee]" />
+            <textarea rows={2} value={video.description || ''} onChange={e => update(index, { description: e.target.value })} placeholder="Card description" className="w-full bg-[#121218] border border-[#2b2b3b] p-2 text-xs text-[#f7f4ee]" />
+            <VideoUploadField value={video.videoUrl || ''} onChange={url => update(index, { videoUrl: url, thumbnailUrl: '' })} />
+          </div>)}
+          {videos.length < 4 && <button type="button" onClick={() => handleContentChange('videos', [...videos, { id: `video-${Date.now()}`, title: 'New Video Briefing', description: '', videoUrl: '' }])} className="w-full border border-dashed border-[#c59b63]/60 px-3 py-2 text-[10px] font-cinzel uppercase text-[#c59b63]">+ Add Video Individual Card</button>}
+        </div>;
+      }
 
       case 'video':
         return (
