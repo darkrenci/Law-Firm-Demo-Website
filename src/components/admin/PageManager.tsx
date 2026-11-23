@@ -334,6 +334,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         description: 'A concise video briefing from the firm.',
         videoUrl: '',
         tag: 'Briefing',
+        duration: '00:30',
       },
       divider: {},
       spacer: {},

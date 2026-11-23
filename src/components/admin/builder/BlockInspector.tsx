@@ -1343,7 +1343,12 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
               <VideoUploadField value={content.videoUrl || ''} onChange={url => handleContentChange('videoUrl', url)} />
             </div>
             {section.type === 'videoCard' && <>
+              <div className="grid grid-cols-2 gap-2">
+                <input value={content.tag || ''} onChange={e => handleContentChange('tag', e.target.value)} placeholder="Category label" className="w-full bg-[#09090d] border border-[#242430] px-2.5 py-2 text-xs text-[#f7f4ee]" />
+                <input value={content.duration || ''} onChange={e => handleContentChange('duration', e.target.value)} placeholder="Duration (00:30)" className="w-full bg-[#09090d] border border-[#242430] px-2.5 py-2 text-xs text-[#f7f4ee]" />
+              </div>
               <input value={content.title || ''} onChange={e => handleContentChange('title', e.target.value)} placeholder="Video card title" className="w-full bg-[#09090d] border border-[#242430] px-2.5 py-2 text-xs text-[#f7f4ee]" />
+              <input value={content.subtitle || ''} onChange={e => handleContentChange('subtitle', e.target.value)} placeholder="Video card subtitle" className="w-full bg-[#09090d] border border-[#242430] px-2.5 py-2 text-xs text-[#f7f4ee]" />
               <textarea rows={3} value={content.description || ''} onChange={e => handleContentChange('description', e.target.value)} placeholder="Video card description" className="w-full bg-[#09090d] border border-[#242430] p-2 text-xs text-[#f7f4ee]" />
             </>}
           </div>

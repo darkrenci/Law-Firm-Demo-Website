@@ -1426,8 +1426,133 @@ const RenderSectionItem: React.FC<{
       );
     }
 
-    case 'video':
     case 'videoCard': {
+      const video = {
+        title: content.title || 'Video Briefing',
+        subtitle: content.subtitle || 'Lalusis & Partners',
+        description: content.description || '',
+        duration: content.duration || '',
+        tag: content.tag || 'Briefing',
+        videoUrl: content.videoUrl || '/videos/news-1.mp4',
+        thumbnailUrl: content.thumbnailUrl || '',
+      };
+
+      const openVideo = () => {
+        if (editMode) {
+          onSelectPart?.('video');
+          return;
+        }
+        setActiveVideoModal(video);
+      };
+
+      return (
+        <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
+          <div className="max-w-7xl mx-auto px-6 lg:px-12">
+            <EditablePartWrapper
+              editMode={editMode}
+              partId="video"
+              partLabel="Video Individual Card"
+              activeElementPart={activeElementPart}
+              onSelectPart={onSelectPart}
+            >
+              <article
+                role="button"
+                tabIndex={0}
+                aria-label={`Watch ${video.title}`}
+                onClick={openVideo}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openVideo();
+                  }
+                }}
+                className="group w-full max-w-[320px] cursor-pointer overflow-hidden border border-[#22222e] bg-[#0b0b0f] text-left transition-colors duration-300 hover:border-[#c59b63]/70 focus:outline-none focus:ring-1 focus:ring-[#c59b63]"
+              >
+                <div className="relative aspect-video overflow-hidden bg-black/80">
+                  <VideoCardPreview
+                    src={video.videoUrl}
+                    title={video.title}
+                    thumbnail={video.thumbnailUrl}
+                  />
+                  <div className="absolute inset-0 bg-black/25" />
+
+                  <span className="absolute left-2.5 top-2.5 border border-[#c59b63]/40 bg-[#09090c]/90 px-2 py-0.5 font-cinzel text-[9px] font-semibold uppercase tracking-widest text-[#c59b63]">
+                    {video.tag}
+                  </span>
+                  {video.duration && (
+                    <span className="absolute right-2.5 top-2.5 border border-white/10 bg-black/85 px-1.5 py-0.5 text-[9px] tracking-wider text-[#ded6c9]">
+                      {video.duration}
+                    </span>
+                  )}
+
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#c59b63] bg-[#c59b63] text-[#09090c] transition-transform duration-300 group-hover:scale-110">
+                      <Play className="ml-0.5 h-6 w-6 fill-current" />
+                    </span>
+                  </div>
+
+                  <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[10px] text-[#ded6c9]">
+                    <span className="flex items-center gap-1">
+                      <Play className="h-2.5 w-2.5 fill-current text-[#c59b63]" /> Watch Feature
+                    </span>
+                    <span className="text-[#c59b63]">Popup Player ↗</span>
+                  </div>
+                </div>
+
+                <div className="space-y-3 bg-[#0e0e13] p-4">
+                  <div className="space-y-1">
+                    <h3 className="font-cormorant text-xl font-bold leading-snug text-[#f7f4ee] transition-colors group-hover:text-[#e4c18f]">
+                      {video.title}
+                    </h3>
+                    {video.subtitle && <p className="text-xs leading-relaxed text-[#8e877e]">{video.subtitle}</p>}
+                  </div>
+                  <div className="flex items-center justify-between border-t border-[#1a1a24] pt-3">
+                    <span className="flex items-center gap-1.5 font-cinzel text-[10px] uppercase tracking-wider text-[#f7f4ee]">
+                      Watch Popup Video <ArrowRight className="h-3 w-3 text-[#c59b63] transition-transform group-hover:translate-x-1" />
+                    </span>
+                    <span className="text-[10px] text-[#8e877e]">[HD Stream]</span>
+                  </div>
+                </div>
+              </article>
+            </EditablePartWrapper>
+          </div>
+
+          {activeVideoModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6" role="dialog" aria-modal="true" aria-label={activeVideoModal.title}>
+              <button type="button" aria-label="Close video" className="fixed inset-0 bg-black/90" onClick={() => setActiveVideoModal(null)} />
+              <div className="relative z-10 flex w-full max-w-4xl flex-col overflow-hidden border border-[#c59b63]/50 bg-[#0e0e13] text-left shadow-2xl">
+                <div className="flex items-center justify-between bg-[#121218] px-5 py-4">
+                  <div className="space-y-0.5">
+                    <span className="block font-cinzel text-[10px] uppercase tracking-[0.2em] text-[#c59b63]">{activeVideoModal.tag || 'Video Briefing'}</span>
+                    <h3 className="font-cormorant text-xl font-bold text-[#f7f4ee]">{activeVideoModal.title}</h3>
+                  </div>
+                  <button type="button" onClick={() => setActiveVideoModal(null)} className="flex items-center gap-2 p-2 text-xs text-[#c59b63]" aria-label="Close video player">
+                    Close <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <div className="aspect-video w-full bg-black">
+                  {activeVideoModal.videoUrl?.includes('youtube.com') || activeVideoModal.videoUrl?.includes('youtu.be') || activeVideoModal.videoUrl?.includes('vimeo.com') ? (
+                    <iframe src={getEmbedVideoUrl(activeVideoModal.videoUrl)} title={activeVideoModal.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen className="h-full w-full border-0" />
+                  ) : (
+                    <video key={activeVideoModal.videoUrl} src={activeVideoModal.videoUrl} controls autoPlay playsInline className="h-full w-full object-contain" />
+                  )}
+                </div>
+                {(activeVideoModal.description || activeVideoModal.subtitle) && (
+                  <div className="flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center">
+                    <p className="max-w-xl text-sm leading-relaxed text-[#ded6c9]">{activeVideoModal.description || activeVideoModal.subtitle}</p>
+                    <NavigationLink href="/consultation" variant="gold-outline" size="sm" onClick={() => { setActiveVideoModal(null); onNavigate('/consultation'); }} className="shrink-0 font-cinzel text-xs">
+                      Request Consultation
+                    </NavigationLink>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </section>
+      );
+    }
+
+    case 'video': {
       const aspectClasses: Record<string, string> = {
         '16:9': 'aspect-video',
         '21:9': 'aspect-[21/9]',
