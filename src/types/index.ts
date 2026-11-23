@@ -182,6 +182,14 @@ export type SectionBlockType =
 
 export type SectionType = SectionBlockType;
 
+export type ContainerLayout = 'single' | 'twoColumns' | 'threeColumns' | 'fourColumns';
+
+/** A column inside a layout container. Its blocks are intentionally nested. */
+export interface LayoutColumn {
+  id: string;
+  blocks: PageSection[];
+}
+
 export interface PageSection {
   id: string;
   type: SectionBlockType;
@@ -190,6 +198,8 @@ export interface PageSection {
   isVisible: boolean;
   order: number;
   content: Record<string, any>;
+  /** Present only for layout containers. Older flat sections remain fully compatible. */
+  columns?: LayoutColumn[];
   background?: 'dark' | 'charcoal' | 'surface' | 'gold_tint';
   paddingY?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   typography?: BlockTypography;

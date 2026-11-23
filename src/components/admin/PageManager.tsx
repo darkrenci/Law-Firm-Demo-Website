@@ -341,6 +341,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         textColor: 'ivory',
       },
       content: defaultContents[type] || {},
+      columns: type === 'container' ? [{ id: `col-${Date.now()}-1`, blocks: [] }] : undefined,
       order: 1,
     };
 

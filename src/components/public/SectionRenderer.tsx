@@ -1222,6 +1222,12 @@ const RenderSectionItem: React.FC<{
 
       const maxWidthClass = widthClasses[content.maxWidth || 'lg'] || 'max-w-5xl';
       const borderClass = borderClasses[content.borderStyle || 'gold'] || 'border border-[#c59b63]/50';
+      const layout = content.layout || 'single';
+      const columnCount = layout === 'twoColumns' ? 2 : layout === 'threeColumns' ? 3 : layout === 'fourColumns' ? 4 : 1;
+      const columns = Array.from({ length: columnCount }, (_, index) =>
+        section.columns?.[index] || { id: `legacy-column-${index}`, blocks: [] }
+      );
+      const gridClass = columnCount === 1 ? 'grid-cols-1' : columnCount === 2 ? 'grid-cols-1 md:grid-cols-2' : columnCount === 3 ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-4';
 
       return (
         <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
@@ -1244,7 +1250,7 @@ const RenderSectionItem: React.FC<{
                     </span>
                   </EditablePartWrapper>
                 )}
-                {(content.headline || content.heading || section.title) && (
+                {(content.headline || content.heading) && (
                   <EditablePartWrapper
                     editMode={editMode}
                     partId="headline"
@@ -1256,7 +1262,7 @@ const RenderSectionItem: React.FC<{
                       style={headTypo.customStyle}
                       className={`${headTypo.fontClass} ${headTypo.sizeClass || 'text-2xl sm:text-4xl'} ${headTypo.weightClass} ${headTypo.trackingClass} ${headTypo.colorClass} ${headTypo.uppercaseClass} ${headTypo.italicClass} leading-snug`}
                     >
-                      {content.headline || content.heading || section.title}
+                      {content.headline || content.heading}
                     </h2>
                   </EditablePartWrapper>
                 )}
@@ -1304,6 +1310,23 @@ const RenderSectionItem: React.FC<{
                     </NavigationLink>
                   </div>
                 </EditablePartWrapper>
+              )}
+
+              {(editMode || columns.some((column) => column.blocks.length > 0)) && (
+                <div className={`grid ${gridClass} gap-5 pt-2`}>
+                  {columns.map((column, columnIndex) => (
+                    <div key={column.id} className={`min-h-24 ${editMode ? 'border border-dashed border-[#c59b63]/50 bg-[#0a0a0e]/50 p-3' : ''}`}>
+                      {editMode && column.blocks.length === 0 && (
+                        <div className="h-full min-h-16 flex items-center justify-center text-center font-cinzel text-[10px] uppercase tracking-wider text-[#8e877e]">
+                          Column {columnIndex + 1} · empty layout slot
+                        </div>
+                      )}
+                      {column.blocks.map((block) => (
+                        <SectionRenderer key={block.id} section={block} pageSlug={pageSlug} onNavigate={onNavigate} editMode={editMode} isAdmin={isAdmin} activeElementPart={activeElementPart} onSelectPart={onSelectPart} />
+                      ))}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -1365,14 +1388,25 @@ const RenderSectionItem: React.FC<{
             <EditablePartWrapper editMode={editMode} partId="videos" partLabel="Video Embedded Grid" activeElementPart={activeElementPart} onSelectPart={onSelectPart}>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
                 {videos.length ? videos.map((video: any, index: number) => (
-                  <article key={video.id || index} className="overflow-hidden border border-[#272738] bg-[#101015]">
-                    <div className="aspect-video overflow-hidden bg-black"><VideoCardPreview src={video.videoUrl || ''} title={video.title || 'Video briefing'} thumbnail={video.thumbnailUrl} /></div>
+                  <article key={video.id || index} role="button" tabIndex={0} onClick={() => {
+                    if (editMode) { onSelectPart?.('videos'); return; }
+                    setActiveVideoModal(video);
+                  }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (editMode) onSelectPart?.('videos'); else setActiveVideoModal(video); } }} className="group cursor-pointer overflow-hidden border border-[#272738] bg-[#101015] hover:border-[#c59b63]/80 transition-colors">
+                    <div className="aspect-video overflow-hidden bg-black relative"><VideoCardPreview src={video.videoUrl || ''} title={video.title || 'Video briefing'} thumbnail={video.thumbnailUrl} /><div className="absolute inset-0 flex items-center justify-center bg-black/20"><span className="w-12 h-12 rounded-full border border-[#c59b63] bg-[#0d0d12]/85 text-[#c59b63] flex items-center justify-center group-hover:bg-[#c59b63] group-hover:text-[#0d0d12]"><Play className="w-5 h-5 ml-0.5 fill-current" /></span></div></div>
                     <div className="p-4 space-y-2"><span className="font-cinzel text-[9px] uppercase tracking-wider text-[#c59b63]">{video.tag || 'Briefing'}</span><h3 className="font-cormorant text-xl text-[#f7f4ee]">{video.title || 'Video Briefing'}</h3><p className="text-xs leading-relaxed text-[#a8a199]">{video.description || video.subtitle || ''}</p></div>
                   </article>
                 )) : <div className="col-span-full border border-dashed border-[#3a3440] p-8 text-center text-xs text-[#8e877e]">Add up to four Video Individual Cards from the Video Grid editor.</div>}
               </div>
             </EditablePartWrapper>
           </div>
+          {activeVideoModal && <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+            <button aria-label="Close video" className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setActiveVideoModal(null)} />
+            <div className="relative z-10 w-full max-w-4xl overflow-hidden border border-[#c59b63]/60 bg-[#101015]">
+              <div className="flex items-center justify-between border-b border-[#272738] px-5 py-4"><div><span className="font-cinzel text-[10px] uppercase tracking-[0.2em] text-[#c59b63]">{activeVideoModal.tag || 'Video briefing'}</span><h3 className="font-cormorant text-xl text-[#f7f4ee]">{activeVideoModal.title || 'Video briefing'}</h3></div><button onClick={() => setActiveVideoModal(null)} className="text-[#c59b63] text-xs font-cinzel uppercase">Close ×</button></div>
+              <video src={activeVideoModal.videoUrl} controls autoPlay playsInline className="w-full max-h-[70vh] bg-black object-contain" />
+              {activeVideoModal.description && <p className="px-5 py-4 text-sm text-[#a8a199]">{activeVideoModal.description}</p>}
+            </div>
+          </div>}
         </section>
       );
     }

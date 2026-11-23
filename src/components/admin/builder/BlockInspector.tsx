@@ -1900,6 +1900,22 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
             ) : (
               /* NON-HERO BLOCKS (Text, Image, Video, Container, News, Points, Quote, etc.) */
               <div className="space-y-4">
+                {section.type === 'container' && (() => {
+                  const selectedLayout = content.layout || 'single';
+                  const countFor = (layout: string) => layout === 'twoColumns' ? 2 : layout === 'threeColumns' ? 3 : layout === 'fourColumns' ? 4 : 1;
+                  const applyLayout = (layout: string) => {
+                    const nextCount = countFor(layout);
+                    const existing = section.columns || [];
+                    const columns = Array.from({ length: nextCount }, (_, index) => existing[index] || { id: `col-${Date.now()}-${index + 1}`, blocks: [] });
+                    onUpdate({ content: { ...content, layout }, columns });
+                  };
+                  return <div className="space-y-3 border border-[#c59b63]/50 bg-[#111116] p-3">
+                    <div><span className="font-cinzel text-[11px] font-bold uppercase tracking-wider text-[#f4e6d0]">Layout Container</span><p className="mt-1 text-[10px] leading-relaxed text-[#8e877e]">Choose empty columns now. Add blocks into each column in the next builder phase.</p></div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[['single', 'Single column'], ['twoColumns', '2 columns'], ['threeColumns', '3 columns'], ['fourColumns', '4-column grid']].map(([layout, label]) => <button key={layout} type="button" onClick={() => applyLayout(layout)} className={`border px-2 py-2 text-[10px] font-cinzel uppercase transition-colors ${selectedLayout === layout ? 'border-[#c59b63] bg-[#c59b63] text-[#0d0d11] font-bold' : 'border-[#303040] bg-[#0b0b10] text-[#a8a199] hover:border-[#c59b63]'}`}>{label}</button>)}
+                    </div>
+                  </div>;
+                })()}
                 {/* Eyebrow */}
                 <div>
                   <label className="block font-cinzel text-[10px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
