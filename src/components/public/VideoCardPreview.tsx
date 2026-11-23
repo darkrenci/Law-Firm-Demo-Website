@@ -3,11 +3,12 @@ import React from 'react';
 export function VideoCardPreview({ src, title, thumbnail }: {
   src: string; title: string; thumbnail?: string;
 }) {
-  const isDirectVideo = /\.(mp4|webm)(?:[?#]|$)/i.test(src || '');
+  const isExternalEmbed = /(youtube\.com|youtu\.be|vimeo\.com)/i.test(src || '');
   // Omitting poster makes the browser render the video's first decodable frame.
   // This keeps previews truthful when an editor chooses a new video.
-  if (isDirectVideo) {
-    return <video src={src} aria-label={`${title} preview`} muted playsInline preload="metadata"
+  if (src && !isExternalEmbed) {
+    return <video src={src} aria-label={`${title} preview`} muted playsInline preload="auto"
+      onLoadedData={(event) => { event.currentTarget.currentTime = 0.01; event.currentTarget.pause(); }}
       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-95" />;
   }
   return thumbnail ? <img src={thumbnail} alt={title} width={640} height={360} loading="lazy" decoding="async"
