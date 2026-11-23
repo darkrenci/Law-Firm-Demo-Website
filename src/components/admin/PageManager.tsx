@@ -98,6 +98,8 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
   // Modals
   const [isAddSectionOpen, setIsAddSectionOpen] = useState(false);
   const [insertAtIndex, setInsertAtIndex] = useState<number | null>(null);
+  const [nestedInsertTarget, setNestedInsertTarget] = useState<{ containerId: string; columnId: string } | null>(null);
+  const [draggedBlockId, setDraggedBlockId] = useState<string | null>(null);
   const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
   const [isPageSettingsOpen, setIsPageSettingsOpen] = useState(false);
   const [isCreatePageOpen, setIsCreatePageOpen] = useState(false);
@@ -135,19 +137,28 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
     }
   };
 
-  // Currently selected section object
-  const activeSection = workingPage.sections?.find((s) => s.id === selectedSectionId) || null;
+  const findBlock = (blocks: PageSection[], id: string | null): PageSection | null => {
+    if (!id) return null;
+    for (const block of blocks) {
+      if (block.id === id) return block;
+      for (const column of block.columns || []) {
+        const found = findBlock(column.blocks, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+  const mapBlockTree = (blocks: PageSection[], id: string, change: (block: PageSection) => PageSection): PageSection[] =>
+    blocks.map(block => block.id === id ? change(block) : { ...block, columns: block.columns?.map(column => ({ ...column, blocks: mapBlockTree(column.blocks, id, change) })) });
+
+  // Currently selected section object (top-level or nested)
+  const activeSection = findBlock(workingPage.sections || [], selectedSectionId);
   const activeSectionIndex = workingPage.sections?.findIndex((s) => s.id === selectedSectionId) ?? -1;
 
   // Real-time section update handler
   const handleUpdateSection = (sectionId: string, updates: Partial<PageSection>) => {
     const current = workingPageRef.current;
-    const nextSections = (current.sections || []).map((sec) => {
-      if (sec.id === sectionId) {
-        return { ...sec, ...updates };
-      }
-      return sec;
-    });
+    const nextSections = mapBlockTree(current.sections || [], sectionId, sec => ({ ...sec, ...updates }));
     const nextPage = { ...current, sections: nextSections };
     workingPageRef.current = nextPage;
     setWorkingPage(nextPage);
@@ -183,7 +194,10 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
   // Delete section
   const handleDeleteSection = (secId: string) => {
     if (!confirm('Are you sure you want to remove this section from the page?')) return;
-    const sections = (workingPage.sections || []).filter((s) => s.id !== secId);
+    const remove = (blocks: PageSection[]): PageSection[] => blocks
+      .filter(block => block.id !== secId)
+      .map(block => ({ ...block, columns: block.columns?.map(column => ({ ...column, blocks: remove(column.blocks) })) }));
+    const sections = remove(workingPage.sections || []);
     sections.forEach((s, i) => {
       s.order = i + 1;
     });
@@ -198,7 +212,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
 
   // Toggle visibility
   const handleToggleVisibility = (secId: string) => {
-    const sec = workingPage.sections?.find((s) => s.id === secId);
+    const sec = findBlock(workingPage.sections || [], secId);
     if (!sec) return;
     handleUpdateSection(secId, { isVisible: !sec.isVisible });
   };
@@ -344,6 +358,22 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
       columns: type === 'container' ? [{ id: `col-${Date.now()}-1`, blocks: [] }] : undefined,
       order: 1,
     };
+
+    if (nestedInsertTarget) {
+      const sections = mapBlockTree(workingPage.sections || [], nestedInsertTarget.containerId, container => ({
+        ...container,
+        columns: (container.columns || []).map(column => column.id === nestedInsertTarget.columnId
+          ? { ...column, blocks: [...column.blocks, { ...newSection, order: column.blocks.length + 1 }] }
+          : column),
+      }));
+      setWorkingPage(prev => ({ ...prev, sections }));
+      setSelectedSectionId(newSection.id);
+      setNestedInsertTarget(null);
+      setIsAddSectionOpen(false);
+      setIsDirty(true);
+      toast.success('Nested Block Inserted', `Added ${newSection.title} to the selected column.`);
+      return;
+    }
 
     const sections = [...(workingPage.sections || [])];
     if (insertAtIndex !== null && insertAtIndex >= 0) {
@@ -909,7 +939,24 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
                 const isSelected = selectedSectionId === sec.id;
 
                 return (
-                  <div key={sec.id} className="relative group">
+                  <div key={sec.id} draggable onDragStart={(event) => { setDraggedBlockId(sec.id); event.dataTransfer.setData('application/x-page-block', sec.id); event.dataTransfer.effectAllowed = 'move'; }} onDragOver={event => { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; }} onDrop={event => {
+                    event.preventDefault();
+                    const sourceId = draggedBlockId || event.dataTransfer.getData('application/x-page-block');
+                    if (!sourceId || sourceId === sec.id) return;
+                    const moving = findBlock(workingPageRef.current.sections || [], sourceId);
+                    if (!moving) return;
+                    const remove = (blocks: PageSection[]): PageSection[] => blocks.filter(block => block.id !== sourceId).map(block => ({ ...block, columns: block.columns?.map(column => ({ ...column, blocks: remove(column.blocks) })) }));
+                    const sections = remove(workingPageRef.current.sections || []);
+                    const from = sections.findIndex(item => item.id === sourceId);
+                    const to = sections.findIndex(item => item.id === sec.id);
+                    if (to < 0) return;
+                    if (from >= 0) sections.splice(from, 1);
+                    sections.splice(to, 0, moving);
+                    sections.forEach((item, order) => { item.order = order + 1; });
+                    setWorkingPage(prev => ({ ...prev, sections }));
+                    setIsDirty(true);
+                    setDraggedBlockId(null);
+                  }} onDragEnd={() => setDraggedBlockId(null)} className="relative group cursor-move">
                     {/* Visual Hover & Active Selection Border */}
                     <div
                       className={`absolute inset-0 pointer-events-none transition-all z-20 ${
@@ -1017,6 +1064,27 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
                           if (viewMode === 'outline') {
                             setViewMode('visual');
                           }
+                        }}
+                        onAddNestedBlock={(containerId, columnId) => {
+                          setNestedInsertTarget({ containerId, columnId });
+                          setInsertAtIndex(null);
+                          setIsAddSectionOpen(true);
+                        }}
+                        onSelectNestedBlock={(blockId) => {
+                          setSelectedSectionId(blockId);
+                          setActiveElementPart(null);
+                        }}
+                        onMoveNestedBlock={(blockId, containerId, columnId) => {
+                          const moving = findBlock(workingPageRef.current.sections || [], blockId);
+                          if (!moving || moving.id === containerId) return;
+                          const remove = (blocks: PageSection[]): PageSection[] => blocks
+                            .filter(block => block.id !== blockId)
+                            .map(block => ({ ...block, columns: block.columns?.map(column => ({ ...column, blocks: remove(column.blocks) })) }));
+                          let sections = remove(workingPageRef.current.sections || []);
+                          sections = mapBlockTree(sections, containerId, container => ({ ...container, columns: (container.columns || []).map(column => column.id === columnId ? { ...column, blocks: [...column.blocks, moving] } : column) }));
+                          setWorkingPage(prev => ({ ...prev, sections }));
+                          setSelectedSectionId(blockId);
+                          setIsDirty(true);
                         }}
                       />
                     </div>

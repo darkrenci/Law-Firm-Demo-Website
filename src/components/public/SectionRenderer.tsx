@@ -72,6 +72,9 @@ interface SectionRendererProps {
   isAdmin?: boolean;
   activeElementPart?: string | null;
   onSelectPart?: (part: string) => void;
+  onAddNestedBlock?: (containerId: string, columnId: string) => void;
+  onSelectNestedBlock?: (blockId: string) => void;
+  onMoveNestedBlock?: (blockId: string, containerId: string, columnId: string) => void;
 }
 
 export const SectionRenderer: React.FC<SectionRendererProps> = ({
@@ -83,6 +86,9 @@ export const SectionRenderer: React.FC<SectionRendererProps> = ({
   isAdmin = false,
   activeElementPart = null,
   onSelectPart,
+  onAddNestedBlock,
+  onSelectNestedBlock,
+  onMoveNestedBlock,
 }) => {
   const isEffectiveAdmin = Boolean(
     isAdmin ||
@@ -115,6 +121,9 @@ export const SectionRenderer: React.FC<SectionRendererProps> = ({
           isAdmin={isEffectiveAdmin}
           activeElementPart={activeElementPart}
           onSelectPart={onSelectPart}
+          onAddNestedBlock={onAddNestedBlock}
+          onSelectNestedBlock={onSelectNestedBlock}
+          onMoveNestedBlock={onMoveNestedBlock}
         />
       ))}
     </div>
@@ -584,7 +593,10 @@ const RenderSectionItem: React.FC<{
   isAdmin?: boolean;
   activeElementPart?: string | null;
   onSelectPart?: (part: string) => void;
-}> = ({ section, pageSlug, onNavigate, editMode, isAdmin, activeElementPart, onSelectPart }) => {
+  onAddNestedBlock?: (containerId: string, columnId: string) => void;
+  onSelectNestedBlock?: (blockId: string) => void;
+  onMoveNestedBlock?: (blockId: string, containerId: string, columnId: string) => void;
+}> = ({ section, pageSlug, onNavigate, editMode, isAdmin, activeElementPart, onSelectPart, onAddNestedBlock, onSelectNestedBlock, onMoveNestedBlock }) => {
   const { type, content, background, paddingY, typography } = section;
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   const [activeVideoModal, setActiveVideoModal] = useState<any | null>(null);
@@ -1315,15 +1327,18 @@ const RenderSectionItem: React.FC<{
               {(editMode || columns.some((column) => column.blocks.length > 0)) && (
                 <div className={`grid ${gridClass} gap-5 pt-2`}>
                   {columns.map((column, columnIndex) => (
-                    <div key={column.id} className={`min-h-24 ${editMode ? 'border border-dashed border-[#c59b63]/50 bg-[#0a0a0e]/50 p-3' : ''}`}>
+                    <div key={column.id} onDragOver={editMode ? event => { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; } : undefined} onDrop={editMode ? event => { event.preventDefault(); event.stopPropagation(); const blockId = event.dataTransfer.getData('application/x-page-block'); if (blockId) onMoveNestedBlock?.(blockId, section.id, column.id); } : undefined} className={`min-h-24 ${editMode ? 'border border-dashed border-[#c59b63]/50 bg-[#0a0a0e]/50 p-3' : ''}`}>
                       {editMode && column.blocks.length === 0 && (
                         <div className="h-full min-h-16 flex items-center justify-center text-center font-cinzel text-[10px] uppercase tracking-wider text-[#8e877e]">
                           Column {columnIndex + 1} · empty layout slot
                         </div>
                       )}
                       {column.blocks.map((block) => (
-                        <SectionRenderer key={block.id} section={block} pageSlug={pageSlug} onNavigate={onNavigate} editMode={editMode} isAdmin={isAdmin} activeElementPart={activeElementPart} onSelectPart={onSelectPart} />
+                        <div key={block.id} draggable={editMode} onDragStart={event => event.dataTransfer.setData('application/x-page-block', block.id)} onClick={event => { if (editMode) { event.stopPropagation(); onSelectNestedBlock?.(block.id); } }} className={editMode ? 'relative cursor-move border border-transparent hover:border-[#c59b63]/60' : ''}>
+                          <SectionRenderer section={block} pageSlug={pageSlug} onNavigate={onNavigate} editMode={editMode} isAdmin={isAdmin} activeElementPart={activeElementPart} onSelectPart={onSelectPart} onAddNestedBlock={onAddNestedBlock} onSelectNestedBlock={onSelectNestedBlock} onMoveNestedBlock={onMoveNestedBlock} />
+                        </div>
                       ))}
+                      {editMode && <button type="button" onClick={event => { event.stopPropagation(); onAddNestedBlock?.(section.id, column.id); }} className="mt-3 w-full min-h-12 border border-dashed border-[#c59b63]/70 text-[#c59b63] hover:bg-[#c59b63]/10 font-cinzel text-[10px] uppercase tracking-wider">+ Add Block to Column {columnIndex + 1}</button>}
                     </div>
                   ))}
                 </div>
