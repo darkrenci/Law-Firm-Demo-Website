@@ -781,7 +781,7 @@ const RenderSectionItem: React.FC<{
               >
                 {editMode ? (
                   <div className="relative overflow-hidden border border-[#c59b63]/50 bg-[#0b0b0f]">
-                    <img src={content.introPosterUrl || '/videos/introduction.jpg'} alt="Introduction video preview" width={960} height={525} className="w-full h-auto opacity-75" />
+                    <video src={content.introVideoUrl || '/videos/introduction.mp4'} muted playsInline preload="metadata" aria-label="Introduction video preview" className="w-full aspect-[64/35] object-cover opacity-75" />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/35 pointer-events-none">
                       <span className="px-3 py-2 bg-[#0d0d12]/95 border border-[#c59b63] text-[#f4e6d0] font-cinzel text-[10px] uppercase tracking-wider">
                         Click to edit introduction video
@@ -792,7 +792,7 @@ const RenderSectionItem: React.FC<{
                   <video
                     ref={introductionPlayer}
                     src={content.introVideoUrl || '/videos/introduction.mp4'}
-                    poster={content.introPosterUrl || '/videos/introduction.jpg'}
+                    poster={content.introPosterUrl || undefined}
                     autoPlay
                     controls
                     playsInline
@@ -806,7 +806,7 @@ const RenderSectionItem: React.FC<{
                     onClick={() => setIntroductionStarted(true)}
                     className="group block w-full relative overflow-hidden border border-[#c59b63]/50 bg-[#0b0b0f] focus:outline-none focus:ring-2 focus:ring-[#c59b63]"
                   >
-                    <img src={content.introPosterUrl || '/videos/introduction.jpg'} alt="Introduction video" width={960} height={525} loading="lazy" decoding="async" className="w-full h-auto" />
+                    <video src={content.introVideoUrl || '/videos/introduction.mp4'} muted playsInline preload="metadata" aria-label="Introduction video preview" className="w-full aspect-[64/35] object-cover" />
                     <span className="absolute inset-0 bg-black/20 flex items-center justify-center">
                       <span className="w-16 h-16 rounded-full bg-[#0d0d12]/85 border border-[#c59b63] flex items-center justify-center text-[#c59b63] group-hover:bg-[#c59b63] group-hover:text-[#09090c] transition-colors">
                         <Play className="w-7 h-7 ml-1 fill-current" />

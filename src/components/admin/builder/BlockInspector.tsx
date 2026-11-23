@@ -574,41 +574,6 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
         return 'Embedded 3-Video Showcase (Clickable & Popupable)';
       case 'cards':
         return 'Cards Grid & Directory Items';
-      case 'introduction':
-        return (
-          <div id="part-card-introduction" className="p-3.5 bg-[#121218] border border-[#c59b63]/60 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#222230] pb-2">
-              <div className="flex items-center gap-2">
-                <Video className="w-4 h-4 text-[#c59b63]" />
-                <span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase tracking-wider">
-                  Introduction Video
-                </span>
-              </div>
-              <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[#c59b63] text-[#0d0d11] font-bold uppercase">
-                Editing Now
-              </span>
-            </div>
-            <p className="text-[10px] leading-relaxed text-[#a8a199]">
-              This controls only the introductory video block. It does not change the introduction text or the embedded video showcase below it.
-            </p>
-            <div>
-              <label className="block text-[9px] text-[#8e877e] uppercase mb-0.5">Video File / Stream URL</label>
-              <VideoUploadField
-                value={content.introVideoUrl || '/videos/introduction.mp4'}
-                onChange={(url) => handleContentChange('introVideoUrl', url)}
-              />
-            </div>
-            <ImageUploadField
-              label="Video Poster Image"
-              value={content.introPosterUrl || '/videos/introduction.jpg'}
-              onChange={(posterUrl) => handleContentChange('introPosterUrl', posterUrl)}
-              compact={true}
-              aspectRatio="landscape"
-              helperText="Preview image shown before the introduction video plays."
-            />
-          </div>
-        );
-
       case 'image':
         return 'Chamber Photography & Media';
       case 'quote':
@@ -907,6 +872,32 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                 </button>
               </div>
             </div>
+          </div>
+        );
+
+      case 'introduction':
+        return (
+          <div id="part-card-introduction" className="p-3.5 bg-[#121218] border border-[#c59b63]/60 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#222230] pb-2">
+              <div className="flex items-center gap-2">
+                <Video className="w-4 h-4 text-[#c59b63]" />
+                <span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase tracking-wider">Introduction Video</span>
+              </div>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[#c59b63] text-[#0d0d11] font-bold uppercase">Editing Now</span>
+            </div>
+            <p className="text-[10px] leading-relaxed text-[#a8a199]">
+              This controls only the introductory video block. It does not change the introduction text or the embedded video showcase.
+            </p>
+            <div>
+              <label className="block text-[9px] text-[#8e877e] uppercase mb-0.5">Video File / Stream URL</label>
+              <VideoUploadField
+                value={content.introVideoUrl || '/videos/introduction.mp4'}
+                onChange={(url) => onUpdate({ content: { ...content, introVideoUrl: url, introPosterUrl: '' } })}
+              />
+            </div>
+            <p className="text-[10px] text-[#c59b63] border-t border-[#242430] pt-2">
+              The card preview uses the first frame of the selected video automatically.
+            </p>
           </div>
         );
 
@@ -1739,16 +1730,9 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                   </div>
                   <VideoUploadField
                     value={content.introVideoUrl || '/videos/introduction.mp4'}
-                    onChange={(url) => handleContentChange('introVideoUrl', url)}
+                    onChange={(url) => onUpdate({ content: { ...content, introVideoUrl: url, introPosterUrl: '' } })}
                   />
-                  <ImageUploadField
-                    label="Video Poster Image"
-                    value={content.introPosterUrl || '/videos/introduction.jpg'}
-                    onChange={(posterUrl) => handleContentChange('introPosterUrl', posterUrl)}
-                    compact={true}
-                    aspectRatio="landscape"
-                    helperText="Preview thumbnail for the introduction video"
-                  />
+                  <p className="text-[10px] text-[#c59b63]">The preview always uses the first frame of the selected video.</p>
                 </div>
 
                 {/* PART 6: 3 EMBEDDED VIDEOS (CLICKABLE & POPUPABLE) */}
@@ -1860,10 +1844,18 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                             </div>
                             <div>
                               <label className="text-[9px] font-mono text-[#8e877e] block">Video Stream URL (MP4, YouTube, Vimeo)</label>
-                              <VideoUploadField value={vid.videoUrl || ''} onChange={url => handleUpdateVideo('videoUrl', url)} />
+                              <VideoUploadField value={vid.videoUrl || ''} onChange={url => {
+                                const baseVids = [
+                                  vids[0] || { id: 'vid-1' },
+                                  vids[1] || { id: 'vid-2' },
+                                  vids[2] || { id: 'vid-3' },
+                                ];
+                                baseVids[idx] = { ...baseVids[idx], videoUrl: url, thumbnailUrl: '' };
+                                handleContentChange('videos', baseVids);
+                              }} />
                             </div>
                             <div>
-                              <label className="text-[9px] font-mono text-[#8e877e] block">Poster Thumbnail URL</label>
+                              <label className="text-[9px] font-mono text-[#8e877e] block">Poster Thumbnail URL (external embeds only)</label>
                               <input
                                 type="text"
                                 value={vid.thumbnailUrl || ''}
