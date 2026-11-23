@@ -2320,12 +2320,43 @@ const RenderSectionItem: React.FC<{
       );
     }
 
+    case 'portraitCard': {
+      const openPortraitLink = () => {
+        if (editMode) { onSelectPart?.('cards'); return; }
+        if (!content.linkUrl) return;
+        if (/^https?:\/\//i.test(content.linkUrl)) window.open(content.linkUrl, '_blank', 'noopener,noreferrer');
+        else onNavigate(content.linkUrl);
+      };
+      return <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
+        <div className="mx-auto max-w-7xl px-6 lg:px-12">
+          <EditablePartWrapper editMode={editMode} partId="cards" partLabel="Portrait Individual Card" activeElementPart={activeElementPart} onSelectPart={onSelectPart}>
+            <article role={content.linkUrl ? 'link' : undefined} tabIndex={content.linkUrl ? 0 : undefined} onClick={openPortraitLink} onKeyDown={event => { if (content.linkUrl && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); openPortraitLink(); } }} className={`group flex w-full max-w-sm flex-col overflow-hidden border border-[#232330] bg-[#101015] text-left transition-colors duration-300 hover:border-[#c59b63] ${content.linkUrl || editMode ? 'cursor-pointer' : ''}`}>
+              <div className="relative aspect-[4/5] overflow-hidden bg-[#0a0a0e]">
+                <img src={content.imageUrl || '/assets/attorney-placeholder.svg'} alt={content.fullName || 'Portrait profile'} onError={event => { event.currentTarget.src = '/assets/attorney-placeholder.svg'; }} className="h-full w-full object-cover object-top brightness-95 transition-transform duration-700 group-hover:scale-105 group-hover:brightness-100" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#101015] via-black/25 to-transparent opacity-90" />
+                {content.overlayTitle && <span className="absolute left-3 top-3 border border-[#c59b63]/40 bg-[#0a0a0d]/90 px-2.5 py-1 font-cinzel text-[9px] font-semibold uppercase tracking-widest text-[#c59b63]">{content.overlayTitle}</span>}
+              </div>
+              <div className="flex flex-1 flex-col justify-between space-y-4 border-t border-[#1e1e28] bg-[#101015] p-5 sm:p-6">
+                <div className="space-y-2">
+                  {content.professionalTitle && <span className="block font-cinzel text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c59b63]">{content.professionalTitle}</span>}
+                  <h3 className="font-cormorant text-2xl font-semibold text-[#f7f4ee] transition-colors group-hover:text-[#e4c18f]">{content.fullName || 'Portrait Profile'}</h3>
+                  {content.specialization && <p className="font-sans text-xs leading-relaxed text-[#a8a199]">{content.specialization}</p>}
+                </div>
+                {content.linkUrl && <div className="flex items-center gap-1.5 border-t border-[#1e1e28] pt-3 font-cinzel text-[11px] font-semibold uppercase tracking-wider text-[#c59b63]">View Profile <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></div>}
+              </div>
+            </article>
+          </EditablePartWrapper>
+        </div>
+      </section>;
+    }
+
     case 'attorneys': {
       const allAttorneys = db.getAttorneys(false);
-      
+      const portraitCards = Array.isArray(content.portraitCards) ? content.portraitCards : [];
+      const itemLimit = content.limit || 3;
       const attorneys = [...allAttorneys]
         .sort((a, b) => (a.order ?? a.displayOrder ?? 0) - (b.order ?? b.displayOrder ?? 0))
-        .slice(0, content.limit || 3);
+        .slice(0, Math.max(0, itemLimit - portraitCards.length));
 
       return (
         <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
@@ -2515,6 +2546,40 @@ const RenderSectionItem: React.FC<{
                     </div>
                   );
                 })}
+                {portraitCards.slice(0, itemLimit).map((card: any, index: number) => (
+                  <div
+                    key={card.id || index}
+                    role={card.linkUrl ? 'link' : undefined}
+                    tabIndex={card.linkUrl ? 0 : undefined}
+                    onClick={() => {
+                      if (editMode) { onSelectPart?.('cards'); return; }
+                      if (/^https?:\/\//i.test(card.linkUrl || '')) window.open(card.linkUrl, '_blank', 'noopener,noreferrer');
+                      else if (card.linkUrl) onNavigate(card.linkUrl);
+                    }}
+                    onKeyDown={(event) => {
+                      if (card.linkUrl && (event.key === 'Enter' || event.key === ' ')) {
+                        event.preventDefault();
+                        if (/^https?:\/\//i.test(card.linkUrl)) window.open(card.linkUrl, '_blank', 'noopener,noreferrer');
+                        else onNavigate(card.linkUrl);
+                      }
+                    }}
+                    className={`group relative flex flex-col overflow-hidden border border-[#232330] bg-[#101015] text-left transition-colors duration-300 hover:border-[#c59b63] ${card.linkUrl || editMode ? 'cursor-pointer' : ''}`}
+                  >
+                    <div className="relative aspect-[4/5] overflow-hidden bg-[#0a0a0e] sm:h-80">
+                      <img src={card.imageUrl || '/assets/attorney-placeholder.svg'} alt={card.fullName || 'Portrait profile'} onError={event => { event.currentTarget.src = '/assets/attorney-placeholder.svg'; }} className="h-full w-full object-cover object-top brightness-95 transition-transform duration-700 group-hover:scale-105 group-hover:brightness-100" loading="lazy" decoding="async" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#101015] via-black/25 to-transparent opacity-90" />
+                      {card.overlayTitle && <div className="absolute left-3 top-3"><span className="border border-[#c59b63]/40 bg-[#0a0a0d]/90 px-2.5 py-1 font-cinzel text-[9px] font-semibold uppercase tracking-widest text-[#c59b63]">{card.overlayTitle}</span></div>}
+                    </div>
+                    <div className="flex flex-1 flex-col justify-between space-y-4 border-t border-[#1e1e28] bg-[#101015] p-5 sm:p-6">
+                      <div className="space-y-2">
+                        {card.professionalTitle && <span className="block font-cinzel text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c59b63]">{card.professionalTitle}</span>}
+                        <h3 style={cardsTypo.customStyle} className={`${cardsTypo.fontClass} ${cardsTypo.sizeClass || 'text-2xl'} ${cardsTypo.colorClass || 'text-[#f7f4ee]'} font-semibold transition-colors group-hover:text-[#e4c18f]`}>{card.fullName || 'Portrait Profile'}</h3>
+                        {card.specialization && <p className="line-clamp-3 font-sans text-xs leading-relaxed text-[#a8a199]">{card.specialization}</p>}
+                      </div>
+                      {card.linkUrl && <div className="flex items-center justify-between border-t border-[#1e1e28] pt-3"><span className="flex items-center gap-1.5 font-cinzel text-[11px] font-semibold uppercase tracking-wider text-[#c59b63]">View Profile <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" /></span></div>}
+                    </div>
+                  </div>
+                ))}
               </div>
             </EditablePartWrapper>
           </div>

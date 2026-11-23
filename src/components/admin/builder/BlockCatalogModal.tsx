@@ -132,6 +132,13 @@ export const BLOCK_CATALOG: BlockDefinition[] = [
     recommended: true,
   },
   {
+    type: 'portraitCard',
+    title: 'Portrait Individual Card',
+    category: 'Database',
+    desc: 'A standalone editable portrait card that can also be added to a Partners Directory Grid.',
+    icon: Users,
+  },
+  {
     type: 'stats',
     title: 'Key Milestones & Stats',
     category: 'Content',

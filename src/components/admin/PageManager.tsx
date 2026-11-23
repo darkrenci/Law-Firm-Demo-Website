@@ -258,6 +258,15 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         eyebrow: '',
         headline: 'Distinguished Partners',
         limit: 4,
+        portraitCards: [],
+      },
+      portraitCard: {
+        imageUrl: '/assets/attorney-placeholder.svg',
+        fullName: 'New Portrait Profile',
+        professionalTitle: 'Professional Title',
+        specialization: 'Practice focus or profile summary',
+        overlayTitle: '',
+        linkUrl: '',
       },
       stats: {
         stats: [

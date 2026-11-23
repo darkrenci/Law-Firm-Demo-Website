@@ -159,6 +159,7 @@ export type SectionBlockType =
   | 'video'
   | 'videoGrid'
   | 'videoCard'
+  | 'portraitCard'
   | 'image'
   | 'imageText'
   | 'gallery'

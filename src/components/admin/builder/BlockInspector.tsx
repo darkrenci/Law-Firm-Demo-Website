@@ -526,6 +526,9 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
     if (secType === 'videoGrid') {
       return [{ id: 'videos', label: 'Video Embedded Cards', icon: Video }];
     }
+    if (secType === 'portraitCard') {
+      return [{ id: 'cards', label: 'Portrait Card', icon: ImageIcon }];
+    }
     const parts: { id: string; label: string; icon: any }[] = [];
     parts.push({ id: 'eyebrow', label: 'Eyebrow', icon: Type });
     parts.push({ id: 'headline', label: 'Header 1', icon: FileText });
@@ -1064,6 +1067,15 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
 
       case 'cards':
         const cardsTypo = getPartTypography('cards');
+        if (section.type === 'portraitCard') return <div id="part-card-cards" className="space-y-3 border border-[#c59b63]/60 bg-[#121218] p-3.5">
+          <div className="flex items-center gap-2 border-b border-[#222230] pb-2"><ImageIcon className="h-4 w-4 text-[#c59b63]" /><span className="font-cinzel text-[11px] font-bold uppercase tracking-wider text-[#f4e6d0]">Portrait Individual Card</span></div>
+          <ImageUploadField label="Portrait Photo" value={content.imageUrl || ''} onChange={url => handleContentChange('imageUrl', url)} compact aspectRatio="portrait" helperText="Upload a portrait or choose one from the Media Library." />
+          <input value={content.overlayTitle || ''} onChange={e => handleContentChange('overlayTitle', e.target.value)} placeholder="Optional image overlay title" className="w-full border border-[#242430] bg-[#09090d] p-2 text-xs text-[#f7f4ee]" />
+          <input value={content.professionalTitle || ''} onChange={e => handleContentChange('professionalTitle', e.target.value)} placeholder="Professional title / rank" className="w-full border border-[#242430] bg-[#09090d] p-2 text-xs text-[#f7f4ee]" />
+          <input value={content.fullName || ''} onChange={e => handleContentChange('fullName', e.target.value)} placeholder="Full name" className="w-full border border-[#242430] bg-[#09090d] p-2 text-xs text-[#f7f4ee]" />
+          <textarea rows={3} value={content.specialization || ''} onChange={e => handleContentChange('specialization', e.target.value)} placeholder="Practice focus or description" className="w-full border border-[#242430] bg-[#09090d] p-2 text-xs text-[#f7f4ee]" />
+          <input value={content.linkUrl || ''} onChange={e => handleContentChange('linkUrl', e.target.value)} placeholder="Optional destination URL" className="w-full border border-[#242430] bg-[#09090d] p-2 text-xs text-[#f7f4ee]" />
+        </div>;
         if (['contact', 'contactInfo'].includes(section.type)) return <div id="part-card-cards" className="space-y-3 p-3 border border-[#c59b63]/60">
           <h3 className="text-sm text-[#d4af7a]">Executive Chambers details</h3>
           {chamberFields.map(([key, label, fallback]) => <label key={key} className="block text-xs text-[#d4af7a]">{label}
@@ -1110,6 +1122,30 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
 
               {section.type === 'attorneys' && <>
                 <PartnerContentEditor />
+                <div className="space-y-3 border-t border-[#2b2b3b] pt-3">
+                  <div className="flex items-center justify-between">
+                    <div><span className="block font-cinzel text-[10px] font-bold uppercase text-[#f4e6d0]">Additional Portrait Cards</span><span className="text-[10px] text-[#8e877e]">Independent cards displayed after directory partners.</span></div>
+                    <span className="text-[10px] text-[#c59b63]">{Array.isArray(content.portraitCards) ? content.portraitCards.length : 0} added</span>
+                  </div>
+                  {(Array.isArray(content.portraitCards) ? content.portraitCards : []).map((card: any, cardIndex: number) => {
+                    const cards = Array.isArray(content.portraitCards) ? content.portraitCards : [];
+                    const updateCard = (values: Record<string, string>) => {
+                      const next = [...cards];
+                      next[cardIndex] = { ...next[cardIndex], ...values };
+                      handleContentChange('portraitCards', next);
+                    };
+                    return <div key={card.id || cardIndex} className="space-y-2 border border-[#2b2b3b] bg-[#09090d] p-3">
+                      <div className="flex items-center justify-between"><span className="font-cinzel text-[10px] uppercase text-[#c59b63]">Portrait Card {cardIndex + 1}</span><button type="button" onClick={() => handleContentChange('portraitCards', cards.filter((_: any, index: number) => index !== cardIndex))} className="text-[10px] text-rose-400">Remove</button></div>
+                      <ImageUploadField label="Portrait Photo" value={card.imageUrl || ''} onChange={url => updateCard({ imageUrl: url })} compact aspectRatio="portrait" />
+                      <input value={card.overlayTitle || ''} onChange={e => updateCard({ overlayTitle: e.target.value })} placeholder="Optional image overlay title" className="w-full border border-[#242430] bg-[#121218] p-2 text-xs text-[#f7f4ee]" />
+                      <input value={card.professionalTitle || ''} onChange={e => updateCard({ professionalTitle: e.target.value })} placeholder="Professional title / rank" className="w-full border border-[#242430] bg-[#121218] p-2 text-xs text-[#f7f4ee]" />
+                      <input value={card.fullName || ''} onChange={e => updateCard({ fullName: e.target.value })} placeholder="Full name" className="w-full border border-[#242430] bg-[#121218] p-2 text-xs text-[#f7f4ee]" />
+                      <textarea rows={2} value={card.specialization || ''} onChange={e => updateCard({ specialization: e.target.value })} placeholder="Practice focus or description" className="w-full border border-[#242430] bg-[#121218] p-2 text-xs text-[#f7f4ee]" />
+                      <input value={card.linkUrl || ''} onChange={e => updateCard({ linkUrl: e.target.value })} placeholder="Optional destination URL" className="w-full border border-[#242430] bg-[#121218] p-2 text-xs text-[#f7f4ee]" />
+                    </div>;
+                  })}
+                  <button type="button" onClick={() => { const cards = Array.isArray(content.portraitCards) ? content.portraitCards : []; handleContentChange('portraitCards', [...cards, { id: `portrait-${Date.now()}`, imageUrl: '/assets/attorney-placeholder.svg', fullName: 'New Portrait Profile', professionalTitle: 'Professional Title', specialization: 'Practice focus or profile summary', overlayTitle: '', linkUrl: '' }]); }} className="w-full border border-dashed border-[#c59b63]/60 px-3 py-2 font-cinzel text-[10px] uppercase text-[#c59b63]">+ Add Portrait Card</button>
+                </div>
                 <details className="space-y-3 text-xs text-[#d4af7a]">
                   <summary className="cursor-pointer">Edit card and popup labels</summary>
                   {partnerLabelFields.map(([key, label, fallback]) => <label key={key} className="block mt-3">{label}
