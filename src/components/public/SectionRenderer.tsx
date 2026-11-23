@@ -771,12 +771,28 @@ const RenderSectionItem: React.FC<{
             </EditablePartWrapper>
 
             {(pageSlug === '' || pageSlug === 'home') && (
-              <div className="w-full max-w-3xl mx-auto pt-4">
-                {introductionStarted ? (
+              <EditablePartWrapper
+                editMode={editMode}
+                partId="introduction"
+                partLabel="Introduction Video"
+                activeElementPart={activeElementPart}
+                onSelectPart={onSelectPart}
+                className="w-full max-w-3xl mx-auto pt-4"
+              >
+                {editMode ? (
+                  <div className="relative overflow-hidden border border-[#c59b63]/50 bg-[#0b0b0f]">
+                    <img src={content.introPosterUrl || '/videos/introduction.jpg'} alt="Introduction video preview" width={960} height={525} className="w-full h-auto opacity-75" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/35 pointer-events-none">
+                      <span className="px-3 py-2 bg-[#0d0d12]/95 border border-[#c59b63] text-[#f4e6d0] font-cinzel text-[10px] uppercase tracking-wider">
+                        Click to edit introduction video
+                      </span>
+                    </div>
+                  </div>
+                ) : introductionStarted ? (
                   <video
                     ref={introductionPlayer}
-                    src="/videos/introduction.mp4"
-                    poster="/videos/introduction.jpg"
+                    src={content.introVideoUrl || '/videos/introduction.mp4'}
+                    poster={content.introPosterUrl || '/videos/introduction.jpg'}
                     autoPlay
                     controls
                     playsInline
@@ -784,22 +800,22 @@ const RenderSectionItem: React.FC<{
                     className="w-full aspect-[64/35] object-contain border border-[#c59b63]/50 bg-black"
                   />
                 ) : (
-                <button
-                  type="button"
-                  aria-label="Watch introduction video"
-                  onClick={() => setIntroductionStarted(true)}
-                  className="group block w-full relative overflow-hidden border border-[#c59b63]/50 bg-[#0b0b0f] focus:outline-none focus:ring-2 focus:ring-[#c59b63]"
-                >
-                  <img src="/videos/introduction.jpg" alt="Introduction video" width={960} height={525} loading="lazy" decoding="async" className="w-full h-auto" />
-                  <span className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                    <span className="w-16 h-16 rounded-full bg-[#0d0d12]/85 border border-[#c59b63] flex items-center justify-center text-[#c59b63] group-hover:bg-[#c59b63] group-hover:text-[#09090c] transition-colors">
-                      <Play className="w-7 h-7 ml-1 fill-current" />
+                  <button
+                    type="button"
+                    aria-label="Watch introduction video"
+                    onClick={() => setIntroductionStarted(true)}
+                    className="group block w-full relative overflow-hidden border border-[#c59b63]/50 bg-[#0b0b0f] focus:outline-none focus:ring-2 focus:ring-[#c59b63]"
+                  >
+                    <img src={content.introPosterUrl || '/videos/introduction.jpg'} alt="Introduction video" width={960} height={525} loading="lazy" decoding="async" className="w-full h-auto" />
+                    <span className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                      <span className="w-16 h-16 rounded-full bg-[#0d0d12]/85 border border-[#c59b63] flex items-center justify-center text-[#c59b63] group-hover:bg-[#c59b63] group-hover:text-[#09090c] transition-colors">
+                        <Play className="w-7 h-7 ml-1 fill-current" />
+                      </span>
                     </span>
-                  </span>
-                  <span className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent pt-10 pb-4 text-[#f4e6d0] font-cinzel text-sm tracking-wider">Watch Introduction</span>
-                </button>
+                    <span className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent pt-10 pb-4 text-[#f4e6d0] font-cinzel text-sm tracking-wider">Watch Introduction</span>
+                  </button>
                 )}
-              </div>
+              </EditablePartWrapper>
             )}
 
             {/* Part 6: 3 Embedded Videos (Clickable & Popupable) */}
@@ -882,12 +898,17 @@ const RenderSectionItem: React.FC<{
                       onClick={() => {
                         if (editMode) {
                           onSelectPart?.('videos');
+                          return;
                         }
                         setActiveVideoModal(vid);
                       }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
+                          if (editMode) {
+                            onSelectPart?.('videos');
+                            return;
+                          }
                           setActiveVideoModal(vid);
                         }
                       }}

@@ -518,7 +518,8 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
       return [
         { id: 'headline', label: 'Header 1', icon: FileText },
         { id: 'image', label: 'Group Photo', icon: ImageIcon },
-        { id: 'body', label: 'Introduction', icon: AlignJustify },
+        { id: 'body', label: 'Introduction Text', icon: AlignJustify },
+        { id: 'introduction', label: 'Introduction Video', icon: Video },
         { id: 'videos', label: 'Embedded Videos (3)', icon: Video },
       ];
     }
@@ -563,6 +564,8 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
         return 'Subtitle / Overview';
       case 'body':
         return 'Body Text & Strategic Pillars';
+      case 'introduction':
+        return 'Introduction Video';
       case 'buttons':
         return 'Action Buttons & Links';
       case 'stats':
@@ -571,6 +574,41 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
         return 'Embedded 3-Video Showcase (Clickable & Popupable)';
       case 'cards':
         return 'Cards Grid & Directory Items';
+      case 'introduction':
+        return (
+          <div id="part-card-introduction" className="p-3.5 bg-[#121218] border border-[#c59b63]/60 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#222230] pb-2">
+              <div className="flex items-center gap-2">
+                <Video className="w-4 h-4 text-[#c59b63]" />
+                <span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase tracking-wider">
+                  Introduction Video
+                </span>
+              </div>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[#c59b63] text-[#0d0d11] font-bold uppercase">
+                Editing Now
+              </span>
+            </div>
+            <p className="text-[10px] leading-relaxed text-[#a8a199]">
+              This controls only the introductory video block. It does not change the introduction text or the embedded video showcase below it.
+            </p>
+            <div>
+              <label className="block text-[9px] text-[#8e877e] uppercase mb-0.5">Video File / Stream URL</label>
+              <VideoUploadField
+                value={content.introVideoUrl || '/videos/introduction.mp4'}
+                onChange={(url) => handleContentChange('introVideoUrl', url)}
+              />
+            </div>
+            <ImageUploadField
+              label="Video Poster Image"
+              value={content.introPosterUrl || '/videos/introduction.jpg'}
+              onChange={(posterUrl) => handleContentChange('introPosterUrl', posterUrl)}
+              compact={true}
+              aspectRatio="landscape"
+              helperText="Preview image shown before the introduction video plays."
+            />
+          </div>
+        );
+
       case 'image':
         return 'Chamber Photography & Media';
       case 'quote':
@@ -1674,31 +1712,46 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                     />
                   </div>
 
-                  <div className="space-y-2 pt-2 border-t border-[#1f1f2a]">
-                    <span className="font-cinzel text-[10px] font-bold text-[#c59b63] uppercase block">
-                      Introduction Video (Optional Stream)
-                    </span>
-                    <div>
-                      <label className="block text-[9px] text-[#8e877e] uppercase mb-0.5">Video File / Stream URL</label>
-                      <VideoUploadField
-                        value={content.introVideoUrl || '/videos/introduction.mp4'}
-                        onChange={(url) => handleContentChange('introVideoUrl', url)}
-                      />
-                    </div>
-                    <div className="pt-1">
-                      <ImageUploadField
-                        label="Video Poster Image"
-                        value={content.introPosterUrl || '/videos/introduction.jpg'}
-                        onChange={(posterUrl) => handleContentChange('introPosterUrl', posterUrl)}
-                        compact={true}
-                        aspectRatio="landscape"
-                        helperText="Preview thumbnail for the introduction video"
-                      />
-                    </div>
-                  </div>
                 </div>
 
-                {/* PART 5: 3 EMBEDDED VIDEOS (CLICKABLE & POPUPABLE) */}
+                {/* PART 5: INTRODUCTION VIDEO */}
+                <div
+                  id="part-card-introduction"
+                  onClick={() => onSelectPart?.('introduction')}
+                  className={`p-3.5 border transition-all rounded-sm space-y-3 ${
+                    activePart === 'introduction'
+                      ? 'border-[#c59b63] bg-[#171724] ring-1 ring-[#c59b63]/50 shadow-[0_0_20px_rgba(197,155,99,0.15)]'
+                      : 'border-[#22222f] bg-[#111116] hover:border-[#333345]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Video className="w-4 h-4 text-[#c59b63]" />
+                      <span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase tracking-wider">
+                        Introduction Video
+                      </span>
+                    </div>
+                    {activePart === 'introduction' && (
+                      <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[#c59b63] text-[#0d0d11] font-bold uppercase rounded-xs">
+                        Editing Now
+                      </span>
+                    )}
+                  </div>
+                  <VideoUploadField
+                    value={content.introVideoUrl || '/videos/introduction.mp4'}
+                    onChange={(url) => handleContentChange('introVideoUrl', url)}
+                  />
+                  <ImageUploadField
+                    label="Video Poster Image"
+                    value={content.introPosterUrl || '/videos/introduction.jpg'}
+                    onChange={(posterUrl) => handleContentChange('introPosterUrl', posterUrl)}
+                    compact={true}
+                    aspectRatio="landscape"
+                    helperText="Preview thumbnail for the introduction video"
+                  />
+                </div>
+
+                {/* PART 6: 3 EMBEDDED VIDEOS (CLICKABLE & POPUPABLE) */}
                 <div
                   id="part-card-videos"
                   onClick={() => onSelectPart?.('videos')}
