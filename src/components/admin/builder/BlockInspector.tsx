@@ -1316,11 +1316,16 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
           <div className="flex justify-between border-b border-[#222230] pb-2"><span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase">Video Embedded Grid</span><span className="text-[9px] text-[#c59b63]">{videos.length}/4 cards</span></div>
           {videos.map((video: any, index: number) => <div key={video.id || index} className="space-y-2 border border-[#272738] bg-[#0d0d11] p-3">
             <div className="flex justify-between"><span className="text-[10px] font-cinzel text-[#c59b63]">VIDEO CARD {index + 1}</span><button type="button" onClick={() => handleContentChange('videos', videos.filter((_: any, i: number) => i !== index))} className="text-[10px] text-rose-400">Remove</button></div>
+            <div className="grid grid-cols-2 gap-2">
+              <input value={video.tag || ''} onChange={e => update(index, { tag: e.target.value })} placeholder="Category label" className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1.5 text-xs text-[#f7f4ee]" />
+              <input value={video.duration || ''} onChange={e => update(index, { duration: e.target.value })} placeholder="Duration (00:30)" className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1.5 text-xs text-[#f7f4ee]" />
+            </div>
             <input value={video.title || ''} onChange={e => update(index, { title: e.target.value })} placeholder="Card title" className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1.5 text-xs text-[#f7f4ee]" />
+            <input value={video.subtitle || ''} onChange={e => update(index, { subtitle: e.target.value })} placeholder="Card subtitle" className="w-full bg-[#121218] border border-[#2b2b3b] px-2 py-1.5 text-xs text-[#f7f4ee]" />
             <textarea rows={2} value={video.description || ''} onChange={e => update(index, { description: e.target.value })} placeholder="Card description" className="w-full bg-[#121218] border border-[#2b2b3b] p-2 text-xs text-[#f7f4ee]" />
             <VideoUploadField value={video.videoUrl || ''} onChange={url => update(index, { videoUrl: url, thumbnailUrl: '' })} />
           </div>)}
-          {videos.length < 4 && <button type="button" onClick={() => handleContentChange('videos', [...videos, { id: `video-${Date.now()}`, title: 'New Video Briefing', description: '', videoUrl: '' }])} className="w-full border border-dashed border-[#c59b63]/60 px-3 py-2 text-[10px] font-cinzel uppercase text-[#c59b63]">+ Add Video Individual Card</button>}
+          {videos.length < 4 && <button type="button" onClick={() => handleContentChange('videos', [...videos, { id: `video-${Date.now()}`, title: 'New Video Briefing', subtitle: 'News & Public Affairs', description: '', duration: '00:30', tag: 'Highlights', videoUrl: '' }])} className="w-full border border-dashed border-[#c59b63]/60 px-3 py-2 text-[10px] font-cinzel uppercase text-[#c59b63]">+ Add Video Individual Card</button>}
         </div>;
       }
 

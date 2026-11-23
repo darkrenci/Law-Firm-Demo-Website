@@ -1403,12 +1403,33 @@ const RenderSectionItem: React.FC<{
             <EditablePartWrapper editMode={editMode} partId="videos" partLabel="Video Embedded Grid" activeElementPart={activeElementPart} onSelectPart={onSelectPart}>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
                 {videos.length ? videos.map((video: any, index: number) => (
-                  <article key={video.id || index} role="button" tabIndex={0} onClick={() => {
+                  <article key={video.id || index} role="button" tabIndex={0} aria-label={`Watch ${video.title || 'Video briefing'}`} onClick={() => {
                     if (editMode) { onSelectPart?.('videos'); return; }
                     setActiveVideoModal(video);
-                  }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (editMode) onSelectPart?.('videos'); else setActiveVideoModal(video); } }} className="group cursor-pointer overflow-hidden border border-[#272738] bg-[#101015] hover:border-[#c59b63]/80 transition-colors">
-                    <div className="aspect-video overflow-hidden bg-black relative"><VideoCardPreview src={video.videoUrl || ''} title={video.title || 'Video briefing'} thumbnail={video.thumbnailUrl} /><div className="absolute inset-0 flex items-center justify-center bg-black/20"><span className="w-12 h-12 rounded-full border border-[#c59b63] bg-[#0d0d12]/85 text-[#c59b63] flex items-center justify-center group-hover:bg-[#c59b63] group-hover:text-[#0d0d12]"><Play className="w-5 h-5 ml-0.5 fill-current" /></span></div></div>
-                    <div className="p-4 space-y-2"><span className="font-cinzel text-[9px] uppercase tracking-wider text-[#c59b63]">{video.tag || 'Briefing'}</span><h3 className="font-cormorant text-xl text-[#f7f4ee]">{video.title || 'Video Briefing'}</h3><p className="text-xs leading-relaxed text-[#a8a199]">{video.description || video.subtitle || ''}</p></div>
+                  }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (editMode) onSelectPart?.('videos'); else setActiveVideoModal(video); } }} className="group cursor-pointer overflow-hidden border border-[#272738] bg-[#0b0b0f] text-left transition-colors duration-300 hover:border-[#c59b63]/70 focus:outline-none focus:ring-1 focus:ring-[#c59b63]">
+                    <div className="relative aspect-video overflow-hidden bg-black/80">
+                      <VideoCardPreview src={video.videoUrl || ''} title={video.title || 'Video briefing'} thumbnail={video.thumbnailUrl} />
+                      <div className="absolute inset-0 bg-black/25" />
+                      <span className="absolute left-2.5 top-2.5 border border-[#c59b63]/40 bg-[#09090c]/90 px-2 py-0.5 font-cinzel text-[9px] font-semibold uppercase tracking-widest text-[#c59b63]">{video.tag || 'Highlights'}</span>
+                      {video.duration && <span className="absolute right-2.5 top-2.5 border border-white/10 bg-black/85 px-1.5 py-0.5 text-[9px] tracking-wider text-[#ded6c9]">{video.duration}</span>}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#c59b63] bg-[#0d0d12]/90 text-[#c59b63] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#c59b63] group-hover:text-[#09090c]"><Play className="ml-0.5 h-6 w-6 fill-current" /></span>
+                      </div>
+                      <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[10px] text-[#ded6c9]">
+                        <span className="flex items-center gap-1"><Play className="h-2.5 w-2.5 fill-current text-[#c59b63]" /> Watch Feature</span>
+                        <span className="text-[#c59b63]">Popup Player ↗</span>
+                      </div>
+                    </div>
+                    <div className="space-y-3 bg-[#0e0e13] p-4">
+                      <div className="space-y-1">
+                        <h3 className="font-cormorant text-xl font-bold leading-snug text-[#f7f4ee] transition-colors group-hover:text-[#e4c18f]">{video.title || 'Video Briefing'}</h3>
+                        {(video.subtitle || video.description) && <p className="line-clamp-2 text-xs leading-relaxed text-[#8e877e]">{video.subtitle || video.description}</p>}
+                      </div>
+                      <div className="flex items-center justify-between border-t border-[#1a1a24] pt-3">
+                        <span className="flex items-center gap-1.5 font-cinzel text-[10px] uppercase tracking-wider text-[#f7f4ee]">Watch Popup Video <ArrowRight className="h-3 w-3 text-[#c59b63] transition-transform group-hover:translate-x-1" /></span>
+                        <span className="text-[10px] text-[#8e877e]">[HD Stream]</span>
+                      </div>
+                    </div>
                   </article>
                 )) : <div className="col-span-full border border-dashed border-[#3a3440] p-8 text-center text-xs text-[#8e877e]">Add up to four Video Individual Cards from the Video Grid editor.</div>}
               </div>
@@ -1486,7 +1507,7 @@ const RenderSectionItem: React.FC<{
                   )}
 
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#c59b63] bg-[#c59b63] text-[#09090c] transition-transform duration-300 group-hover:scale-110">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#c59b63] bg-[#0d0d12]/90 text-[#c59b63] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#c59b63] group-hover:text-[#09090c]">
                       <Play className="ml-0.5 h-6 w-6 fill-current" />
                     </span>
                   </div>
