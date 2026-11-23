@@ -830,11 +830,11 @@ const RenderSectionItem: React.FC<{
               </EditablePartWrapper>
             )}
 
-            {/* Part 6: 3 Embedded Videos (Clickable & Popupable) */}
+            {/* Part 6: Editable video cards */}
             <EditablePartWrapper
               editMode={editMode}
               partId="videos"
-              partLabel="Embedded Video Showcase (3 Features)"
+              partLabel="Embedded Video Cards"
               activeElementPart={activeElementPart}
               onSelectPart={onSelectPart}
               className={`pt-10 border-t border-[#1f1f28] w-full max-w-6xl mt-4 ${statsTypo.marginClass}`}
@@ -848,60 +848,12 @@ const RenderSectionItem: React.FC<{
                     </span>
                   </div>
                   <span className="text-[11px] font-mono text-[#8e877e] hidden sm:inline">
-                    4 Embedded Features · Interactive Popups
+                    {Array.isArray(content.videos) ? content.videos.slice(0, 4).length : 0} Embedded Features · Interactive Popups
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 sm:gap-6">
-                  {(
-                    (Array.isArray(content.videos) && content.videos.length > 0)
-                      ? content.videos
-                      : [
-                          {
-                            id: 'vid-1',
-                            title: 'News Highlight 1',
-                            subtitle: 'News & Public Affairs',
-                            description: 'Selected news and public affairs highlights.',
-                            duration: '00:16',
-                            tag: 'Highlights',
-                            videoUrl: '/videos/news-1.mp4',
-                            thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
-                          },
-                          {
-                            id: 'vid-2',
-                            title: 'News Highlight 2',
-                            subtitle: 'News & Public Affairs',
-                            description: 'Selected news and public affairs highlights.',
-                            duration: '00:59',
-                            tag: 'Highlights',
-                            videoUrl: '/videos/news-2.mp4',
-                            thumbnailUrl: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80',
-                          },
-                          {
-                            id: 'vid-3',
-                            title: 'News Highlight 3',
-                            subtitle: 'News & Public Affairs',
-                            description: 'Selected news and public affairs highlights.',
-                            duration: '00:34',
-                            tag: 'Highlights',
-                            videoUrl: '/videos/news-3.mp4',
-                            thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
-                          },
-                        ]
-                  ).concat(
-                    (Array.isArray(content.videos) && content.videos.some((video: any) => video.id === 'vid-4' || video.videoUrl === '/videos/news-4.mp4'))
-                      ? []
-                      : [{
-                          id: 'vid-4',
-                          title: 'News Highlight 4',
-                          subtitle: 'News & Public Affairs',
-                          description: 'Selected news and public affairs highlights.',
-                          duration: '00:17',
-                          tag: 'Highlights',
-                          videoUrl: '/videos/news-4.mp4',
-                          thumbnailUrl: '/videos/news-4.jpg',
-                        }]
-                  ).map((vid: any, vIdx: number) => (
+                  {(Array.isArray(content.videos) ? content.videos.slice(0, 4) : []).map((vid: any, vIdx: number) => (
                     <div
                       key={vid.id || vIdx}
                       role="button"
@@ -998,6 +950,15 @@ const RenderSectionItem: React.FC<{
                       </div>
                     </div>
                   ))}
+                  {editMode && (!Array.isArray(content.videos) || content.videos.length === 0) && (
+                    <button
+                      type="button"
+                      onClick={() => onSelectPart?.('videos')}
+                      className="col-span-full border border-dashed border-[#c59b63]/50 p-8 text-center font-cinzel text-xs uppercase tracking-wider text-[#c59b63]"
+                    >
+                      Add a video card from the inspector
+                    </button>
+                  )}
                 </div>
               </div>
             </EditablePartWrapper>

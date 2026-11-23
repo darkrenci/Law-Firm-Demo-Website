@@ -574,7 +574,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
       case 'stats':
         return 'Quantitative Milestones & Metrics';
       case 'videos':
-        return 'Embedded 3-Video Showcase (Clickable & Popupable)';
+        return 'Embedded Video Cards';
       case 'cards':
         return 'Cards Grid & Directory Items';
       case 'image':
@@ -1306,7 +1306,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
         );
 
       case 'videos': {
-        const videos = Array.isArray(content.videos) ? content.videos : [];
+        const videos = Array.isArray(content.videos) ? content.videos.slice(0, 4) : [];
         const update = (index: number, values: Record<string, string>) => {
           const next = [...videos];
           next[index] = { ...next[index], ...values };
@@ -1771,7 +1771,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                   <p className="text-[10px] text-[#c59b63]">The preview always uses the first frame of the selected video.</p>
                 </div>
 
-                {/* PART 6: 3 EMBEDDED VIDEOS (CLICKABLE & POPUPABLE) */}
+                {/* PART 6: EDITABLE EMBEDDED VIDEO CARDS */}
                 <div
                   id="part-card-videos"
                   onClick={() => onSelectPart?.('videos')}
@@ -1785,7 +1785,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                     <div className="flex items-center gap-2">
                       <Video className="w-4 h-4 text-[#c59b63]" />
                       <span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase tracking-wider">
-                        Embedded 3-Video Showcase (Clickable &amp; Popupable)
+                        Embedded Video Cards
                       </span>
                     </div>
                     {(activePart === 'videos' || activePart === 'stats') && (
@@ -1795,55 +1795,27 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                     )}
                   </div>
                   <p className="text-[10px] text-[#8e877e] leading-relaxed">
-                    Embedded 3-column video cards replacing the old metrics. Clicking any video opens a high-definition cinematic popup player with sound, playback controls, and consultation triggers.
+                    Add, edit, or remove up to four independent video cards. The canvas always reflects the exact saved card collection.
                   </p>
 
                   <div className="space-y-3">
-                    {[0, 1, 2].map((idx) => {
-                      const vids = Array.isArray(content.videos) ? content.videos : [];
-                      const vid = vids[idx] || (idx === 0 ? {
-                        id: 'vid-1',
-                        title: 'News Highlight 1',
-                        subtitle: 'News & Public Affairs',
-                        duration: '00:16',
-                        tag: 'Highlights',
-                        videoUrl: '/videos/news-1.mp4',
-                        thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80',
-                      } : idx === 1 ? {
-                        id: 'vid-2',
-                        title: 'News Highlight 2',
-                        subtitle: 'News & Public Affairs',
-                        duration: '00:59',
-                        tag: 'Highlights',
-                        videoUrl: '/videos/news-2.mp4',
-                        thumbnailUrl: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80',
-                      } : {
-                        id: 'vid-3',
-                        title: 'News Highlight 3',
-                        subtitle: 'News & Public Affairs',
-                        duration: '00:34',
-                        tag: 'Highlights',
-                        videoUrl: '/videos/news-3.mp4',
-                        thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
-                      });
+                    {(Array.isArray(content.videos) ? content.videos.slice(0, 4) : []).map((vid: any, idx: number) => {
+                      const vids = Array.isArray(content.videos) ? content.videos.slice(0, 4) : [];
 
                       const handleUpdateVideo = (field: string, val: string) => {
-                        const baseVids = [
-                          vids[0] || { id: 'vid-1', title: 'News Highlight 1', subtitle: 'News & Public Affairs', duration: '00:16', tag: 'Highlights', videoUrl: '/videos/news-1.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80' },
-                          vids[1] || { id: 'vid-2', title: 'News Highlight 2', subtitle: 'News & Public Affairs', duration: '00:59', tag: 'Highlights', videoUrl: '/videos/news-2.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1200&q=80' },
-                          vids[2] || { id: 'vid-3', title: 'News Highlight 3', subtitle: 'News & Public Affairs', duration: '00:34', tag: 'Highlights', videoUrl: '/videos/news-3.mp4', thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80' },
-                        ];
+                        const baseVids = [...vids];
                         baseVids[idx] = { ...baseVids[idx], [field]: val };
                         handleContentChange('videos', baseVids);
                       };
 
                       return (
                         <div key={idx} className="bg-[#09090d] p-2.5 border border-[#242430] space-y-2">
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between gap-2">
                             <span className="text-[10px] font-cinzel text-[#c59b63] uppercase tracking-wider font-bold">
                               Video {idx + 1}: {vid.tag || `Feature 0${idx + 1}`}
                             </span>
                             <span className="text-[9px] font-mono text-[#8e877e]">{vid.duration || 'HD'}</span>
+                            <button type="button" onClick={(event) => { event.stopPropagation(); handleContentChange('videos', vids.filter((_: any, videoIndex: number) => videoIndex !== idx)); }} className="text-[9px] text-rose-400">Remove</button>
                           </div>
                           <div className="space-y-1.5">
                             <div>
@@ -1881,11 +1853,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                             <div>
                               <label className="text-[9px] font-mono text-[#8e877e] block">Video Stream URL (MP4, YouTube, Vimeo)</label>
                               <VideoUploadField value={vid.videoUrl || ''} onChange={url => {
-                                const baseVids = [
-                                  vids[0] || { id: 'vid-1' },
-                                  vids[1] || { id: 'vid-2' },
-                                  vids[2] || { id: 'vid-3' },
-                                ];
+                                const baseVids = [...vids];
                                 baseVids[idx] = { ...baseVids[idx], videoUrl: url, thumbnailUrl: '' };
                                 handleContentChange('videos', baseVids);
                               }} />
@@ -1904,6 +1872,19 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                         </div>
                       );
                     })}
+                    {(Array.isArray(content.videos) ? content.videos.length : 0) < 4 && (
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          const vids = Array.isArray(content.videos) ? content.videos.slice(0, 4) : [];
+                          handleContentChange('videos', [...vids, { id: `video-${Date.now()}`, title: 'New Video Briefing', subtitle: '', description: '', duration: '', tag: 'Highlights', videoUrl: '', thumbnailUrl: '' }]);
+                        }}
+                        className="w-full border border-dashed border-[#c59b63]/60 px-3 py-2 text-[10px] font-cinzel uppercase text-[#c59b63]"
+                      >
+                        + Add Video Card
+                      </button>
+                    )}
                   </div>
                 </div>
               </>
