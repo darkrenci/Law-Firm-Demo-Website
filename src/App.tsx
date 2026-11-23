@@ -193,6 +193,7 @@ export default function App({ initialPath = '/', prerender = false }: { initialP
             <PageManager onPreviewPage={(slug) => handleNavigate(slug)} />
           )}
           {adminTab === 'attorneys' && <AttorneyManager />}
+          {adminTab === 'associates' && <AttorneyManager directory="associates" />}
           {adminTab === 'practice-areas' && <PracticeAreaManager />}
           {adminTab === 'articles' && <ArticleManager />}
           {adminTab === 'news' && <NewsManager />}

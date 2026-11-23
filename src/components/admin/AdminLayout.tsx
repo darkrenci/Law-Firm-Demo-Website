@@ -30,6 +30,7 @@ export type AdminTab =
   | 'dashboard'
   | 'pages'
   | 'attorneys'
+  | 'associates'
   | 'practice-areas'
   | 'articles'
   | 'news'
@@ -86,6 +87,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
         { id: 'pages' as AdminTab, label: 'Page Builder', icon: FileText },
         { id: 'practice-areas' as AdminTab, label: 'Practice Areas', icon: Briefcase },
         { id: 'attorneys' as AdminTab, label: 'Partners Directory', icon: Users },
+        { id: 'associates' as AdminTab, label: 'Associates Directory', icon: Users },
         // Commented out / hidden per user request (uncomment to re-enable in sidebar):
         // { id: 'articles' as AdminTab, label: 'Legal Insights', icon: BookOpen },
         // { id: 'news' as AdminTab, label: 'News & Announcements', icon: Bell },

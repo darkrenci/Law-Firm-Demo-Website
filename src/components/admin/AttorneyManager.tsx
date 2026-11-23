@@ -12,14 +12,18 @@ import { ItemListEditor } from '../ui/ItemListEditor';
 
 interface AttorneyManagerProps {
   onOpenLiveBuilder?: (pageSlug: string) => void;
+  directory?: 'partners' | 'associates';
 }
 
-export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuilder }) => {
+export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuilder, directory = 'partners' }) => {
   const toast = useToast();
   const [attorneys, setAttorneys] = useState<Attorney[]>(db.getAttorneys(true));
   const [editingAttorney, setEditingAttorney] = useState<Attorney | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const isAssociateDirectory = directory === 'associates';
+  const rosterLabel = isAssociateDirectory ? 'Associates' : 'Partners';
+  const profileLabel = isAssociateDirectory ? 'Associate' : 'Partner';
 
   useEffect(() => {
     const unsub = db.subscribe(() => {
@@ -29,12 +33,15 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
   }, []);
 
   const handleOpenNew = () => {
+    const roster = attorneys.filter((attorney) =>
+      isAssociateDirectory ? attorney.isPartner === false : attorney.isPartner !== false
+    );
     const fresh: Attorney = {
       id: `atty-${Date.now()}`,
       fullName: '',
       slug: '',
-      professionalTitle: 'Associate Attorney',
-      cardOverlayTitle: 'Associate Attorney',
+      professionalTitle: isAssociateDirectory ? 'Associate Attorney' : 'Partner',
+      cardOverlayTitle: isAssociateDirectory ? 'Associate Attorney' : 'Partner',
       primarySpecialization: 'Corporate & M&A',
       email: '',
       phone: '+63 (2) 8800-0000',
@@ -47,8 +54,9 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
       barAdmissions: ['Supreme Court of the Philippines (Admitted)'],
       education: ['Juris Doctor, Law'],
       representativeMatters: [],
+      isPartner: !isAssociateDirectory,
       isPublished: true,
-      displayOrder: attorneys.length + 1,
+      displayOrder: roster.length + 1,
     };
     setEditingAttorney(fresh);
     setIsNew(true);
@@ -56,7 +64,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
 
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Remove practitioner "${name}" from chamber roster?`)) {
-      try { await db.deleteAttorney(id); toast.success('Partner Removed'); }
+      try { await db.deleteAttorney(id); toast.success(`${profileLabel} Removed`); }
       catch (error) { toast.error('Delete Failed', (error as Error).message); }
     }
   };
@@ -70,12 +78,15 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
     } catch (error) { toast.error('Save Failed', (error as Error).message); }
   };
 
-  const filtered = attorneys.filter(
-    (a) =>
-      a.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.primarySpecialization.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.professionalTitle.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filtered = attorneys.filter((a) => {
+    const matchesDirectory = isAssociateDirectory ? a.isPartner === false : a.isPartner !== false;
+    const query = searchQuery.toLowerCase();
+    return matchesDirectory && (
+      a.fullName.toLowerCase().includes(query) ||
+      a.primarySpecialization.toLowerCase().includes(query) ||
+      a.professionalTitle.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <div className="space-y-8 text-left">
@@ -86,7 +97,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
             Chamber Personnel &amp; Counsel
           </span>
           <h1 className="font-cormorant text-3xl sm:text-4xl font-light text-[#f7f4ee] mt-1">
-            Partners Roster Management
+            {rosterLabel} Roster Management
           </h1>
         </div>
 
@@ -105,7 +116,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
 
           <Button variant="primary" size="sm" onClick={handleOpenNew}>
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Partner Profile</span>
+            <span>Add {profileLabel} Profile</span>
           </Button>
         </div>
       </div>
@@ -118,11 +129,11 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search roster by name or specialization..."
+            placeholder={`Search ${rosterLabel.toLowerCase()} by name or specialization...`}
             className="w-full bg-[#14141a] border border-[#262633] focus:border-[#c59b63] pl-9 pr-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
           />
         </div>
-        <span className="text-xs text-[#8e877e]">{filtered.length} Partners listed</span>
+        <span className="text-xs text-[#8e877e]">{filtered.length} {rosterLabel} listed</span>
       </div>
 
       {/* Roster Grid */}
@@ -272,7 +283,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
                   <button
                     onClick={() => handleDelete(attorney.id, attorney.fullName)}
                     className="p-1.5 text-rose-500/70 hover:text-rose-400 transition-colors cursor-pointer"
-                    title="Remove Partner"
+                    title={`Remove ${profileLabel}`}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -288,12 +299,13 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
         <AttorneyEditModal
           attorney={editingAttorney}
           isNew={isNew}
+          profileLabel={profileLabel}
           onClose={() => setEditingAttorney(null)}
           onSave={async (saved) => {
-            if (!confirm(`${isNew ? 'Create' : 'Update'} the partner profile for "${saved.fullName}" now?`)) return;
+            if (!confirm(`${isNew ? 'Create' : 'Update'} the ${profileLabel.toLowerCase()} profile for "${saved.fullName}" now?`)) return;
             try {
             await db.saveAttorney(saved);
-            toast.success('Roster Updated', `Saved partner ${saved.fullName}`);
+            toast.success('Roster Updated', `Saved ${profileLabel.toLowerCase()} ${saved.fullName}`);
             setEditingAttorney(null);
             } catch (error) { toast.error('Save Failed', (error as Error).message); }
           }}
@@ -306,9 +318,10 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
 export const AttorneyEditModal: React.FC<{
   attorney: Attorney;
   isNew: boolean;
+  profileLabel?: string;
   onClose: () => void;
   onSave: (atty: Attorney) => void | Promise<void>;
-}> = ({ attorney, isNew, onClose, onSave }) => {
+}> = ({ attorney, isNew, profileLabel = 'Partner', onClose, onSave }) => {
   const toast = useToast();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Attorney>({
@@ -359,7 +372,7 @@ export const AttorneyEditModal: React.FC<{
     <Modal
       isOpen={true}
       onClose={onClose}
-      title={isNew ? 'Register Chamber Partner' : `Edit Profile: ${attorney.fullName}`}
+      title={isNew ? `Register Chamber ${profileLabel}` : `Edit Profile: ${attorney.fullName}`}
       subtitle="Maintain biographical detail, academic credentials, and professional appointments."
       maxWidth="2xl"
     >
