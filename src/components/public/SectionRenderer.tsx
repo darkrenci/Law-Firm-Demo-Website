@@ -2164,7 +2164,9 @@ const RenderSectionItem: React.FC<{
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
                 {attorneys.map((atty, index) => {
-                  const roleBadge = atty.professionalTitle;
+                  // A blank overlay value deliberately hides the image badge while
+                  // retaining the Professional Title / Rank in the card body.
+                  const roleBadge = atty.cardOverlayTitle ?? atty.professionalTitle;
 
                   return (
                     <div
@@ -2213,11 +2215,13 @@ const RenderSectionItem: React.FC<{
                         <div className="absolute inset-0 bg-gradient-to-t from-[#101015] via-black/25 to-transparent opacity-90" />
 
                         {/* Top Role Badge */}
-                        <div className="absolute top-3 left-3">
-                          <span className="px-2.5 py-1 text-[9px] font-cinzel font-semibold tracking-widest uppercase bg-[#0a0a0d]/90 text-[#c59b63] border border-[#c59b63]/40 backdrop-blur-sm shadow-md">
-                            {roleBadge}
-                          </span>
-                        </div>
+                        {roleBadge && (
+                          <div className="absolute top-3 left-3">
+                            <span className="px-2.5 py-1 text-[9px] font-cinzel font-semibold tracking-widest uppercase bg-[#0a0a0d]/90 text-[#c59b63] border border-[#c59b63]/40 backdrop-blur-sm shadow-md">
+                              {roleBadge}
+                            </span>
+                          </div>
+                        )}
 
                         {/* Hover Overlay Hint */}
                         <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

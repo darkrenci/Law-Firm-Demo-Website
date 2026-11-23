@@ -34,6 +34,7 @@ export const AttorneyManager: React.FC<AttorneyManagerProps> = ({ onOpenLiveBuil
       fullName: '',
       slug: '',
       professionalTitle: 'Associate Attorney',
+      cardOverlayTitle: 'Associate Attorney',
       primarySpecialization: 'Corporate & M&A',
       email: '',
       phone: '+63 (2) 8800-0000',
@@ -312,6 +313,9 @@ export const AttorneyEditModal: React.FC<{
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Attorney>({
     ...attorney,
+    // Existing profiles used Professional Title for both card locations. Keep that
+    // appearance until this profile is saved with its own overlay value.
+    cardOverlayTitle: attorney.cardOverlayTitle ?? attorney.professionalTitle,
     barAdmissions: attorney.barAdmissions || [],
     education: attorney.education || [],
     representativeMatters: attorney.representativeMatters || [],
@@ -390,6 +394,22 @@ export const AttorneyEditModal: React.FC<{
               className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block font-cinzel text-[11px] font-semibold tracking-wider text-[#d4af7a] uppercase mb-1">
+            Upper Card Overlay Title / Rank
+          </label>
+          <input
+            type="text"
+            value={form.cardOverlayTitle ?? ''}
+            onChange={(e) => setForm({ ...form, cardOverlayTitle: e.target.value })}
+            placeholder="Leave blank to hide the title above the portrait"
+            className="w-full bg-[#0d0d11] border border-[#2a2a35] px-3 py-2 text-xs text-[#f7f4ee] focus:outline-none"
+          />
+          <p className="mt-1 text-[10px] text-[#8e877e]">
+            Only appears over the image at the top of the card. Leaving this blank does not change the Professional Title / Rank shown below.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

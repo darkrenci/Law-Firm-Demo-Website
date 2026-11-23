@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS public.attorneys (
     slug TEXT UNIQUE NOT NULL,
     full_name TEXT NOT NULL,
     professional_title TEXT NOT NULL,
+    card_overlay_title TEXT,
     portrait_url TEXT,
     home_card_image_url TEXT,
     home_modal_image_url TEXT,

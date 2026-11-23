@@ -227,6 +227,8 @@ export interface Attorney {
   slug: string;
   fullName: string;
   professionalTitle: string;
+  /** Optional title shown only on top of the portrait card. An empty string hides it. */
+  cardOverlayTitle?: string;
   portraitUrl: string; // Default & Partner Page (/attorneys) Portrait
   homeCardImageUrl?: string; // Dedicated picture for the Home Page card
   homeModalImageUrl?: string; // Dedicated picture for the Home Page popup modal

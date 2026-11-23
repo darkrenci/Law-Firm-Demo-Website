@@ -3,7 +3,7 @@ import type { Pool } from 'mysql2/promise';
 // Explicit identifiers only; neither table names nor SQL fragments come from clients.
 const fields: Record<string,string> = {
   pages: 'slug title is_published meta_title meta_description sections order_index',
-  attorneys: 'slug full_name professional_title portrait_url primary_specialization biography email direct_phone linkedin_url is_partner is_featured is_published order_index practice_area_ids education bar_admissions professional_experience memberships awards selected_publications home_card_image_url home_modal_image_url partner_page_image_url',
+  attorneys: 'slug full_name professional_title card_overlay_title portrait_url primary_specialization biography email direct_phone linkedin_url is_partner is_featured is_published order_index practice_area_ids education bar_admissions professional_experience memberships awards selected_publications home_card_image_url home_modal_image_url partner_page_image_url',
   practice_areas: 'slug title icon_name short_description full_description key_capabilities key_stat is_published order_index',
   articles: 'slug title excerpt content reading_time category published_at author status featured_image practice_area_id',
   news: 'slug title excerpt content date category status featured_image practice_area_id',

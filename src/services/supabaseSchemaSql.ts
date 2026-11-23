@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS public.attorneys (
     slug TEXT UNIQUE NOT NULL,
     full_name TEXT NOT NULL,
     professional_title TEXT NOT NULL,
+    card_overlay_title TEXT,
     portrait_url TEXT,
     home_card_image_url TEXT,
     home_modal_image_url TEXT,
@@ -74,6 +75,7 @@ CREATE TABLE IF NOT EXISTS public.attorneys (
 ALTER TABLE public.attorneys ADD COLUMN IF NOT EXISTS home_card_image_url TEXT;
 ALTER TABLE public.attorneys ADD COLUMN IF NOT EXISTS home_modal_image_url TEXT;
 ALTER TABLE public.attorneys ADD COLUMN IF NOT EXISTS partner_page_image_url TEXT;
+ALTER TABLE public.attorneys ADD COLUMN IF NOT EXISTS card_overlay_title TEXT;
 
 -- 5. PRACTICE AREAS
 CREATE TABLE IF NOT EXISTS public.practice_areas (
