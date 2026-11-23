@@ -20,6 +20,7 @@ import {
   Award,
   Minus,
   Search,
+  Video,
 } from 'lucide-react';
 
 interface BlockCatalogModalProps {
@@ -32,7 +33,7 @@ interface BlockCatalogModalProps {
 interface BlockDefinition {
   type: SectionType;
   title: string;
-  category: 'Structure' | 'Content' | 'Database' | 'Interactive' | 'Media';
+  category: 'Page Layout' | 'Content' | 'Database' | 'Interactive' | 'Media';
   desc: string;
   icon: any;
   recommended?: boolean;
@@ -42,7 +43,7 @@ export const BLOCK_CATALOG: BlockDefinition[] = [
   {
     type: 'container',
     title: 'Container & Framed Box',
-    category: 'Structure',
+    category: 'Page Layout',
     desc: 'Encapsulated layout box with customizable background canvas, gold or subtle border, and custom padding.',
     icon: Layout,
     recommended: true,
@@ -72,10 +73,25 @@ export const BLOCK_CATALOG: BlockDefinition[] = [
   {
     type: 'hero',
     title: 'Executive Hero Banner',
-    category: 'Structure',
+    category: 'Page Layout',
     desc: 'Editorial headline, authentic firm monogram, subhead, and dual call-to-actions.',
     icon: Layout,
     recommended: true,
+  },
+  {
+    type: 'videoGrid',
+    title: 'Video Grid Column',
+    category: 'Media',
+    desc: 'A responsive grid containing up to four independently editable embedded video cards.',
+    icon: Video,
+    recommended: true,
+  },
+  {
+    type: 'videoCard',
+    title: 'Video Individual Card',
+    category: 'Media',
+    desc: 'A single embedded video card with its own title, description, source, and first-frame preview.',
+    icon: Video,
   },
   {
     type: 'heading',
@@ -184,7 +200,7 @@ export const BLOCK_CATALOG: BlockDefinition[] = [
   {
     type: 'divider',
     title: 'Decorative Gold Monogram Divider',
-    category: 'Structure',
+    category: 'Page Layout',
     desc: 'Elegant ornamental separator with subtle bronze fluting.',
     icon: Minus,
   },
@@ -199,7 +215,7 @@ export const BlockCatalogModal: React.FC<BlockCatalogModalProps> = ({
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  const categories = ['All', 'Structure', 'Content', 'Database', 'Media', 'Interactive'];
+  const categories = ['All', 'Page Layout', 'Media', 'Content', 'Database', 'Interactive'];
 
   const filtered = BLOCK_CATALOG.filter((b) => {
     const matchesSearch =

@@ -157,6 +157,8 @@ export type SectionBlockType =
   | 'container'
   | 'button'
   | 'video'
+  | 'videoGrid'
+  | 'videoCard'
   | 'image'
   | 'imageText'
   | 'gallery'

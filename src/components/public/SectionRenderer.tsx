@@ -1353,7 +1353,32 @@ const RenderSectionItem: React.FC<{
       );
     }
 
-    case 'video': {
+    case 'videoGrid': {
+      const videos = Array.isArray(content.videos) ? content.videos.slice(0, 4) : [];
+      return (
+        <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 space-y-6">
+            {(content.eyebrow || content.headline) && <div className="space-y-2 text-center">
+              {content.eyebrow && <span className="font-cinzel text-[10px] uppercase tracking-[0.25em] text-[#c59b63]">{content.eyebrow}</span>}
+              {content.headline && <h2 className="font-cormorant text-3xl text-[#f7f4ee]">{content.headline}</h2>}
+            </div>}
+            <EditablePartWrapper editMode={editMode} partId="videos" partLabel="Video Embedded Grid" activeElementPart={activeElementPart} onSelectPart={onSelectPart}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+                {videos.length ? videos.map((video: any, index: number) => (
+                  <article key={video.id || index} className="overflow-hidden border border-[#272738] bg-[#101015]">
+                    <div className="aspect-video overflow-hidden bg-black"><VideoCardPreview src={video.videoUrl || ''} title={video.title || 'Video briefing'} thumbnail={video.thumbnailUrl} /></div>
+                    <div className="p-4 space-y-2"><span className="font-cinzel text-[9px] uppercase tracking-wider text-[#c59b63]">{video.tag || 'Briefing'}</span><h3 className="font-cormorant text-xl text-[#f7f4ee]">{video.title || 'Video Briefing'}</h3><p className="text-xs leading-relaxed text-[#a8a199]">{video.description || video.subtitle || ''}</p></div>
+                  </article>
+                )) : <div className="col-span-full border border-dashed border-[#3a3440] p-8 text-center text-xs text-[#8e877e]">Add up to four Video Individual Cards from the Video Grid editor.</div>}
+              </div>
+            </EditablePartWrapper>
+          </div>
+        </section>
+      );
+    }
+
+    case 'video':
+    case 'videoCard': {
       const aspectClasses: Record<string, string> = {
         '16:9': 'aspect-video',
         '21:9': 'aspect-[21/9]',

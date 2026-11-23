@@ -322,6 +322,18 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         caption: 'Lalusis & Partners — Institutional Retainer & Trial Documentary',
         aspectRatio: '16:9',
       },
+      videoGrid: {
+        eyebrow: 'Video Briefings',
+        headline: 'Executive Video Briefings',
+        videos: [],
+      },
+      videoCard: {
+        title: 'Video Briefing',
+        subtitle: 'Lalusis & Partners',
+        description: 'A concise video briefing from the firm.',
+        videoUrl: '',
+        tag: 'Briefing',
+      },
       divider: {},
       spacer: {},
     };
