@@ -3474,7 +3474,7 @@ const RenderSectionItem: React.FC<{
                             {content.emailLabel ?? "General:"} <span className="text-[#c59b63] font-mono">{content.email ?? 'lalusispartners@gmail.com'}</span>
                           </p>
                           <p className="text-xs text-[#a8a199] leading-relaxed">
-                            {content.secondaryEmailLabel ?? "Client Intake & Retainer:"} <span className="text-[#c59b63] font-mono">{content.secondaryEmail ?? "lalusispartners@gmail.com"}</span>
+                            {content.secondaryEmailLabel ?? "Client Intake & Retainer:"} <span className="text-[#c59b63] font-mono">{content.secondaryEmail ?? "inquiries.lalusisandpartners@gmail.com"}</span>
                           </p>
                         </div>
                       </div>

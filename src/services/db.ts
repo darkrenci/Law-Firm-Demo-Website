@@ -340,6 +340,7 @@ class DatabaseService {
     if (
       !settings.contact ||
       settings.contact.email !== 'lalusispartners@gmail.com' ||
+      settings.contact.consultationEmail !== 'inquiries.lalusisandpartners@gmail.com' ||
       settings.contact.telephone !== '+63 917 327 5931' ||
       !settings.contact.address?.includes('Future Point Plaza')
     ) {
@@ -352,7 +353,7 @@ class DatabaseService {
         telephone: '+63 917 327 5931',
         emergencyLine: '+63 917 327 5931',
         email: 'lalusispartners@gmail.com',
-        consultationEmail: 'lalusispartners@gmail.com',
+        consultationEmail: 'inquiries.lalusisandpartners@gmail.com',
         officeHoursWeekday: 'Monday – Friday: 8:30 AM – 6:30 PM (PHT)',
         officeHoursWeekend: 'Saturday: By Prior Appointment Only',
         googleMapEmbedUrl: 'https://maps.google.com/maps?q=Future+Point+Plaza+Suites+Panay+Avenue+Quezon+City&t=&z=16&ie=UTF8&iwloc=&output=embed',

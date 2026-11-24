@@ -67,7 +67,7 @@ export const chamberFields = [
   [
     "secondaryEmail",
     "Displayed intake email",
-    "lalusispartners@gmail.com"
+    "inquiries.lalusisandpartners@gmail.com"
   ],
   [
     "hoursTitle",

@@ -4,7 +4,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 
 type Request = IncomingMessage & { body?: unknown };
 const attempts = new Map<string, { count: number; expires: number }>();
-const unavailable = 'Your inquiry could not be sent. Please try again or contact lalusispartners@gmail.com directly.';
+const unavailable = 'Your inquiry could not be sent. Please try again or contact inquiries.lalusisandpartners@gmail.com directly.';
 
 export default async function handler(req: Request, res: ServerResponse) {
   const reply = (status: number, body: object) => {
@@ -58,10 +58,19 @@ export default async function handler(req: Request, res: ServerResponse) {
   const smtpPassword = customSmtp ? process.env.SMTP_PASSWORD : process.env.GMAIL_SMTP_APP_PASSWORD?.replace(/\s/g, '');
   const smtpPort = Number(process.env.SMTP_PORT || 465);
   const useMysql = process.env.INQUIRY_DATABASE === 'mysql';
-  const to = process.env.INQUIRY_EMAIL_TO || 'lalusispartners@gmail.com';
+  const recipientValues = [
+    process.env.INQUIRY_EMAIL_TO,
+    process.env.INQUIRY_EMAIL_COPY_TO || 'inquiries.lalusisandpartners@gmail.com',
+  ];
+  const recipients = Array.from(new Set(
+    recipientValues
+      .flatMap(value => (value || '').split(/[;,]/))
+      .map(value => value.trim().toLowerCase())
+      .filter(value => /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(value))
+  ));
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
-  if (!smtpUser || !smtpPassword || ![465,587].includes(smtpPort) || (!useMysql && (!supabaseUrl || !supabaseKey))) {
+  if (!smtpUser || !smtpPassword || !recipients.length || ![465,587].includes(smtpPort) || (!useMysql && (!supabaseUrl || !supabaseKey))) {
     console.error('Inquiry endpoint configuration is incomplete.');
     return reply(503, { error: unavailable });
   }
@@ -124,7 +133,7 @@ export default async function handler(req: Request, res: ServerResponse) {
     try {
       const receipt = await transport.sendMail({
         from: { name: 'Lalusis & Partners Website', address: smtpUser },
-        to, replyTo: data.email,
+        to: recipients, replyTo: data.email,
         messageId: '<' + id + '@' + smtpUser.split('@')[1] + '>',
         subject: (consultation ? 'Consultation request' : 'Chambers contact') + ' - ' + referenceNumber,
         text: details,
