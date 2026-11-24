@@ -68,6 +68,9 @@ const sectionContainsBlock = (section: PageSection, blockId?: string | null): bo
   return (section.columns || []).some((column) => column.blocks.some((block) => sectionContainsBlock(block, blockId)));
 };
 
+const videoGridJustify = (alignment?: string): React.CSSProperties['justifyContent'] =>
+  alignment === 'center' ? 'center' : alignment === 'right' ? 'end' : 'start';
+
 interface SectionRendererProps {
   pageSlug?: string;
   sections?: PageSection[];
@@ -858,12 +861,12 @@ const RenderSectionItem: React.FC<{
                     </span>
                   </div>
                   <span className="text-[11px] font-mono text-[#8e877e] hidden sm:inline">
-                    {Array.isArray(content.videos) ? content.videos.slice(0, 4).length : 0} Embedded Features · Interactive Popups
+                    {Array.isArray(content.videos) ? content.videos.length : 0} Embedded Features · Interactive Popups
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 sm:gap-6">
-                  {(Array.isArray(content.videos) ? content.videos.slice(0, 4) : []).map((vid: any, vIdx: number) => (
+                <div className="flex flex-wrap gap-5 sm:gap-6" style={{ justifyContent: videoGridJustify(content.videoAlignment) }}>
+                  {(Array.isArray(content.videos) ? content.videos : []).map((vid: any, vIdx: number) => (
                     <div
                       key={vid.id || vIdx}
                       role="button"
@@ -886,7 +889,7 @@ const RenderSectionItem: React.FC<{
                           setActiveVideoModal(vid);
                         }
                       }}
-                      className="group relative bg-[#0b0b0f] border border-[#22222e] hover:border-[#c59b63]/70 transition-all duration-300 flex flex-col cursor-pointer overflow-hidden shadow-lg hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] text-left focus:outline-none focus:ring-1 focus:ring-[#c59b63]"
+                      className="group relative flex w-full max-w-[210px] flex-col cursor-pointer overflow-hidden border border-[#22222e] bg-[#0b0b0f] text-left shadow-lg transition-all duration-300 hover:border-[#c59b63]/70 hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] focus:outline-none focus:ring-1 focus:ring-[#c59b63]"
                     >
                       {/* Video Thumbnail / Preview Container */}
                       <div className="aspect-video relative overflow-hidden bg-black/80">
@@ -1375,7 +1378,7 @@ const RenderSectionItem: React.FC<{
     }
 
     case 'videoGrid': {
-      const videos = Array.isArray(content.videos) ? content.videos.slice(0, 4) : [];
+      const videos = Array.isArray(content.videos) ? content.videos : [];
       return (
         <section className={`${bg} ${py} border-b border-[#1a1a23]`}>
           <div className="max-w-7xl mx-auto px-6 lg:px-12 space-y-6">
@@ -1384,12 +1387,12 @@ const RenderSectionItem: React.FC<{
               {content.headline && <h2 className="font-cormorant text-3xl text-[#f7f4ee]">{content.headline}</h2>}
             </div>}
             <EditablePartWrapper editMode={editMode} partId="videos" partLabel="Video Embedded Grid" activeElementPart={activeElementPart} onSelectPart={onSelectPart}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+              <div className="flex flex-wrap gap-5" style={{ justifyContent: videoGridJustify(content.videoAlignment) }}>
                 {videos.length ? videos.map((video: any, index: number) => (
                   <article key={video.id || index} role="button" tabIndex={0} aria-label={`Watch ${video.title || 'Video briefing'}`} onClick={() => {
                     if (editMode) { onSelectPart?.('videos'); return; }
                     setActiveVideoModal(video);
-                  }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (editMode) onSelectPart?.('videos'); else setActiveVideoModal(video); } }} className="group cursor-pointer overflow-hidden border border-[#272738] bg-[#0b0b0f] text-left transition-colors duration-300 hover:border-[#c59b63]/70 focus:outline-none focus:ring-1 focus:ring-[#c59b63]">
+                  }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (editMode) onSelectPart?.('videos'); else setActiveVideoModal(video); } }} className="group w-full max-w-[210px] cursor-pointer overflow-hidden border border-[#272738] bg-[#0b0b0f] text-left transition-colors duration-300 hover:border-[#c59b63]/70 focus:outline-none focus:ring-1 focus:ring-[#c59b63]">
                     <div className="relative aspect-video overflow-hidden bg-black/80">
                       <VideoCardPreview src={video.videoUrl || ''} title={video.title || 'Video briefing'} thumbnail={video.thumbnailUrl} />
                       <div className="absolute inset-0 bg-black/25" />
@@ -1414,7 +1417,7 @@ const RenderSectionItem: React.FC<{
                       </div>
                     </div>
                   </article>
-                )) : <div className="col-span-full border border-dashed border-[#3a3440] p-8 text-center text-xs text-[#8e877e]">Add up to four Video Individual Cards from the Video Grid editor.</div>}
+                )) : <div className="col-span-full border border-dashed border-[#3a3440] p-8 text-center text-xs text-[#8e877e]">Add Video Individual Cards from the Video Grid editor.</div>}
               </div>
             </EditablePartWrapper>
           </div>
@@ -1459,6 +1462,7 @@ const RenderSectionItem: React.FC<{
               activeElementPart={activeElementPart}
               onSelectPart={onSelectPart}
             >
+              <div className="flex" style={{ justifyContent: videoGridJustify(content.videoAlignment) }}>
               <article
                 role="button"
                 tabIndex={0}
@@ -1518,6 +1522,7 @@ const RenderSectionItem: React.FC<{
                   </div>
                 </div>
               </article>
+              </div>
             </EditablePartWrapper>
           </div>
 

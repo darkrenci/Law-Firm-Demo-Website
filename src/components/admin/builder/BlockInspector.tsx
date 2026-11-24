@@ -1342,14 +1342,15 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
         );
 
       case 'videos': {
-        const videos = Array.isArray(content.videos) ? content.videos.slice(0, 4) : [];
+        const videos = Array.isArray(content.videos) ? content.videos : [];
         const update = (index: number, values: Record<string, string>) => {
           const next = [...videos];
           next[index] = { ...next[index], ...values };
           handleContentChange('videos', next);
         };
         return <div id="part-card-videos" className="p-3.5 bg-[#121218] border border-[#c59b63]/60 space-y-3">
-          <div className="flex justify-between border-b border-[#222230] pb-2"><span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase">Video Embedded Grid</span><span className="text-[9px] text-[#c59b63]">{videos.length}/4 cards</span></div>
+          <div className="flex justify-between border-b border-[#222230] pb-2"><span className="font-cinzel text-[11px] font-bold text-[#f4e6d0] uppercase">Video Embedded Grid</span><span className="text-[9px] text-[#c59b63]">{videos.length} cards</span></div>
+          <div className="space-y-1.5"><span className="block text-[10px] uppercase text-[#8e877e]">Grid alignment</span><div className="grid grid-cols-3 gap-1.5">{(['left', 'center', 'right'] as const).map(alignment => <button key={alignment} type="button" onClick={() => handleContentChange('videoAlignment', alignment)} className={`border px-2 py-1.5 font-cinzel text-[10px] uppercase ${((content.videoAlignment || 'left') === alignment) ? 'border-[#c59b63] bg-[#1e1e2c] text-[#f4e6d0]' : 'border-[#2b2b3b] bg-[#09090d] text-[#8e877e]'}`}>{alignment}</button>)}</div></div>
           {videos.map((video: any, index: number) => <div key={video.id || index} className="space-y-2 border border-[#272738] bg-[#0d0d11] p-3">
             <div className="flex justify-between"><span className="text-[10px] font-cinzel text-[#c59b63]">VIDEO CARD {index + 1}</span><button type="button" onClick={() => handleContentChange('videos', videos.filter((_: any, i: number) => i !== index))} className="text-[10px] text-rose-400">Remove</button></div>
             <div className="grid grid-cols-2 gap-2">
@@ -1361,7 +1362,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
             <textarea rows={2} value={video.description || ''} onChange={e => update(index, { description: e.target.value })} placeholder="Card description" className="w-full bg-[#121218] border border-[#2b2b3b] p-2 text-xs text-[#f7f4ee]" />
             <VideoUploadField value={video.videoUrl || ''} onChange={url => update(index, { videoUrl: url, thumbnailUrl: '' })} />
           </div>)}
-          {videos.length < 4 && <button type="button" onClick={() => handleContentChange('videos', [...videos, { id: `video-${Date.now()}`, title: 'New Video Briefing', subtitle: 'News & Public Affairs', description: '', duration: '00:30', tag: 'Highlights', videoUrl: '' }])} className="w-full border border-dashed border-[#c59b63]/60 px-3 py-2 text-[10px] font-cinzel uppercase text-[#c59b63]">+ Add Video Individual Card</button>}
+          <button type="button" onClick={() => handleContentChange('videos', [...videos, { id: `video-${Date.now()}`, title: 'New Video Briefing', subtitle: 'News & Public Affairs', description: '', duration: '00:30', tag: 'Highlights', videoUrl: '' }])} className="w-full border border-dashed border-[#c59b63]/60 px-3 py-2 text-[10px] font-cinzel uppercase text-[#c59b63]">+ Add Video Individual Card</button>
         </div>;
       }
 
@@ -1384,6 +1385,7 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
               <VideoUploadField value={content.videoUrl || ''} onChange={url => handleContentChange('videoUrl', url)} />
             </div>
             {section.type === 'videoCard' && <>
+              <div className="space-y-1.5"><span className="block text-[10px] uppercase text-[#8e877e]">Card alignment</span><div className="grid grid-cols-3 gap-1.5">{(['left', 'center', 'right'] as const).map(alignment => <button key={alignment} type="button" onClick={() => handleContentChange('videoAlignment', alignment)} className={`border px-2 py-1.5 font-cinzel text-[10px] uppercase ${((content.videoAlignment || 'left') === alignment) ? 'border-[#c59b63] bg-[#1e1e2c] text-[#f4e6d0]' : 'border-[#2b2b3b] bg-[#09090d] text-[#8e877e]'}`}>{alignment}</button>)}</div></div>
               <div className="grid grid-cols-2 gap-2">
                 <input value={content.tag || ''} onChange={e => handleContentChange('tag', e.target.value)} placeholder="Category label" className="w-full bg-[#09090d] border border-[#242430] px-2.5 py-2 text-xs text-[#f7f4ee]" />
                 <input value={content.duration || ''} onChange={e => handleContentChange('duration', e.target.value)} placeholder="Duration (00:30)" className="w-full bg-[#09090d] border border-[#242430] px-2.5 py-2 text-xs text-[#f7f4ee]" />
@@ -1831,12 +1833,13 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                     )}
                   </div>
                   <p className="text-[10px] text-[#8e877e] leading-relaxed">
-                    Add, edit, or remove up to four independent video cards. The canvas always reflects the exact saved card collection.
+                    Add, edit, or remove any number of independent video cards. Cards wrap automatically, with up to five across on desktop.
                   </p>
+                  <div className="space-y-1.5"><span className="block text-[10px] uppercase text-[#8e877e]">Grid alignment</span><div className="grid grid-cols-3 gap-1.5">{(['left', 'center', 'right'] as const).map(alignment => <button key={alignment} type="button" onClick={(event) => { event.stopPropagation(); handleContentChange('videoAlignment', alignment); }} className={`border px-2 py-1.5 font-cinzel text-[10px] uppercase ${((content.videoAlignment || 'left') === alignment) ? 'border-[#c59b63] bg-[#1e1e2c] text-[#f4e6d0]' : 'border-[#2b2b3b] bg-[#09090d] text-[#8e877e]'}`}>{alignment}</button>)}</div></div>
 
                   <div className="space-y-3">
-                    {(Array.isArray(content.videos) ? content.videos.slice(0, 4) : []).map((vid: any, idx: number) => {
-                      const vids = Array.isArray(content.videos) ? content.videos.slice(0, 4) : [];
+                    {(Array.isArray(content.videos) ? content.videos : []).map((vid: any, idx: number) => {
+                      const vids = Array.isArray(content.videos) ? content.videos : [];
 
                       const handleUpdateVideo = (field: string, val: string) => {
                         const baseVids = [...vids];
@@ -1908,19 +1911,17 @@ export const BlockInspector: React.FC<BlockInspectorProps> = ({
                         </div>
                       );
                     })}
-                    {(Array.isArray(content.videos) ? content.videos.length : 0) < 4 && (
-                      <button
+                    <button
                         type="button"
                         onClick={(event) => {
                           event.stopPropagation();
-                          const vids = Array.isArray(content.videos) ? content.videos.slice(0, 4) : [];
+                          const vids = Array.isArray(content.videos) ? content.videos : [];
                           handleContentChange('videos', [...vids, { id: `video-${Date.now()}`, title: 'New Video Briefing', subtitle: '', description: '', duration: '', tag: 'Highlights', videoUrl: '', thumbnailUrl: '' }]);
                         }}
                         className="w-full border border-dashed border-[#c59b63]/60 px-3 py-2 text-[10px] font-cinzel uppercase text-[#c59b63]"
                       >
                         + Add Video Card
                       </button>
-                    )}
                   </div>
                 </div>
               </>

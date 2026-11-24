@@ -336,7 +336,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         caption: 'Lalusis & Partners — Institutional Retainer & Trial Documentary',
         aspectRatio: '16:9',
       },
-      videoGrid: { videos: [] },
+      videoGrid: { videos: [], videoAlignment: 'left' },
       videoCard: {
         title: 'Video Briefing',
         subtitle: 'Lalusis & Partners',
@@ -344,6 +344,7 @@ export const PageManager: React.FC<PageManagerProps> = ({ onPreviewPage, initial
         videoUrl: '',
         tag: 'Briefing',
         duration: '00:30',
+        videoAlignment: 'left',
       },
       divider: {},
       spacer: {},

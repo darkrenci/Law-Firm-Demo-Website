@@ -82,7 +82,7 @@ export const BLOCK_CATALOG: BlockDefinition[] = [
     type: 'videoGrid',
     title: 'Video Grid Column',
     category: 'Media',
-    desc: 'A responsive grid containing up to four independently editable embedded video cards.',
+    desc: 'A responsive wrapping grid containing any number of independently editable embedded video cards.',
     icon: Video,
     recommended: true,
   },
